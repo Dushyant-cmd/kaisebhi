@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    xmlns:shimmer="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:background="#fff"
+    android:layout_height="match_parent"
+    tools:context=".HomeNavigation.home.HomeFragment">
+
+
+    <EditText
+        android:id="@+id/searchQues"
+        android:imeOptions="actionSearch"
+        android:layout_marginVertical="10dp"
+        android:inputType="text"
+        android:layout_marginLeft="10dp"
+        android:elevation=".5dp"
+        android:layout_marginRight="10dp"
+        android:textSize="16dp"
+        android:drawablePadding="10dp"
+        android:textColorHint="#999"
+        android:hint="Questions  / Topics "
+        android:textColor="#222"
+        android:focusedByDefault="true"
+        android:drawableLeft="@drawable/sidepadding"
+        android:background="@drawable/search_bg"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"/>
+
+    <FrameLayout
+        android:visibility="gone"
+        android:id="@+id/framLa"
+        android:background="#f5f5f7"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_gravity="center"
+            android:src="@drawable/search"
+            android:layout_width="match_parent"
+            android:layout_height="310dp"/>
+    </FrameLayout>
+
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:layout_width="match_parent"
+        android:elevation="1dp"
+        android:id="@+id/SearchloadingShimmer"
+        shimmer:duration="800"
+        android:visibility="gone"
+        android:background="#fff"
+        android:layout_height="match_parent">
+
+        <include layout="@layout/placeholder_layout"/>
+
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
+
+
+
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:background="#E3E3E3"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:paddingBottom="75dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/allquestions"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+
+</LinearLayout>

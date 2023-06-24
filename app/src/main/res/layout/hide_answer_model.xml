@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#fff"
+    android:layout_margin="5dp"
+    android:elevation="3dp"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="4dp"
+    android:paddingHorizontal="10dp"
+    android:orientation="vertical"
+    android:paddingBottom="20dp">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="10dp"
+            android:textStyle="bold"
+            android:text="How satisfied you are"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:textColor="#222"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="10dp"
+            android:text="Choose one of them"/>
+
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:weightSum="5"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_margin="10dp"
+                android:id="@+id/em1"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:src="@drawable/e1"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"/>
+d
+                <TextView
+                    android:visibility="gone"
+                    android:textColor="#333"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:textSize="10dp"
+                    android:layout_marginTop="10dp"
+                    android:text="OK - \u20B92"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:id="@+id/em2"
+                android:layout_margin="10dp"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:src="@drawable/e2"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"/>
+                <TextView
+                    android:visibility="gone"
+                    android:textColor="#333"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:textSize="10dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Nice - \u20B95"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:id="@+id/em3"
+                android:layout_width="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:src="@drawable/e3"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"/>
+                <TextView
+                    android:visibility="gone"
+                    android:textColor="#333"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:textSize="10dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Good - \u20B910"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:id="@+id/em4"
+                android:layout_width="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:src="@drawable/e4"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"/>
+
+                <TextView
+                    android:textColor="#333"
+                    android:visibility="gone"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:textSize="10dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Best - \u20B910"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+
+
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:id="@+id/em5"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:src="@drawable/e5"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"/>
+                <TextView
+                    android:visibility="gone"
+                    android:textColor="#333"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:textSize="10dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Great - \u20B920"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+
+
+
+        </LinearLayout>
+
+
+        <TextView
+            android:textColor="#333"
+            android:textAlignment="center"
+            android:textSize="15dp"
+            android:layout_marginTop="10dp"
+            android:id="@+id/textChanage"
+            android:fontFamily="@font/nunito_bolditalic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_marginTop="0dp"
+                android:id="@+id/payBtn"
+                android:layout_marginBottom="10dp"
+                android:layout_marginHorizontal="10dp"
+                android:text="Pay for Hide Answer"
+                android:textStyle="bold"
+                android:backgroundTint="#009688"
+                android:background="@drawable/btn_bg"
+                android:textAlignment="center"
+                android:textColor="#fff"
+                android:layout_height="35dp"/>
+
+
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+
+</androidx.cardview.widget.CardView>
+

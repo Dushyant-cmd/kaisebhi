@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    xmlns:shimmer="http://schemas.android.com/tools"
+    android:background="#fff"
+    android:orientation="vertical"
+    android:layout_height="match_parent"
+    tools:context=".AnswersActivity">
+
+        <RelativeLayout
+            android:orientation="horizontal"
+            android:id="@+id/rl_mainActionbar"
+            android:layout_width="match_parent"
+            android:weightSum="3"
+            android:layout_marginTop="5dp"
+            android:background="#fff"
+            android:layout_height="50dp"
+            tools:ignore="MissingConstraints">
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:onClick="backtoActivity"
+                android:layout_height="25dp"
+                android:layout_marginLeft="10dp"
+                android:layout_alignParentLeft="true"
+                android:layout_marginVertical="10dp"
+                android:src="@drawable/backbtn_tool_black" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_marginVertical="10dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/userHeader"
+                android:layout_centerInParent="true"
+                android:textAlignment="center"
+                android:text="Question"
+                android:textStyle="bold"
+                android:fontFamily="@font/nunito_extrabold"
+                android:textColor="#222"
+                android:textSize="17dp" />
+
+
+        </RelativeLayout>
+
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_marginTop="40dp"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+
+                    <LinearLayout
+                        android:layout_marginLeft="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:layout_marginRight="5dp"
+                            android:paddingRight="10dp"
+                            android:id="@+id/userPro"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginVertical="7dp"
+                            android:src="@drawable/profile"/>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:layout_width="wrap_content"
+                            android:id="@+id/quesTitle"
+                            android:paddingRight="20dp"
+                            android:fontFamily="@font/nunito_bolditalic"
+                            android:layout_marginTop="12dp"
+                            android:textSize="18sp"
+                            android:layout_height="wrap_content"
+                            android:text="What Happend in July revolution?"
+                            android:textColor="#222"/>
+
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_marginLeft="10dp"
+                        android:layout_width="match_parent"
+                        android:textSize="12dp"
+
+                        android:padding="15dp"
+                        android:visibility="gone"
+                        android:layout_marginVertical="10dp"
+                        android:id="@+id/quesImage"
+                        android:background="@drawable/search_bg"
+                        android:layout_marginRight="10dp"
+                        android:textColor="#999"
+                        android:layout_height="200dp"/>
+
+                    <TextView
+                        android:layout_marginLeft="10dp"
+                        android:layout_width="wrap_content"
+                        android:textSize="14dp"
+                        android:fontFamily="@font/nunito_regular"
+                        android:layout_marginTop="5dp"
+                        android:lineSpacingExtra="5dp"
+                        android:id="@+id/quesDesc"
+                        android:layout_marginRight="10dp"
+                        android:textColor="#999"
+                        android:layout_height="wrap_content"
+                        android:text="You will receive am your subscription! subscription! You will receive an email to confim your subscription!"/>
+
+
+
+
+                </LinearLayout>
+
+
+
+
+            <LinearLayout
+                android:background="#4FDADADA"
+                android:weightSum="2"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_gravity="bottom"
+                android:layout_height="wrap_content">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:textSize="20dp"
+                    android:id="@+id/addMsgImage"
+                    android:src="@drawable/profile"
+                    android:layout_weight="1"
+                    android:padding="2dp"
+                    android:layout_marginTop="11dp"
+                    android:layout_width="120dp"
+                    android:layout_height="30dp"/>
+
+                <EditText
+                    android:background="@drawable/search_bg"
+                    android:layout_weight="1"
+                    android:hint="Add a answer"
+                    android:paddingVertical="4dp"
+                    android:paddingLeft="10dp"
+                    android:id="@+id/msg"
+                    android:textSize="14dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <ImageView
+                    android:layout_marginVertical="5dp"
+                    android:textSize="20dp"
+                    android:id="@+id/sendMsg"
+                    android:src="@drawable/ic_send"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"/>
+
+                <ProgressBar
+                    android:layout_marginVertical="5dp"
+                    android:textSize="20dp"
+                    android:id="@+id/loadAns"
+                    android:visibility="gone"
+                    android:src="@drawable/ic_send"
+                    android:layout_weight="1"
+                    android:layout_margin="10dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"/>
+
+            </LinearLayout>
+
+                <LinearLayout
+                    android:paddingBottom="75dp"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:layout_width="match_parent"
+                        android:elevation="1dp"
+                        android:id="@+id/SearchloadingShimmer"
+                        shimmer:duration="800"
+                        android:background="#fff"
+                        android:layout_height="match_parent">
+
+                        <include layout="@layout/placeholder_answers"/>
+
+                    </com.facebook.shimmer.ShimmerFrameLayout>
+
+
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/allanswers"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+
+
+                </LinearLayout>
+
+        </LinearLayout>
+
+
+    </androidx.core.widget.NestedScrollView>
+
+
+    <LinearLayout
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/btn_bg"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:orientation="horizontal">
+
+
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:weightSum="2">
+
+
+            <CheckBox
+                android:id="@+id/like"
+                android:button="@null"
+                android:background="@drawable/like_check_selecter"
+                android:layout_marginTop="-4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="22dp"
+                android:src="@drawable/remove_like"/>
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:id="@+id/answers"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_answer"/>
+
+            <TextView
+                android:textStyle="bold"
+                android:text="4K"
+                android:textColor="#222"
+                android:layout_marginLeft="70dp"
+                android:id="@+id/totalAns"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="30dp"
+            android:layout_gravity="right"
+            android:layout_height="wrap_content"
+            android:weightSum="2">
+
+
+            <CheckBox
+                android:layout_alignParentRight="true"
+                android:layout_width="wrap_content"
+                android:id="@+id/addFav"
+                android:button="@null"
+                android:background="@drawable/fav_check_selecter"
+                android:layout_height="20dp"
+                android:src="@drawable/gray_heart"/>
+
+
+            <ImageView
+                android:layout_alignParentRight="true"
+                android:layout_width="wrap_content"
+                android:layout_marginRight="50dp"
+                android:layout_height="18dp"
+                android:id="@+id/shareQuestion"
+                android:src="@drawable/ic_share"/>
+
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

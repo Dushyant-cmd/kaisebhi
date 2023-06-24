@@ -1,0 +1,104 @@
+<androidx.cardview.widget.CardView
+    android:layout_margin="5dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="2.5dp"
+    app:cardElevation="1dp"
+    app:contentPaddingTop="10dp"
+    app:contentPaddingBottom="10dp"
+    android:id="@+id/openQues"
+    app:cardBackgroundColor="#fff"
+    app:contentPaddingRight="5dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:id="@+id/hide_qus"
+                android:layout_marginLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginTop="12dp"
+                android:layout_height="wrap_content"
+                android:text="What Happend in July revolution?"
+                android:textColor="#222"/>
+
+
+            <TextView
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_width="match_parent"
+                android:textSize="12dp"
+                android:id="@+id/hide_desc"
+                android:layout_marginRight="10dp"
+                android:textColor="#454545"
+                android:layout_height="wrap_content"
+                android:text="You will receive am your subscription! subscription! You will receive an email to confim your subscription!"/>
+
+        <ImageView
+            android:layout_marginLeft="10dp"
+            android:layout_width="match_parent"
+            android:textSize="12dp"
+            android:padding="5dp"
+            android:layout_marginVertical="10dp"
+            android:id="@+id/hide_quesImage"
+            android:visibility="gone"
+            android:background="@drawable/search_bg"
+            android:layout_marginRight="10dp"
+            android:textColor="#999"
+            android:layout_height="200dp"/>
+
+
+
+        <TextView
+            android:layout_marginLeft="10dp"
+            android:layout_width="wrap_content"
+            android:textSize="13dp"
+            android:layout_marginTop="25dp"
+            android:textStyle="bold"
+            android:layout_marginRight="10dp"
+            android:textColor="#333333"
+            android:text="Answer : "
+            android:layout_height="wrap_content"/>
+
+        <TextView
+                android:layout_marginLeft="10dp"
+                android:layout_width="wrap_content"
+                android:textSize="17dp"
+                android:layout_marginTop="5dp"
+                android:id="@+id/hide_ans"
+                android:layout_marginRight="10dp"
+                android:textColor="#494949"
+                android:layout_height="wrap_content"
+                android:text="You will receive am your subscription! subscription! You will receive an email to confim your subscription!"/>
+
+
+        <TextView
+            android:layout_marginTop="10dp"
+            android:textAlignment="textEnd"
+            android:id="@+id/hide_au"
+            android:text="✏️ "
+            android:textStyle="bold"
+            android:textColor="#999"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+
+
+
+    </LinearLayout>
+
+
+
+
+
+</androidx.cardview.widget.CardView>

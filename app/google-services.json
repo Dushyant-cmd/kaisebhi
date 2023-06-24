@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "316855122484",
+    "project_id": "kaisebhi-20ceb",
+    "storage_bucket": "kaisebhi-20ceb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:316855122484:android:471a3cfde918427e0b2861",
+        "android_client_info": {
+          "package_name": "com.kaisebhi.kaisebhi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "316855122484-nvu2tnu2mkmpsqe3e6v1kd3amksrgmju.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBhyhzjLKcNVQxLlbxd7X2aqI4OawK3wY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "316855122484-nvu2tnu2mkmpsqe3e6v1kd3amksrgmju.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

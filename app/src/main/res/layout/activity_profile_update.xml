@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#fff"
+    tools:context=".HomeNavigation.Profile.ProfileUpdate">
+
+    <FrameLayout
+        android:visibility="gone"
+        android:id="@+id/updateProgress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#C9FFFFFF"
+        android:elevation="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+
+        <ProgressBar
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"/>
+
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#5A5A5A"
+        android:id="@+id/liner1"
+        android:orientation="horizontal"
+        android:paddingTop="6dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:onClick="backtoActivity"
+            android:layout_width="60dp"
+            android:layout_marginTop="5dp"
+            android:layout_height="25dp"
+            android:tint="#fff"
+            android:src="@drawable/backbtn_tool_black" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_marginTop="70dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/liner1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="0dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/Dprofile"
+            android:layout_width="110dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="10dp"
+            android:onClick="uploadProfile"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:src="@drawable/profile" />
+
+        <TextView
+            android:id="@+id/uploadText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="uploadProfile"
+            android:text="Upload Profile"
+            android:textAlignment="center"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/uDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="25dp"
+        android:orientation="vertical"
+        android:layout_marginVertical="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.157"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
+        app:layout_constraintVertical_bias="0.21">
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/dName"
+            android:textColor="#222"
+            android:singleLine="true"
+            android:inputType="text"
+            android:layout_marginHorizontal="5dp"
+            android:textSize="15dp"
+            android:backgroundTint="#888888"
+            android:paddingBottom="10dp"
+            android:textColorHint="#888888"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="Your Name" />
+
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/dEmail"
+            android:textColor="#222"
+            android:singleLine="true"
+            android:inputType="text"
+            android:layout_marginHorizontal="5dp"
+            android:textSize="15dp"
+            android:backgroundTint="#888888"
+            android:paddingBottom="10dp"
+            android:textColorHint="#888888"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="Your Email" />
+
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/dMobile"
+            android:textColor="#222"
+            android:singleLine="true"
+            android:inputType="number"
+            android:layout_marginHorizontal="5dp"
+            android:textSize="15dp"
+            android:backgroundTint="#888888"
+            android:paddingBottom="10dp"
+            android:textColorHint="#888888"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="Your Mobile" />
+
+
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/dAddress"
+                android:textColor="#222"
+                android:singleLine="true"
+                android:layout_marginHorizontal="5dp"
+                android:backgroundTint="#888888"
+                android:textColorHint="#888888"
+                android:layout_width="match_parent"
+                android:minLines="3"
+                android:inputType="textMultiLine"
+                android:textSize="14dp"
+                android:layout_height="wrap_content"
+                android:gravity="top|left"
+                android:hint="Your Address" />
+
+
+
+
+
+
+        <RelativeLayout
+            android:layout_marginTop="25dp"
+            android:id="@+id/updateProfile"
+            android:layout_marginHorizontal="10dp"
+            android:background="@drawable/btn_bg"
+            android:backgroundTint="@color/themecolor"
+            android:layout_width="match_parent"
+            android:layout_height="40dp" >
+
+            <TextView android:id="@+id/login_text"
+                android:textStyle="bold"
+                android:text="Update Profile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#fff"
+                android:textSize="15dp"
+                android:layout_centerInParent="true"/>
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:visibility="invisible"
+                android:padding="5dp"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:id="@+id/loginProgress"
+                android:indeterminateTint="#FFFFFF"
+                android:layout_centerInParent="true"
+                android:indeterminateTintMode="src_in" />
+
+        </RelativeLayout>
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/pDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="25dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.157"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
+        app:layout_constraintVertical_bias="0.21">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/dpass"
+            android:textColor="#222"
+            android:singleLine="true"
+            android:inputType="text"
+            android:layout_marginHorizontal="5dp"
+            android:textSize="15dp"
+            android:backgroundTint="#888888"
+            android:paddingBottom="10dp"
+            android:textColorHint="#888888"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="New Password" />
+
+
+        <RelativeLayout
+            android:layout_marginTop="25dp"
+            android:id="@+id/updatePassword"
+            android:layout_marginHorizontal="10dp"
+            android:background="@drawable/btn_bg_main"
+            android:layout_width="match_parent"
+            android:layout_height="40dp" >
+
+            <TextView android:id="@+id/passtext"
+                android:textStyle="bold"
+                android:text="Update Password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#fff"
+                android:textSize="15dp"
+                android:layout_centerInParent="true"/>
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:visibility="invisible"
+                android:padding="5dp"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:id="@+id/passProgress"
+                android:indeterminateTint="#FFFFFF"
+                android:layout_centerInParent="true"
+                android:indeterminateTintMode="src_in" />
+
+        </RelativeLayout>
+
+
+
+    </LinearLayout>
+
+</LinearLayout>

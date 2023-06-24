@@ -1,0 +1,134 @@
+<androidx.cardview.widget.CardView
+    android:layout_weight="1"
+    android:layout_marginVertical="5dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    app:contentPadding="7.5dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardElevation="1dp"
+    app:cardBackgroundColor="#fff"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <FrameLayout
+        android:id="@+id/ansHideBox"
+        android:visibility="gone"
+        android:elevation="4dp"
+        android:layout_width="match_parent"
+        android:background="#FFFFFF"
+        android:layout_gravity="center"
+        android:layout_height="100dp">
+
+        <TextView
+            android:textAlignment="center"
+            android:textColor="#333"
+            android:textSize="17dp"
+            android:textStyle="italic"
+            android:id="@+id/ansTest"
+            android:layout_marginTop="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Answer Hidden"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:text="Premium Answer Pay to See"
+            android:id="@+id/payBtnHideAns"
+            android:layout_marginHorizontal="50dp"
+            android:layout_marginTop="52dp"
+            android:textSize="12dp"
+            android:backgroundTint="#555"
+            android:textColor="#fff"
+            android:layout_width="match_parent"
+            android:background="@drawable/btn_bg"
+            android:layout_height="30dp"/>
+
+    </FrameLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <LinearLayout
+                android:layout_marginLeft="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:layout_marginRight="5dp"
+                    android:paddingRight="10dp"
+                    android:id="@+id/ansPro"
+                    android:layout_width="30dp"
+                    android:layout_marginTop="1dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/profile"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:id="@+id/ansUser"
+                    android:textStyle="bold"
+                    android:paddingRight="10dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_height="wrap_content"
+                    android:text="User"
+                    android:textColor="#222"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_marginLeft="45dp"
+                android:layout_width="wrap_content"
+                android:textSize="12dp"
+                android:id="@+id/userAnswer"
+                android:layout_marginRight="10dp"
+                android:textColor="#454545"
+                android:layout_height="wrap_content"
+                android:text="You will receive am your subscription! subscription! You will receive an email to confim your subscription!"/>
+
+
+            <CheckBox
+                android:id="@+id/like"
+                android:button="@null"
+                android:background="@drawable/like_check_selecter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="45dp"
+                android:layout_marginBottom="5dp"
+                android:src="@drawable/remove_like"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="Hide Answer"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:layout_marginLeft="80dp"
+                android:textSize="12dp"
+                android:id="@+id/hideClick"
+                android:textColor="#009688"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-20dp"
+                android:layout_marginBottom="5dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="Report Abuse"
+                android:textStyle="bold"
+                android:layout_gravity="end"
+                android:textSize="12dp"
+                android:id="@+id/reportAb"
+                android:layout_marginRight="10dp"
+                android:textColor="#F44336"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-25dp"
+                android:layout_marginBottom="5dp"/>
+
+
+        </LinearLayout>
+
+
+
+
+
+</androidx.cardview.widget.CardView>

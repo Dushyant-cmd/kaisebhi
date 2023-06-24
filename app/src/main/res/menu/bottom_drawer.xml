@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_menu"
+            android:icon="@drawable/profile"
+            android:title="Profile" />
+
+        <item
+            android:id="@+id/nav_star"
+            android:icon="@drawable/favv"
+            android:title="Favorites" />
+
+        <item
+            android:id="@+id/nav_qna"
+            android:icon="@drawable/home"
+            android:title="Home" />
+
+        <item
+            android:id="@+id/nav_min_ques"
+            android:icon="@drawable/question_icon"
+            android:title="My Questions" />
+
+        <item
+            android:id="@+id/nav_notify"
+            android:icon="@drawable/noti"
+            android:title="Notifications" />
+    </group>
+</menu>
