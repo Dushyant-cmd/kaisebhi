@@ -2,6 +2,7 @@ package com.kaisebhi.kaisebhi.HomeNavigation.home;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,12 +16,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.kaisebhi.kaisebhi.ActivityForFrag;
 import com.kaisebhi.kaisebhi.R;
+import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
 import com.kaisebhi.kaisebhi.Utility.Main_Interface;
 import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -35,6 +43,8 @@ public class HomeFragment extends Fragment {
     private QuestionsAdapter adapter;
     private Main_Interface main_interface;
     private ShimmerFrameLayout shimmerFrameLayout;
+    private String TAG = "HomeFragment.java";
+    private FirebaseFirestore mFirestore;
     int totalItems,currentItems,scrollOutItems=0;
 
     SwipeRefreshLayout refreshQuesitons;
@@ -50,10 +60,12 @@ public class HomeFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
         refreshQuesitons = root.findViewById(R.id.refreshQuesitons);
+        questions = new ArrayList<>();
 
         shimmerFrameLayout = root.findViewById(R.id.SearchloadingShimmer);
         loadMoreProgress = root.findViewById(R.id.loadMoreProgress);
         nestRecy = root.findViewById(R.id.nestRecy);
+        mFirestore = ((ApplicationCustom) getActivity().getApplication()).mFirestore;
 
         root.findViewById(R.id.searchQues).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,28 +117,54 @@ public class HomeFragment extends Fragment {
 
         SharedPrefManager sh = new SharedPrefManager(getActivity());
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
-        Call<List<QuestionsModel>> call = main_interface.getallQuestionsHome(sh.getsUser().getUid(),String.valueOf(cPage));
 
-        call.enqueue(new Callback<List<QuestionsModel>>() {
-            @Override
-            public void onResponse(Call<List<QuestionsModel>> call, Response<List<QuestionsModel>> response) {
+        mFirestore.collection("questions").get().addOnCompleteListener(
+                new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot d : task.getResult().getDocuments()) {
+                                questions.add(new QuestionsModel(
+                                        d.getString("id"), d.getString("title"), d.getString("desc"),
+                                        d.getString("qpic"), d.getString("uname"), d.getString("upro"),
+                                        d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
+                                        d.getString("tanswers")));
+                            }
 
-                questions = response.body();
-                adapter = new QuestionsAdapter(questions,getActivity());
-                recyclerView.setAdapter(adapter);
+                            adapter = new QuestionsAdapter(questions,getActivity());
+                            recyclerView.setAdapter(adapter);
 
-                shimmerFrameLayout.stopShimmerAnimation();
-                shimmerFrameLayout.setVisibility(View.GONE);
-                refreshQuesitons.setRefreshing(false);
-
-            }
-
-            @Override
-            public void onFailure(Call<List<QuestionsModel>> call, Throwable t) {
-                refreshQuesitons.setRefreshing(false);
-
-            }
-        });
+                            shimmerFrameLayout.stopShimmerAnimation();
+                            shimmerFrameLayout.setVisibility(View.GONE);
+                            refreshQuesitons.setRefreshing(false);
+                        } else {
+                            Log.d(TAG, "onComplete: " + task.getException().getMessage());
+                        }
+                    }
+                }
+        );
+//        Call<List<QuestionsModel>> call = main_interface.getallQuestionsHome(sh.getsUser().getUid(),String.valueOf(cPage));
+//
+//        call.enqueue(new Callback<List<QuestionsModel>>() {
+//            @Override
+//            public void onResponse(Call<List<QuestionsModel>> call, Response<List<QuestionsModel>> response) {
+//
+//                questions = response.body();
+//                adapter = new QuestionsAdapter(questions,getActivity());
+//                recyclerView.setAdapter(adapter);
+//
+//                shimmerFrameLayout.stopShimmerAnimation();
+//                shimmerFrameLayout.setVisibility(View.GONE);
+//                refreshQuesitons.setRefreshing(false);
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<QuestionsModel>> call, Throwable t) {
+//                refreshQuesitons.setRefreshing(false);
+//
+//            }
+//        });
     }
 
 
@@ -136,28 +174,47 @@ public class HomeFragment extends Fragment {
         SharedPrefManager sh = new SharedPrefManager(getActivity());
 
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
+        mFirestore.collection("questions").get().addOnCompleteListener(
+                new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot d : task.getResult().getDocuments()) {
+                                questions.add(new QuestionsModel(
+                                        d.getString("id"), d.getString("title"), d.getString("desc"),
+                                        d.getString("qpic"), d.getString("uname"), d.getString("upro"),
+                                        d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
+                                        d.getString("tanswers")));
+                            }
 
-        Call<List<QuestionsModel>> call = main_interface.getallQuestionsHome(sh.getsUser().getUid(),String.valueOf(currentPage));
 
-        call.enqueue(new Callback<List<QuestionsModel>>() {
-            @Override
-            public void onResponse(Call<List<QuestionsModel>> call, Response<List<QuestionsModel>> response) {
+                            adapter = new QuestionsAdapter(questions,getActivity());
+                            recyclerView.setAdapter(adapter);
 
-                questions.addAll(response.body());
+                            loadMoreProgress.setVisibility(View.GONE);
+                        } else {
+                            Log.d(TAG, "onComplete: " + task.getException().getMessage());
+                        }
+                    }
+                }
+        );
 
-                adapter = new QuestionsAdapter(questions,getActivity());
-                recyclerView.setAdapter(adapter);
-
-                loadMoreProgress.setVisibility(View.GONE);
-
-
-            }
-
-            @Override
-            public void onFailure(Call<List<QuestionsModel>> call, Throwable t) {
-
-            }
-        });
+//        Call<List<QuestionsModel>> call = main_interface.getallQuestionsHome(sh.getsUser().getUid(),String.valueOf(currentPage));
+//
+//        call.enqueue(new Callback<List<QuestionsModel>>() {
+//            @Override
+//            public void onResponse(Call<List<QuestionsModel>> call, Response<List<QuestionsModel>> response) {
+//
+//                questions.addAll(response.body());
+//
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<QuestionsModel>> call, Throwable t) {
+//
+//            }
+//        });
     }
 
 

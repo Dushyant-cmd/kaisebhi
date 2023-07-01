@@ -1,8 +1,5 @@
 package com.kaisebhi.kaisebhi;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,20 +9,28 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.kaisebhi.kaisebhi.Utility.DefaultResponse;
-import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import java.util.HashMap;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -36,26 +41,27 @@ public class MainActivity extends AppCompatActivity {
     RelativeLayout relativeLayout;
     String Token;
     public GoogleSignInClient mGoogleSignInClient;
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseFirestore mFirestore;
+    private String TAG = "MainActivity.java";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirestore = FirebaseFirestore.getInstance();
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-        getDelegate().setLocalNightMode(
-                AppCompatDelegate.MODE_NIGHT_NO);
+        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         relativeLayout = findViewById(R.id.emailBox);
         signProgress = findViewById(R.id.pgore);
 
         Token = FirebaseInstanceId.getInstance().getToken();
-
-
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(getApplicationContext(), gso);
-
 
         findViewById(R.id.signGoogle).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,72 +137,164 @@ public class MainActivity extends AppCompatActivity {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             SignUp(account.getDisplayName(), account.getEmail());
-
         } catch (ApiException e) {
             Log.w("Errorsign", "signInResult:failed code=" + e.getStatusCode());
         }
     }
 
 
-    void SignUp(final String name, final String email) {
-        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().createUserEmail(name, email, Token);
-
-        call.enqueue(new Callback<DefaultResponse>() {
-            @Override
-            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-                DefaultResponse dr = response.body();
-                if (response.code() == 201) {
-                    String data = dr.getMessage();
-                    String[] dif = data.split("#");
-
-                    signProgress.setVisibility(View.VISIBLE);
-                    SharedPrefManager.getInstance(getApplicationContext()).saveUser(name, dif[0], dif[1], dif[2]);
-                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<DefaultResponse> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "No Internet Connection!", Toast.LENGTH_LONG).show();
-            }
-        });
+    /**
+     * Method to sign-in/sign-up with google.
+     */
+    private void SignUp(final String name, final String email) {
+//        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().createUserEmail(name, email, Token);
+//
+//        call.enqueue(new Callback<DefaultResponse>() {
+//            @Override
+//            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
+//                DefaultResponse dr = response.body();
+//                if (response.code() == 201) {
+//                    String data = dr.getMessage();
+//                    String[] dif = data.split("#");
+//                    signProgress.setVisibility(View.VISIBLE);
+//                    SharedPrefManager.getInstance(getApplicationContext()).saveUser(name, dif[0], dif[1], dif[2]);
+//                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+//                    startActivity(intent);
+//                    finish();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<DefaultResponse> call, Throwable t) {
+//                Toast.makeText(getApplicationContext(), "No Internet Connection!", Toast.LENGTH_LONG).show();
+//            }
+//        });
 
     }
 
 
-    void loginEmail(final String email, final String pass) {
-
+    /**
+     * Below method check user is already on firebase else createUserWithEmailAndPassword method of
+     * FirebaseAuth and pass email and pass
+     */
+    private void loginEmail(final String email, final String pass) {
         signProgress.setVisibility(View.VISIBLE);
+        mFirestore.collection("ids").document("userId").get().addOnCompleteListener(
+                task -> {
+                    //get current id of users
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot doc = task.getResult();
+                        long updatedUserId = doc.getLong("id") + 1;
+                        mFirestore.collection("users").whereEqualTo("email", email).get()
+                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.getResult().getDocuments().size() > 0) {
+                                            //sign user
+                                            Log.d(TAG, "loginEmail: sign-in" + updatedUserId);
+                                            mFirebaseAuth.signInWithEmailAndPassword(email, pass).addOnCompleteListener(task1 -> {
+                                                try {
+                                                    if (task1.isSuccessful()) {
+                                                        if (task.isSuccessful()) {
+                                                            DocumentSnapshot doc1 = task.getResult().getDocuments().get(0);
+                                                            signProgress.setVisibility(View.GONE);
+                                                            SharedPrefManager.getInstance(getApplicationContext()).saveUser(doc1.getString("name"), doc1.getLong("mobile").toString(),
+                                                                    (updatedUserId - 1) + "", doc1.getString("profile"), doc1.getString("email"));
+                                                            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                                            startActivity(intent);
+                                                            finish();
+                                                        } else {
+                                                            signProgress.setVisibility(View.GONE);
+                                                            Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    } else {
+                                                        signProgress.setVisibility(View.GONE);
+                                                        Toast.makeText(MainActivity.this, task1.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                    }
+                                                } catch (Exception e) {
+                                                    Log.d(TAG, "loginEmail: " + e);
+                                                }
+                                            });
+                                        } else {
+                                            //create user
+                                            Log.d(TAG, "loginEmail: sign-up");
+                                            mFirebaseAuth.createUserWithEmailAndPassword(email, pass).addOnSuccessListener(authResult -> {
+                                                try {
+                                                    HashMap<String, Object> map = new HashMap<>();
+                                                    map.put("name", "Guest_" + updatedUserId);
+                                                    map.put("mobile", 0);
+                                                    map.put("userId", updatedUserId);
+                                                    map.put("profile", "incomplete");
+                                                    map.put("email", email);
 
-        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().loginEmail(email, pass, Token);
+                                                    mFirestore.collection("users").document(updatedUserId + "").set(map)
+                                                            .addOnCompleteListener(task12 -> {
+                                                                if (task12.isSuccessful()) {
+                                                                    HashMap<String, Object> map1 = new HashMap<>();
+                                                                    map1.put("id", updatedUserId);
+                                                                    mFirestore.collection("ids").document("userId").update(map1)
+                                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                @Override
+                                                                                public void onSuccess(Void unused) {
+                                                                                    Log.d(TAG, "onSuccess: id updated");
+                                                                                }
+                                                                            }).addOnFailureListener(new OnFailureListener() {
+                                                                                @Override
+                                                                                public void onFailure(Exception e) {
+                                                                                    Log.d(TAG, "onSuccess: " + e);
+                                                                                }
+                                                                            });
+                                                                    signProgress.setVisibility(View.GONE);
+                                                                    SharedPrefManager.getInstance(getApplicationContext()).saveUser("dushyant", "123423",
+                                                                            updatedUserId + "", "inComplete", email);
+                                                                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                                                    startActivity(intent);
+                                                                    finish();
+                                                                } else {
+                                                                    signProgress.setVisibility(View.GONE);
+                                                                    Toast.makeText(MainActivity.this, task12.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            });
 
-        call.enqueue(new Callback<DefaultResponse>() {
-            @Override
-            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-                DefaultResponse dr = response.body();
-                if (response.code() == 201) {
-                    String data = dr.getMessage();
-                    String[] dif = data.split("#");
-                    signProgress.setVisibility(View.GONE);
-                    SharedPrefManager.getInstance(getApplicationContext()).saveUser(dif[0], dif[1], dif[2], dif[3]);
-                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    signProgress.setVisibility(View.GONE);
-                    Toast.makeText(getApplicationContext(), "Invalid Credentials. Please try Again!", Toast.LENGTH_LONG).show();
+                                                } catch (Exception e) {
+                                                    signProgress.setVisibility(View.GONE);
+                                                    Toast.makeText(getApplicationContext(), "Invalid Credentials. Please try Again!", Toast.LENGTH_LONG).show();
+                                                    Log.d(TAG, "onSuccess: " + e);
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
 
-                }
-            }
+                    }
+                });
 
-            @Override
-            public void onFailure(Call<DefaultResponse> call, Throwable t) {
-                signProgress.setVisibility(View.GONE);
-                Toast.makeText(getApplicationContext(), "No Internet Connection!", Toast.LENGTH_LONG).show();
-            }
-        });
+//        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().loginEmail(email, pass, Token);
+//
+//        call.enqueue(new Callback<DefaultResponse>() {
+//            @Override
+//            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
+//                DefaultResponse dr = response.body();
+//                if (response.code() == 201) {
+//                    String data = dr.getMessage();
+//                    String[] dif = data.split("#");
+//                    signProgress.setVisibility(View.GONE);
+//                    SharedPrefManager.getInstance(getApplicationContext()).saveUser(dif[0], dif[1], dif[2], dif[3]);
+//                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+//                    startActivity(intent);
+//                    finish();
+//                } else {
+//                    signProgress.setVisibility(View.GONE);
+//                    Toast.makeText(getApplicationContext(), "Invalid Credentials. Please try Again!", Toast.LENGTH_LONG).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<DefaultResponse> call, Throwable t) {
+//                signProgress.setVisibility(View.GONE);
+//                Toast.makeText(getApplicationContext(), "No Internet Connection!", Toast.LENGTH_LONG).show();
+//            }
+//        });
 
     }
 

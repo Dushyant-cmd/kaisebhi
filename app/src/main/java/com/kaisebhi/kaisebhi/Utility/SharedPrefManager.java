@@ -3,6 +3,8 @@ package com.kaisebhi.kaisebhi.Utility;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 
 public class SharedPrefManager {
 
@@ -10,9 +12,11 @@ public class SharedPrefManager {
 
     public static SharedPrefManager mInstance;
     private Context ctx;
+    private FirebaseAuth mAuth;
 
     public SharedPrefManager(Context ctx)
     {
+        mAuth = FirebaseAuth.getInstance();
         this.ctx = ctx;
     }
 
@@ -27,7 +31,7 @@ public class SharedPrefManager {
     }
 
 
-    public void saveUser(String name, String mobile,String Uid,String profile)
+    public void saveUser(String name, String mobile,String Uid,String profile, String email)
     {
         SharedPreferences sharedPreferences = ctx.getSharedPreferences(SHARED_PREF_NAME,Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -35,6 +39,7 @@ public class SharedPrefManager {
         editor.putString("mobile",mobile);
         editor.putString("uid",Uid);
         editor.putString("profile",profile);
+        editor.putString("email", email);
         editor.apply();
     }
 
@@ -59,7 +64,7 @@ public class SharedPrefManager {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
         editor.commit();
-
+        mAuth.signOut();
     }
 
 }

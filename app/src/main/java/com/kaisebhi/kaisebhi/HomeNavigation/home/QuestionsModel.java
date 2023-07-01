@@ -22,8 +22,6 @@ public class QuestionsModel {
     @SerializedName("upro")
     private String upro;
 
-
-
     @SerializedName("favCheck")
     private Boolean checkFav;
 
@@ -36,6 +34,18 @@ public class QuestionsModel {
     @SerializedName("answers")
     private String tansers;
 
+    public QuestionsModel(String ID, String title, String desc, String qpic, String uname, String upro, Boolean checkFav, String likes, Boolean checkLike, String tansers) {
+        this.ID = ID;
+        Title = title;
+        this.desc = desc;
+        this.qpic = qpic;
+        this.uname = uname;
+        this.upro = upro;
+        this.checkFav = checkFav;
+        this.likes = likes;
+        this.checkLike = checkLike;
+        this.tansers = tansers;
+    }
 
     public String getID() {
         return ID;

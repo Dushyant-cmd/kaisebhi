@@ -225,8 +225,7 @@ public class ProfileUpdate extends AppCompatActivity {
                         if (response.code() == 201) {
                             String data = dr.getMessage();
                             Toast.makeText(getApplicationContext(), data, Toast.LENGTH_SHORT).show();
-                            sharedPrefManager.saveUser(edName.getText().toString(), sharedPrefManager.getsUser().getMobile(), sharedPrefManager.getsUser().getUid(),"");
-
+//                            sharedPrefManager.saveUser(edName.getText().toString(), sharedPrefManager.getsUser().getMobile(), sharedPrefManager.getsUser().getUid(),"");
                         } else {
 
                         }
@@ -257,7 +256,7 @@ public class ProfileUpdate extends AppCompatActivity {
                         if (response.code() == 201) {
                             String data = dr.getMessage();
                             Toast.makeText(getApplicationContext(), data, Toast.LENGTH_SHORT).show();
-                            sharedPrefManager.saveUser(edName.getText().toString(), sharedPrefManager.getsUser().getMobile(), sharedPrefManager.getsUser().getUid(),"");
+//                            sharedPrefManager.saveUser(edName.getText().toString(), sharedPrefManager.getsUser().getMobile(), sharedPrefManager.getsUser().getUid(),"");
 
                         } else {
                             Toast.makeText(getApplicationContext(), "Some error occured!", Toast.LENGTH_SHORT).show();
