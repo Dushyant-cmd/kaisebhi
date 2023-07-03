@@ -44,7 +44,6 @@ public class SearchQuestionFragment extends Fragment {
     private Main_Interface main_interface;
     private FirebaseFirestore mFirestore;
     EditText SearchQues;
-
     FrameLayout framLa;
     private ShimmerFrameLayout shimmerFrameLayout;
     private String TAG = "SearchQuestionsFrag.java";

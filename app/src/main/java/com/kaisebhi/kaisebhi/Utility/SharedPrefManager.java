@@ -3,6 +3,13 @@ package com.kaisebhi.kaisebhi.Utility;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
 
@@ -43,9 +50,7 @@ public class SharedPrefManager {
         editor.apply();
     }
 
-
-    public User getsUser()
-    {
+    public User getsUser() {
         SharedPreferences sharedPreferences = ctx.getSharedPreferences(SHARED_PREF_NAME,Context.MODE_PRIVATE);
         return new User(
                 sharedPreferences.getString("name",null),
@@ -64,7 +69,15 @@ public class SharedPrefManager {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
         editor.commit();
-        mAuth.signOut();
+        GoogleSignInClient client = GoogleSignIn.getClient(ctx, GoogleSignInOptions.DEFAULT_SIGN_IN);
+        client.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()) {
+                    mAuth.signOut();
+                }
+            }
+        });
     }
 
 }

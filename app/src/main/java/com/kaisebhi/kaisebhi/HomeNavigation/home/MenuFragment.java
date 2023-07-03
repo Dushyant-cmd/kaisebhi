@@ -20,11 +20,13 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.firebase.auth.FirebaseAuth;
 import com.kaisebhi.kaisebhi.ActivityForFrag;
 import com.kaisebhi.kaisebhi.HomeNavigation.Profile.ProfileUpdate;
 import com.kaisebhi.kaisebhi.HomeNavigation.Reward.RewardFragment;
 import com.kaisebhi.kaisebhi.MainActivity;
 import com.kaisebhi.kaisebhi.R;
+import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
 import com.kaisebhi.kaisebhi.Utility.DefaultResponse;
 import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
@@ -39,6 +41,7 @@ import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
 public class MenuFragment extends Fragment implements View.OnClickListener {
 
     private FrameLayout MainFrame;
+    private FirebaseAuth mAuth;
     TextView name,user;
     CircleImageView prof;
     SharedPrefManager sharedPrefManager;
@@ -47,6 +50,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                              ViewGroup container, Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_navigation, container, false);
+        mAuth = ((ApplicationCustom) getActivity().getApplication()).mAuth;
 
         sharedPrefManager = new SharedPrefManager(getActivity());
         TextView m1,m01,m2,m3,m4,m5,m6,m7,m8,m9,m10;
