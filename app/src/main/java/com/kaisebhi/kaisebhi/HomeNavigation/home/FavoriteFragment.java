@@ -71,7 +71,7 @@ public class FavoriteFragment extends Fragment {
 
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
 
-        mFirestore.collection("questions").get().addOnCompleteListener(
+        mFirestore.collection("questions").whereEqualTo("id", SharedPrefManager.getInstance(getActivity()).getsUser().getUid()).whereEqualTo("checkFav", true).get().addOnCompleteListener(
                 new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {

@@ -1,5 +1,7 @@
 package com.kaisebhi.kaisebhi.HomeNavigation.home;
 
+import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
+
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,13 +38,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
-
 public class MenuFragment extends Fragment implements View.OnClickListener {
 
     private FrameLayout MainFrame;
     private FirebaseAuth mAuth;
-    TextView name,user;
+    TextView name, user;
     CircleImageView prof;
     SharedPrefManager sharedPrefManager;
 
@@ -53,7 +53,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
         mAuth = ((ApplicationCustom) getActivity().getApplication()).mAuth;
 
         sharedPrefManager = new SharedPrefManager(getActivity());
-        TextView m1,m01,m2,m3,m4,m5,m6,m7,m8,m9,m10;
+        TextView m1, m01, m2, m3, m4, m5, m6, m7, m8, m9, m10;
         ImageView i1;
 
         MainFrame = getActivity().findViewById(R.id.nav_host_fragment);
@@ -80,7 +80,6 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
         m8 = root.findViewById(R.id.answersNav);
         m10 = root.findViewById(R.id.SugNav);
         i1 = root.findViewById(R.id.showPro);
-
 
 
         m1.setOnClickListener(this);
@@ -125,14 +124,14 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                 break;
             case R.id.answersHide:
                 Intent seac = new Intent(getActivity(), ActivityForFrag.class);
-                seac.putExtra("Frag","showAns");
-                seac.putExtra("tabType","hide");
+                seac.putExtra("Frag", "showAns");
+                seac.putExtra("tabType", "hide");
                 startActivity(seac);
                 break;
             case R.id.answersPaid:
                 Intent show = new Intent(getActivity(), ActivityForFrag.class);
-                show.putExtra("Frag","showAns");
-                show.putExtra("tabType","show");
+                show.putExtra("Frag", "showAns");
+                show.putExtra("tabType", "show");
                 startActivity(show);
                 break;
             case R.id.answersNav:
@@ -148,7 +147,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                 Intent intents = new Intent(Intent.ACTION_VIEW, uris);
                 startActivity(intents);
                 break;
-                case R.id.logNav:
+            case R.id.logNav:
                 alertOpen();
                 break;
             default:
@@ -156,8 +155,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    public void alertOpen()
-    {
+    public void alertOpen() {
         @SuppressLint("ResourceType")
         AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                 .setIcon(getActivity().getDrawable(R.drawable.logo))
@@ -192,26 +190,25 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
 
 
     public void fetchProfile() {
-        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().getPro(sharedPrefManager.getsUser().getUid());
-        call.enqueue(new Callback<DefaultResponse>() {
-            @SuppressLint("ResourceType")
-            @Override
-            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-                DefaultResponse dr = response.body();
-                    String data = dr.getMessage();
-                    Glide.with(getActivity()).load(BASE_URL + "user/" + data).dontAnimate().centerCrop().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).placeholder(R.drawable.profile).into(prof);
-            }
 
-            @Override
-            public void onFailure(Call<DefaultResponse> call, Throwable t) {
-                Toast.makeText(getActivity(),t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
-
-            }
-
-        });
+//        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().getPro(sharedPrefManager.getsUser().getUid());
+//        call.enqueue(new Callback<DefaultResponse>() {
+//            @SuppressLint("ResourceType")
+//            @Override
+//            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
+//                DefaultResponse dr = response.body();
+//                String data = dr.getMessage();
+//                Glide.with(getActivity()).load(BASE_URL + "user/" + data).dontAnimate().centerCrop().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).placeholder(R.drawable.profile).into(prof);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<DefaultResponse> call, Throwable t) {
+//                Toast.makeText(getActivity(), t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+//
+//            }
+//
+//        });
     }
-
-
 
 
 }

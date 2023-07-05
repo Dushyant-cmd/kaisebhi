@@ -45,6 +45,8 @@ public class HomeFragment extends Fragment {
     private ShimmerFrameLayout shimmerFrameLayout;
     private String TAG = "HomeFragment.java";
     private FirebaseFirestore mFirestore;
+    private long lastItemTimestamp;
+    private DocumentSnapshot lastItem;
     int totalItems,currentItems,scrollOutItems=0;
 
     SwipeRefreshLayout refreshQuesitons;
@@ -111,6 +113,7 @@ public class HomeFragment extends Fragment {
 
     public void fetchQuestions(int cPage)
     {
+        questions.clear();
         shimmerFrameLayout.setVisibility(View.VISIBLE);
         shimmerFrameLayout.startShimmerAnimation();
         recyclerView.setAdapter(null);
@@ -123,20 +126,30 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            for (DocumentSnapshot d : task.getResult().getDocuments()) {
-                                questions.add(new QuestionsModel(
-                                        d.getString("id"), d.getString("title"), d.getString("desc"),
-                                        d.getString("qpic"), d.getString("uname"), d.getString("upro"),
-                                        d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                        d.getString("tanswers")));
+                            try {
+                                List<DocumentSnapshot> list = task.getResult().getDocuments();
+                                for (int i=0; i<list.size(); i++) {
+                                    DocumentSnapshot d = list.get(i);
+                                    questions.add(new QuestionsModel(
+                                            d.getString("id"), d.getString("title"), d.getString("desc"),
+                                            d.getString("qpic"), d.getString("uname"), d.getString("upro"),
+                                            d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
+                                            d.getString("tanswers")));
+                                    if(i == list.size() - 1) {
+                                        lastItemTimestamp = d.getLong("timestamp");
+                                        lastItem = d;
+                                    }
+                                }
+
+                                adapter = new QuestionsAdapter(questions,getActivity());
+                                recyclerView.setAdapter(adapter);
+
+                                shimmerFrameLayout.stopShimmerAnimation();
+                                shimmerFrameLayout.setVisibility(View.GONE);
+                                refreshQuesitons.setRefreshing(false);
+                            } catch (Exception e) {
+                                Log.d(TAG, "onCatch: " + e);
                             }
-
-                            adapter = new QuestionsAdapter(questions,getActivity());
-                            recyclerView.setAdapter(adapter);
-
-                            shimmerFrameLayout.stopShimmerAnimation();
-                            shimmerFrameLayout.setVisibility(View.GONE);
-                            refreshQuesitons.setRefreshing(false);
                         } else {
                             Log.d(TAG, "onComplete: " + task.getException().getMessage());
                         }
@@ -174,7 +187,7 @@ public class HomeFragment extends Fragment {
         SharedPrefManager sh = new SharedPrefManager(getActivity());
 
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
-        mFirestore.collection("questions").get().addOnCompleteListener(
+        mFirestore.collection("questions").startAfter(lastItem).get().addOnCompleteListener(
                 new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -190,7 +203,6 @@ public class HomeFragment extends Fragment {
 
                             adapter = new QuestionsAdapter(questions,getActivity());
                             recyclerView.setAdapter(adapter);
-
                             loadMoreProgress.setVisibility(View.GONE);
                         } else {
                             Log.d(TAG, "onComplete: " + task.getException().getMessage());

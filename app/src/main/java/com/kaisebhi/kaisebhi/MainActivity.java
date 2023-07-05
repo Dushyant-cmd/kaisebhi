@@ -161,8 +161,6 @@ public class MainActivity extends AppCompatActivity {
                     SignUp(authCredential, googleSignInAccount);
                 }
             }
-//            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-//            SignUp(account.getDisplayName(), account.getEmail());
         } catch (ApiException e) {
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
         }

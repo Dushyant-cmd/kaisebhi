@@ -1,10 +1,13 @@
 package com.kaisebhi.kaisebhi.HomeNavigation.AddQuestion;
 
+import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -17,15 +20,23 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kaisebhi.kaisebhi.HomeActivity;
 import com.kaisebhi.kaisebhi.R;
+import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
 import com.kaisebhi.kaisebhi.Utility.DefaultResponse;
 import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
+import com.kaisebhi.kaisebhi.Utility.Utility;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.util.HashMap;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -34,14 +45,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
-
 public class Add_Queastion extends AppCompatActivity {
 
     private Button addDelivery;
-    private EditText quesTitle,quesDesc;
+    private EditText quesTitle, quesDesc;
     private Uri postUri = null;
-    String pCheck = null;
+    private SharedPrefManager sharedPrefManager;
+    private FirebaseFirestore mFirestore;
+    String pCheck = null, TAG = "Add_Question.java";
     ProgressDialog progressDialog;
     ImageView selectQues;
     String Qid = null;
@@ -51,13 +62,14 @@ public class Add_Queastion extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_add_ques);
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,WindowManager.LayoutParams.FLAG_SECURE);
-
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        sharedPrefManager = new SharedPrefManager(Add_Queastion.this);
+        mFirestore = ((ApplicationCustom) getApplication()).mFirestore;
         progressDialog = new ProgressDialog(Add_Queastion.this);
         progressDialog.setCancelable(false);
 
         progressDialog.setTitle("Please Wait");
-        progressDialog.setMessage("Question details proccesing....");
+        progressDialog.setMessage("Question details processing....");
 
         selectQues = findViewById(R.id.quesImage);
 
@@ -97,11 +109,10 @@ public class Add_Queastion extends AppCompatActivity {
 
                 InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
 
-                if(pCheck == null){
+                if (pCheck == null) {
                     findViewById(R.id.uploadQues).setClickable(false);
                     uploadQues();
-                }
-                else {
+                } else {
                     findViewById(R.id.uploadQues).setClickable(false);
                     uploadQuesImage();
                 }
@@ -116,46 +127,80 @@ public class Add_Queastion extends AppCompatActivity {
         String title = quesTitle.getText().toString();
         String desc = quesDesc.getText().toString();
 
-        if(title.isEmpty()) {  Toast.makeText(getApplicationContext(),"Add Question !",Toast.LENGTH_SHORT).show(); return; }
+        if (title.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Add Question !", Toast.LENGTH_SHORT).show();
+            return;
+        }
         progressDialog.show();
+        HashMap<String, Object> questionMap = new HashMap<>();
+        questionMap.put("title", title);
+        questionMap.put("desc", desc);
+        questionMap.put("likes", "0");
+        questionMap.put("qpic", "na");
+        questionMap.put("checkFav", false);
+        questionMap.put("checkLike", false);
+        questionMap.put("tanswers", "false");
+        questionMap.put("uname", sharedPrefManager.getsUser().getName());
+        questionMap.put("id", sharedPrefManager.getsUser().getUid());
+        questionMap.put("timestamp", System.currentTimeMillis());
+        mFirestore.collection("questions")
+                .add(questionMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        progressDialog.dismiss();
+                        Utility.toast(Add_Queastion.this, "Question Waiting for Approve! ");
+                        Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
+                        cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(cart);
+                        finish();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.d(TAG, "onFailure: " + e);
+                    }
+                });
 
-        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().addQuestion(title,desc,"", SharedPrefManager.getInstance(getApplicationContext()).getsUser().getUid());
-        call.enqueue(new Callback<DefaultResponse>() {
-            @Override
-            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-                DefaultResponse dr = response.body();
-                if (response.code() == 201) {
-                    progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Question Waiting for Approve! ", Toast.LENGTH_SHORT).show();
-                    Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
-                    cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(cart);
-                    finish();
-
-                } else if (response.code() == 422) {
-                    progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<DefaultResponse> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                progressDialog.dismiss();
-
-            }
-        });
-
-
+//        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().addQuestion(title, desc, "", SharedPrefManager.getInstance(getApplicationContext()).getsUser().getUid());
+//        call.enqueue(new Callback<DefaultResponse>() {
+//            @Override
+//            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
+//                DefaultResponse dr = response.body();
+//                if (response.code() == 201) {
+//                    progressDialog.dismiss();
+//                    Toast.makeText(getApplicationContext(), "Question Waiting for Approve! ", Toast.LENGTH_SHORT).show();
+//                    Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
+//                    cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                    startActivity(cart);
+//                    finish();
+//
+//                } else if (response.code() == 422) {
+//                    progressDialog.dismiss();
+//                    Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_SHORT).show();
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<DefaultResponse> call, Throwable t) {
+//                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+//                progressDialog.dismiss();
+//
+//            }
+//        });
     }
+
     private void uploadQuesImage() {
 
         String title = quesTitle.getText().toString();
         String desc = quesDesc.getText().toString();
 
-        if(title.isEmpty()) {  Toast.makeText(getApplicationContext(),"Add Question !",Toast.LENGTH_SHORT).show(); return; }
+        if (title.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Add Question !", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
 
         progressDialog.show();
@@ -165,7 +210,7 @@ public class Add_Queastion extends AppCompatActivity {
         MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
         RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
 
-        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().addImgQuestion(fileToUpload,filename,title,desc,"",SharedPrefManager.getInstance(getApplicationContext()).getsUser().getUid());
+        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().addImgQuestion(fileToUpload, filename, title, desc, "", SharedPrefManager.getInstance(getApplicationContext()).getsUser().getUid());
         call.enqueue(new Callback<DefaultResponse>() {
             @Override
             public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
@@ -192,8 +237,6 @@ public class Add_Queastion extends AppCompatActivity {
 
 
     }
-
-
 
 
     @Override
@@ -212,7 +255,6 @@ public class Add_Queastion extends AppCompatActivity {
             }
         }
     }
-
 
 
 }
