@@ -103,7 +103,6 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
 
         switch (v.getId()) {
-
             case R.id.quesNav:
                 changeFragment(new SearchQuestionFragment());
                 break;

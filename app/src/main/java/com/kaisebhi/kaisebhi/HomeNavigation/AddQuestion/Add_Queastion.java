@@ -16,12 +16,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -132,35 +135,61 @@ public class Add_Queastion extends AppCompatActivity {
             return;
         }
         progressDialog.show();
-        HashMap<String, Object> questionMap = new HashMap<>();
-        questionMap.put("title", title);
-        questionMap.put("desc", desc);
-        questionMap.put("likes", "0");
-        questionMap.put("qpic", "na");
-        questionMap.put("checkFav", false);
-        questionMap.put("checkLike", false);
-        questionMap.put("tanswers", "false");
-        questionMap.put("uname", sharedPrefManager.getsUser().getName());
-        questionMap.put("id", sharedPrefManager.getsUser().getUid());
-        questionMap.put("timestamp", System.currentTimeMillis());
-        mFirestore.collection("questions")
-                .add(questionMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+
+        mFirestore.collection("ids").document("questionId").get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        progressDialog.dismiss();
-                        Utility.toast(Add_Queastion.this, "Question Waiting for Approve! ");
-                        Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
-                        cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(cart);
-                        finish();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        Log.d(TAG, "onFailure: " + e);
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            long updateId = task.getResult().getLong("id") + 1;
+                            HashMap<String, Object> questionMap = new HashMap<>();
+                            questionMap.put("title", title);
+                            questionMap.put("desc", desc);
+                            questionMap.put("likes", "0");
+                            questionMap.put("qpic", "na");
+                            questionMap.put("checkFav", false);
+                            questionMap.put("checkLike", false);
+                            questionMap.put("tanswers", "false");
+                            questionMap.put("uname", sharedPrefManager.getsUser().getName());
+                            questionMap.put("userId", sharedPrefManager.getsUser().getUid());
+                            questionMap.put("id", updateId + "");
+                            questionMap.put("timestamp", System.currentTimeMillis());
+                            mFirestore.collection("questions").document(updateId + "").set(questionMap)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            HashMap<String, Object> map = new HashMap<>();
+                                            map.put("id", updateId);
+                                            mFirestore.collection("ids").document("questionId").update(map)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void unused) {
+                                                            Log.d(TAG, "onSuccess: success");
+                                                            progressDialog.dismiss();
+                                                            Utility.toast(Add_Queastion.this, "Question Waiting for Approve! ");
+                                                            Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
+                                                            cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                            cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(cart);
+                                                            finish();
+                                                        }
+                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.d(TAG, "onFailure: " + e);
+                                                        }
+                                                    });
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(Exception e) {
+                                            Log.d(TAG, "onFailure: " + e);
+                                        }
+                                    });
+                        }
                     }
                 });
+
 
 //        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().addQuestion(title, desc, "", SharedPrefManager.getInstance(getApplicationContext()).getsUser().getUid());
 //        call.enqueue(new Callback<DefaultResponse>() {

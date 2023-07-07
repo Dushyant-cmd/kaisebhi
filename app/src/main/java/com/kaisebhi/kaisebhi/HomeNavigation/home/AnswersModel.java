@@ -49,6 +49,24 @@ public class AnswersModel {
     @SerializedName("userReportCheck")
     private boolean userReport;
 
+    public AnswersModel(String ID, Boolean checkOwnQuestion, String uname, String upro, String likes, String desc, String qimg, Boolean checkLike, String anser, boolean checkHideAnswer, boolean checkPaid, String paidAmount, boolean selfAnswer, boolean selfHideAnswer, boolean userReport) {
+        this.ID = ID;
+        this.checkOwnQuestion = checkOwnQuestion;
+        this.uname = uname;
+        this.upro = upro;
+        this.likes = likes;
+        this.desc = desc;
+        this.qimg = qimg;
+        this.checkLike = checkLike;
+        this.anser = anser;
+        this.checkHideAnswer = checkHideAnswer;
+        this.checkPaid = checkPaid;
+        this.paidAmount = paidAmount;
+        this.selfAnswer = selfAnswer;
+        this.selfHideAnswer = selfHideAnswer;
+        this.userReport = userReport;
+    }
+
     public boolean isCheckPaid() {
         return checkPaid;
     }

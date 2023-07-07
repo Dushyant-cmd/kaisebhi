@@ -11,7 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kaisebhi.kaisebhi.R;
+import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
 import com.kaisebhi.kaisebhi.Utility.Main_Interface;
 import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
@@ -30,6 +32,7 @@ public class MineAnsFragment extends Fragment {
     private MineAnswersAdapter adapter;
     private Main_Interface main_interface;
     private ShimmerFrameLayout shimmerFrameLayout;
+    private FirebaseFirestore mFirestore;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -41,6 +44,7 @@ public class MineAnsFragment extends Fragment {
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
+        mFirestore = ((ApplicationCustom) getActivity().getApplication()).mFirestore;
 
         fetchAnswers();
 

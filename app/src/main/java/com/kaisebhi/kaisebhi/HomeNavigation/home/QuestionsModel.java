@@ -83,6 +83,9 @@ public class QuestionsModel {
     public Boolean getCheckFav() {
         return checkFav;
     }
+    public void setCheckFav(Boolean check) {
+        checkFav = check;
+    }
     public Boolean getCheckLike() {
         return checkLike;
     }

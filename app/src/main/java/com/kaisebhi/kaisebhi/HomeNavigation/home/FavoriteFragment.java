@@ -71,7 +71,7 @@ public class FavoriteFragment extends Fragment {
 
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
 
-        mFirestore.collection("questions").whereEqualTo("id", SharedPrefManager.getInstance(getActivity()).getsUser().getUid()).whereEqualTo("checkFav", true).get().addOnCompleteListener(
+        mFirestore.collection("favorite").whereEqualTo("userId", SharedPrefManager.getInstance(getActivity()).getsUser().getUid()).get().addOnCompleteListener(
                 new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -84,7 +84,7 @@ public class FavoriteFragment extends Fragment {
                                         d.getString("tanswers")));
                             }
 
-                            adapter = new QuestionsAdapter(questions,getActivity());
+                            adapter = new QuestionsAdapter(questions,getActivity(), mFirestore);
                             recyclerView.setAdapter(adapter);
 
                             shimmerFrameLayout.stopShimmerAnimation();

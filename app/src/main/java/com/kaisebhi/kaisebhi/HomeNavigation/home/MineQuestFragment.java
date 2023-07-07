@@ -1,6 +1,7 @@
 package com.kaisebhi.kaisebhi.HomeNavigation.home;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,23 +70,13 @@ public class MineQuestFragment extends Fragment {
 
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
 
-        mFirestore.collection("questions").whereEqualTo("id", SharedPrefManager.getInstance(getActivity()).getsUser().getUid())
+        mFirestore.collection("questions").whereEqualTo("userId", SharedPrefManager.getInstance(getActivity()).getsUser().getUid())
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()) {
                             List<DocumentSnapshot> list = task.getResult().getDocuments();
                             for(DocumentSnapshot d: list) {
-//                                String ID,
-//                                String title,
-//                                String desc,
-//                                String qpic,
-//                                String uname,
-//                                String upro,
-//                                Boolean checkFav,
-//                                String likes,
-//                                Boolean checkLike,
-//                                String tanser
                                 questions.add(new QuestionsModel(d.getString("id"), d.getString("title"), d.getString("desc"),
                                         d.getString("qpic"), d.getString("uname"), "NA", d.getBoolean("checkFav"),
                                         d.getString("likes"), d.getBoolean("checkLike"), d.getString("tanswers")));
@@ -96,7 +87,7 @@ public class MineQuestFragment extends Fragment {
                                 shimmerFrameLayout.setVisibility(View.GONE);
                             }
                         } else {
-
+                            Log.d(TAG, "onComplete: " + task.getException());
                         }
                     }
                 });

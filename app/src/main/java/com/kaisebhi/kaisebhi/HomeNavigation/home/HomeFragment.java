@@ -121,7 +121,7 @@ public class HomeFragment extends Fragment {
         SharedPrefManager sh = new SharedPrefManager(getActivity());
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
 
-        mFirestore.collection("questions").get().addOnCompleteListener(
+        mFirestore.collection("questions").limit(2).get().addOnCompleteListener(
                 new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -141,7 +141,7 @@ public class HomeFragment extends Fragment {
                                     }
                                 }
 
-                                adapter = new QuestionsAdapter(questions,getActivity());
+                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore);
                                 recyclerView.setAdapter(adapter);
 
                                 shimmerFrameLayout.stopShimmerAnimation();
@@ -156,28 +156,6 @@ public class HomeFragment extends Fragment {
                     }
                 }
         );
-//        Call<List<QuestionsModel>> call = main_interface.getallQuestionsHome(sh.getsUser().getUid(),String.valueOf(cPage));
-//
-//        call.enqueue(new Callback<List<QuestionsModel>>() {
-//            @Override
-//            public void onResponse(Call<List<QuestionsModel>> call, Response<List<QuestionsModel>> response) {
-//
-//                questions = response.body();
-//                adapter = new QuestionsAdapter(questions,getActivity());
-//                recyclerView.setAdapter(adapter);
-//
-//                shimmerFrameLayout.stopShimmerAnimation();
-//                shimmerFrameLayout.setVisibility(View.GONE);
-//                refreshQuesitons.setRefreshing(false);
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<QuestionsModel>> call, Throwable t) {
-//                refreshQuesitons.setRefreshing(false);
-//
-//            }
-//        });
     }
 
 
@@ -187,46 +165,38 @@ public class HomeFragment extends Fragment {
         SharedPrefManager sh = new SharedPrefManager(getActivity());
 
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
-        mFirestore.collection("questions").startAfter(lastItem).get().addOnCompleteListener(
+        mFirestore.collection("questions").startAfter(lastItem).limit(2).get().addOnCompleteListener(
                 new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            for (DocumentSnapshot d : task.getResult().getDocuments()) {
-                                questions.add(new QuestionsModel(
-                                        d.getString("id"), d.getString("title"), d.getString("desc"),
-                                        d.getString("qpic"), d.getString("uname"), d.getString("upro"),
-                                        d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                        d.getString("tanswers")));
+                            try {
+                                for (DocumentSnapshot d : task.getResult().getDocuments()) {
+                                    questions.add(new QuestionsModel(
+                                            d.getString("id"), d.getString("title"), d.getString("desc"),
+                                            d.getString("qpic"), d.getString("uname"), d.getString("upro"),
+                                            d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
+                                            d.getString("tanswers")));
+
+                                }
+                                if(!task.getResult().getDocuments().isEmpty()) {
+                                    lastItem = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
+                                    lastItemTimestamp = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1).getLong("timestamp");
+                                }
+
+
+                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore);
+                                recyclerView.setAdapter(adapter);
+                                loadMoreProgress.setVisibility(View.GONE);
+                            } catch (Exception e) {
+                                Log.d(TAG, "onComplete: catch: " + e);
                             }
-
-
-                            adapter = new QuestionsAdapter(questions,getActivity());
-                            recyclerView.setAdapter(adapter);
-                            loadMoreProgress.setVisibility(View.GONE);
                         } else {
                             Log.d(TAG, "onComplete: " + task.getException().getMessage());
                         }
                     }
                 }
         );
-
-//        Call<List<QuestionsModel>> call = main_interface.getallQuestionsHome(sh.getsUser().getUid(),String.valueOf(currentPage));
-//
-//        call.enqueue(new Callback<List<QuestionsModel>>() {
-//            @Override
-//            public void onResponse(Call<List<QuestionsModel>> call, Response<List<QuestionsModel>> response) {
-//
-//                questions.addAll(response.body());
-//
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<QuestionsModel>> call, Throwable t) {
-//
-//            }
-//        });
     }
 
 
