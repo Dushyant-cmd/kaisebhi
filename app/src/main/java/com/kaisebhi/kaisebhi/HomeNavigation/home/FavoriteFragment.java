@@ -23,6 +23,7 @@ import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
 import com.kaisebhi.kaisebhi.Utility.Main_Interface;
 import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
+import com.kaisebhi.kaisebhi.room.RoomDb;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ public class FavoriteFragment extends Fragment {
     private ShimmerFrameLayout shimmerFrameLayout;
     private FirebaseFirestore mFirestore;
     private String TAG = "FavoriteFragment.java";
+    private RoomDb roomDb;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -52,6 +54,7 @@ public class FavoriteFragment extends Fragment {
         mFirestore = ((ApplicationCustom) getActivity().getApplication()).mFirestore;
         shimmerFrameLayout = root.findViewById(R.id.SearchloadingShimmer);
         questions = new ArrayList<>();
+        roomDb = ((ApplicationCustom) getActivity().getApplication()).roomDb;
 
         recyclerView = root.findViewById(R.id.allquestions);
         layoutManager = new LinearLayoutManager(getActivity());
@@ -76,15 +79,17 @@ public class FavoriteFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            roomDb.getFavDao().deleteAllFav();
                             for (DocumentSnapshot d : task.getResult().getDocuments()) {
-                                questions.add(new QuestionsModel(
+                                QuestionsModel model = new QuestionsModel(
                                         d.getString("id"), d.getString("title"), d.getString("desc"),
                                         d.getString("qpic"), d.getString("uname"), d.getString("upro"),
                                         d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                        d.getString("tanswers")));
+                                        d.getString("tanswers"));
+                                questions.add(model);
+                                roomDb.getFavDao().insertFav(model);
                             }
-
-                            adapter = new QuestionsAdapter(questions,getActivity(), mFirestore);
+                            adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, roomDb);
                             recyclerView.setAdapter(adapter);
 
                             shimmerFrameLayout.stopShimmerAnimation();

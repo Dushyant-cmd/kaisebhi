@@ -103,7 +103,7 @@ public class SearchQuestionFragment extends Fragment {
                                         d.getString("tanswers")));
                             }
 
-                            adapter = new QuestionsAdapter(questions, getActivity(), mFirestore);
+                            adapter = new QuestionsAdapter(questions, getActivity(), mFirestore, ((ApplicationCustom) getActivity().getApplication()).roomDb);
                             recyclerView.setAdapter(adapter);
                             framLa.setVisibility(View.GONE);
                             shimmerFrameLayout.stopShimmerAnimation();

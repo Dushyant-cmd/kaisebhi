@@ -64,7 +64,6 @@ public class Notifications extends Fragment {
                 notify = response.body();
                 adapter = new NotifyAdapter(notify,getActivity());
                 recyclerView.setAdapter(adapter);
-
                 progressImg.setVisibility(View.INVISIBLE);
 
             }

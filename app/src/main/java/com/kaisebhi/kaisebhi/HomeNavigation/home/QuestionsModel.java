@@ -1,38 +1,50 @@
 package com.kaisebhi.kaisebhi.HomeNavigation.home;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.SerializedName;
 
+@Entity(tableName = "favTable")
 public class QuestionsModel {
 
-    @SerializedName("id")
+    @PrimaryKey(autoGenerate = true)
+    private int uniqueId;
+
+    @ColumnInfo(name = "ID", defaultValue = "null")
     private String ID;
 
-    @SerializedName("title")
+    @ColumnInfo(name = "Title", defaultValue = "null")
     private String Title;
 
-    @SerializedName("desc")
+    @ColumnInfo(name = "desc", defaultValue = "null")
     private String desc;
 
-    @SerializedName("qpic")
+    @ColumnInfo(name = "qpic", defaultValue = "null")
     private String qpic;
 
-    @SerializedName("uname")
+    @ColumnInfo(name = "uname", defaultValue = "null")
     private String uname;
 
-    @SerializedName("upro")
+    @ColumnInfo(name = "upro", defaultValue = "null")
     private String upro;
 
-    @SerializedName("favCheck")
+    @ColumnInfo(name = "checkFav", defaultValue = "null")
     private Boolean checkFav;
 
-    @SerializedName("likes")
+    @ColumnInfo(name = "likes", defaultValue = "null")
     private String likes;
 
-    @SerializedName("likeCheck")
+    @ColumnInfo(name = "checkLike", defaultValue = "null")
     private Boolean checkLike;
 
-    @SerializedName("answers")
+    @ColumnInfo(name = "tansers", defaultValue = "null")
     private String tansers;
+
+    public QuestionsModel() {
+        //mandatory by room db to have empty constructor of entity class
+    }
 
     public QuestionsModel(String ID, String title, String desc, String qpic, String uname, String upro, Boolean checkFav, String likes, Boolean checkLike, String tansers) {
         this.ID = ID;
@@ -44,6 +56,50 @@ public class QuestionsModel {
         this.checkFav = checkFav;
         this.likes = likes;
         this.checkLike = checkLike;
+        this.tansers = tansers;
+    }
+
+    public int getUniqueId() {
+        return uniqueId;
+    }
+
+    public void setUniqueId(int uniqueId) {
+        this.uniqueId = uniqueId;
+    }
+
+    public void setID(String ID) {
+        this.ID = ID;
+    }
+
+    public void setTitle(String title) {
+        Title = title;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public void setQpic(String qpic) {
+        this.qpic = qpic;
+    }
+
+    public void setUname(String uname) {
+        this.uname = uname;
+    }
+
+    public void setUpro(String upro) {
+        this.upro = upro;
+    }
+
+    public void setLikes(String likes) {
+        this.likes = likes;
+    }
+
+    public void setCheckLike(Boolean checkLike) {
+        this.checkLike = checkLike;
+    }
+
+    public void setTansers(String tansers) {
         this.tansers = tansers;
     }
 
@@ -79,13 +135,14 @@ public class QuestionsModel {
         return tansers;
     }
 
-
     public Boolean getCheckFav() {
         return checkFav;
     }
+
     public void setCheckFav(Boolean check) {
         checkFav = check;
     }
+
     public Boolean getCheckLike() {
         return checkLike;
     }

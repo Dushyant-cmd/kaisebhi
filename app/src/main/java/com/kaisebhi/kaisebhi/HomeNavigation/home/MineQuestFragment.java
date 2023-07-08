@@ -80,13 +80,15 @@ public class MineQuestFragment extends Fragment {
                                 questions.add(new QuestionsModel(d.getString("id"), d.getString("title"), d.getString("desc"),
                                         d.getString("qpic"), d.getString("uname"), "NA", d.getBoolean("checkFav"),
                                         d.getString("likes"), d.getBoolean("checkLike"), d.getString("tanswers")));
-                                adapter = new MineQuestionsAdapter(questions,getActivity());
-                                recyclerView.setAdapter(adapter);
-
-                                shimmerFrameLayout.stopShimmerAnimation();
-                                shimmerFrameLayout.setVisibility(View.GONE);
                             }
+                            adapter = new MineQuestionsAdapter(questions,getActivity(), mFirestore);
+                            recyclerView.setAdapter(adapter);
+
+                            shimmerFrameLayout.stopShimmerAnimation();
+                            shimmerFrameLayout.setVisibility(View.GONE);
                         } else {
+                            shimmerFrameLayout.stopShimmerAnimation();
+                            shimmerFrameLayout.setVisibility(View.GONE);
                             Log.d(TAG, "onComplete: " + task.getException());
                         }
                     }

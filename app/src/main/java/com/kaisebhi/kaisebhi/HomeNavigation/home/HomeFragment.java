@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kaisebhi.kaisebhi.ActivityForFrag;
 import com.kaisebhi.kaisebhi.R;
@@ -121,12 +122,13 @@ public class HomeFragment extends Fragment {
         SharedPrefManager sh = new SharedPrefManager(getActivity());
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
 
-        mFirestore.collection("questions").limit(2).get().addOnCompleteListener(
+        mFirestore.collection("questions").orderBy("timestamp", Query.Direction.DESCENDING).limit(2).get().addOnCompleteListener(
                 new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             try {
+                                Log.d(TAG, "success: " + task.getResult());
                                 List<DocumentSnapshot> list = task.getResult().getDocuments();
                                 for (int i=0; i<list.size(); i++) {
                                     DocumentSnapshot d = list.get(i);
@@ -141,7 +143,7 @@ public class HomeFragment extends Fragment {
                                     }
                                 }
 
-                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore);
+                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb);
                                 recyclerView.setAdapter(adapter);
 
                                 shimmerFrameLayout.stopShimmerAnimation();
@@ -165,7 +167,7 @@ public class HomeFragment extends Fragment {
         SharedPrefManager sh = new SharedPrefManager(getActivity());
 
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
-        mFirestore.collection("questions").startAfter(lastItem).limit(2).get().addOnCompleteListener(
+        mFirestore.collection("questions").orderBy("timestamp", Query.Direction.DESCENDING).startAfter(lastItem).limit(2).get().addOnCompleteListener(
                 new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -185,7 +187,7 @@ public class HomeFragment extends Fragment {
                                 }
 
 
-                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore);
+                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb);
                                 recyclerView.setAdapter(adapter);
                                 loadMoreProgress.setVisibility(View.GONE);
                             } catch (Exception e) {

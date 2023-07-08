@@ -55,6 +55,7 @@ public class Add_Queastion extends AppCompatActivity {
     private Uri postUri = null;
     private SharedPrefManager sharedPrefManager;
     private FirebaseFirestore mFirestore;
+    private Button uploadBtn;
     String pCheck = null, TAG = "Add_Question.java";
     ProgressDialog progressDialog;
     ImageView selectQues;
@@ -78,6 +79,7 @@ public class Add_Queastion extends AppCompatActivity {
 
         quesTitle = findViewById(R.id.q_title);
         quesDesc = findViewById(R.id.a_desc);
+        uploadBtn = findViewById(R.id.uploadQues);
 
         Bundle extras = getIntent().getExtras();
 
@@ -106,7 +108,7 @@ public class Add_Queastion extends AppCompatActivity {
         });
 
 
-        findViewById(R.id.uploadQues).setOnClickListener(new View.OnClickListener() {
+        uploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -135,90 +137,85 @@ public class Add_Queastion extends AppCompatActivity {
             return;
         }
         progressDialog.show();
-
-        mFirestore.collection("ids").document("questionId").get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            long updateId = task.getResult().getLong("id") + 1;
-                            HashMap<String, Object> questionMap = new HashMap<>();
-                            questionMap.put("title", title);
-                            questionMap.put("desc", desc);
-                            questionMap.put("likes", "0");
-                            questionMap.put("qpic", "na");
-                            questionMap.put("checkFav", false);
-                            questionMap.put("checkLike", false);
-                            questionMap.put("tanswers", "false");
-                            questionMap.put("uname", sharedPrefManager.getsUser().getName());
-                            questionMap.put("userId", sharedPrefManager.getsUser().getUid());
-                            questionMap.put("id", updateId + "");
-                            questionMap.put("timestamp", System.currentTimeMillis());
-                            mFirestore.collection("questions").document(updateId + "").set(questionMap)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-                                            HashMap<String, Object> map = new HashMap<>();
-                                            map.put("id", updateId);
-                                            mFirestore.collection("ids").document("questionId").update(map)
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void unused) {
-                                                            Log.d(TAG, "onSuccess: success");
-                                                            progressDialog.dismiss();
-                                                            Utility.toast(Add_Queastion.this, "Question Waiting for Approve! ");
-                                                            Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
-                                                            cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                            cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                            startActivity(cart);
-                                                            finish();
-                                                        }
-                                                    }).addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-                                                            Log.d(TAG, "onFailure: " + e);
-                                                        }
-                                                    });
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(Exception e) {
-                                            Log.d(TAG, "onFailure: " + e);
-                                        }
-                                    });
+        if(uploadBtn.getText().toString().matches("Update Question")) {
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("title", title);
+            map.put("desc", desc);
+            mFirestore.collection("questions").document(Qid).update(map)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Log.d(TAG, "onSuccess: updated success");
+                            Utility.toast(Add_Queastion.this, "Question Waiting for Approve! ");
+                            Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
+                            cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(cart);
+                            finish();
                         }
-                    }
-                });
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: " + e);
+                        }
+                    });
+        } else {
+            mFirestore.collection("ids").document("questionId").get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                long updateId = task.getResult().getLong("id") + 1;
+                                HashMap<String, Object> questionMap = new HashMap<>();
+                                questionMap.put("title", title);
+                                questionMap.put("desc", desc);
+                                questionMap.put("likes", "0");
+                                questionMap.put("qpic", "na");
+                                questionMap.put("checkFav", false);
+                                questionMap.put("checkLike", false);
+                                questionMap.put("tanswers", "false");
+                                questionMap.put("uname", sharedPrefManager.getsUser().getName());
+                                questionMap.put("userId", sharedPrefManager.getsUser().getUid());
+                                questionMap.put("id", updateId + "");
+                                questionMap.put("qualityCheck", false);
+                                questionMap.put("timestamp", System.currentTimeMillis());
+                                mFirestore.collection("questions").document(updateId + "").set(questionMap)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                HashMap<String, Object> map = new HashMap<>();
+                                                map.put("id", updateId);
+                                                mFirestore.collection("ids").document("questionId").update(map)
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void unused) {
+                                                                Log.d(TAG, "onSuccess: success");
+                                                                progressDialog.dismiss();
+                                                                Utility.toast(Add_Queastion.this, "Question Waiting for Approve! ");
+                                                                Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
+                                                                cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                                cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                                startActivity(cart);
+                                                                finish();
+                                                            }
+                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Log.d(TAG, "onFailure: " + e);
+                                                            }
+                                                        });
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(Exception e) {
+                                                Log.d(TAG, "onFailure: " + e);
+                                            }
+                                        });
+                            }
+                        }
+                    });
 
-
-//        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().addQuestion(title, desc, "", SharedPrefManager.getInstance(getApplicationContext()).getsUser().getUid());
-//        call.enqueue(new Callback<DefaultResponse>() {
-//            @Override
-//            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-//                DefaultResponse dr = response.body();
-//                if (response.code() == 201) {
-//                    progressDialog.dismiss();
-//                    Toast.makeText(getApplicationContext(), "Question Waiting for Approve! ", Toast.LENGTH_SHORT).show();
-//                    Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
-//                    cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                    startActivity(cart);
-//                    finish();
-//
-//                } else if (response.code() == 422) {
-//                    progressDialog.dismiss();
-//                    Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_SHORT).show();
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<DefaultResponse> call, Throwable t) {
-//                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-//                progressDialog.dismiss();
-//
-//            }
-//        });
+        }
     }
 
     private void uploadQuesImage() {

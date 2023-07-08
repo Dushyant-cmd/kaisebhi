@@ -30,6 +30,7 @@ import com.kaisebhi.kaisebhi.AnswersActivity;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 import com.kaisebhi.kaisebhi.ViewPic;
+import com.kaisebhi.kaisebhi.room.RoomDb;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,13 +43,23 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
     private List<QuestionsModel> nlist;
     private Context context;
     private FirebaseFirestore mFirestore;
-    private String TAG = "QuestionsAdapter.java";
-    private boolean isFirstTime = true;
+    private String TAG = "QuestionsAdapter.java", comeFrom = "";
+    private boolean isFavChecked = true;
+    public RoomDb roomDb;
 
-    public QuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore firestore) {
+    public QuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore firestore, RoomDb roomDb) {
         this.nlist = nlist;
         this.context = context;
-        mFirestore = firestore;
+        this.mFirestore = firestore;
+        this.roomDb = roomDb;
+    }
+
+    public QuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore firestore, String comeFrom, RoomDb roomDb) {
+        this.nlist = nlist;
+        this.context = context;
+        this.mFirestore = firestore;
+        this.comeFrom = comeFrom;
+        this.roomDb = roomDb;
     }
 
     @NonNull
@@ -80,23 +91,26 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         SharedPrefManager sh = new SharedPrefManager(context);
         final String uid = sh.getsUser().getUid();
 
-        mFirestore.collection("favorite").whereEqualTo("id", q.getID()).whereEqualTo("userId", SharedPrefManager.getInstance(context).getsUser().getUid())
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "onComplete: success ");
-                            if (!task.getResult().getDocuments().isEmpty()){
-                                isAddedFav = true;
-                                q.setCheckFav(true);
-                                holder.favBtn.setChecked(q.getCheckFav());
+        if (comeFrom.matches("home")) {
+            mFirestore.collection("favorite").whereEqualTo("id", q.getID()).whereEqualTo("userId", SharedPrefManager.getInstance(context).getsUser().getUid())
+                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "onComplete: success ");
+                                if (!task.getResult().getDocuments().isEmpty()) {
+                                    q.setCheckFav(true);
+                                    holder.favBtn.setChecked(q.getCheckFav());
+                                }
+                            } else {
+                                holder.favBtn.setChecked(nlist.get(position).getCheckFav());
+                                Log.d(TAG, "onComplete: " + task.getException());
                             }
-                        } else {
-                            holder.favBtn.setChecked(nlist.get(position).getCheckFav());
-                            Log.d(TAG, "onComplete: " + task.getException());
                         }
-                    }
-                });
+                    });
+        } else
+            holder.favBtn.setChecked(nlist.get(position).getCheckFav());
+
         holder.likeBtn.setChecked(nlist.get(position).getCheckLike());
 
         holder.shareBtn.setOnClickListener(new View.OnClickListener() {
@@ -151,61 +165,72 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
 
         });
 
+        holder.favBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isFavChecked) {
+                    //not already favorite
+                    HashMap<String, Object> questionMap = new HashMap<>();
+                    questionMap.put("title", q.getTitle());
+                    questionMap.put("desc", q.getDesc());
+                    questionMap.put("likes", q.getLikes());
+                    questionMap.put("qpic", q.getQpic());
+                    questionMap.put("checkFav", true);
+                    questionMap.put("checkLike", q.getCheckLike());
+                    questionMap.put("tanswers", q.getTansers());
+                    questionMap.put("uname", q.getUname());
+                    questionMap.put("userId", SharedPrefManager.getInstance(context).getsUser().getUid());
+                    questionMap.put("id", q.getID());
+                    questionMap.put("timestamp", System.currentTimeMillis());
+                    mFirestore.collection("favorite").add(questionMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d(TAG, "onSuccess: success" + documentReference);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: " + e);
+                        }
+                    });
+                } else {
+                    //already favorite
+                    mFirestore.collection("favorite").whereEqualTo("id", q.getID())
+                            .whereEqualTo("userId", SharedPrefManager.getInstance(context).getsUser().getUid()).get()
+                            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                @Override
+                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                    String docId = queryDocumentSnapshots.getDocuments().get(0).getId();
+                                    mFirestore.collection("favorite").document(docId).delete()
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    try {
+                                                        Log.d(TAG, "onSuccess: success");
+                                                        roomDb.getFavDao().deleteFav(q);
+                                                        q.setCheckFav(false);
+                                                        nlist.remove(position);
+                                                        QuestionsAdapter.this.notifyDataSetChanged();
+                                                    } catch (Exception e) {
+                                                        Log.d(TAG, "onSuccess: " + e);
+                                                    }
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.d(TAG, "onFailure: " + e);
+                                                }
+                                            });
+                                }
+                            });
+                }
+            }
+        });
 
         holder.favBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        //not already favorite
-                        HashMap<String, Object> questionMap = new HashMap<>();
-                        questionMap.put("title", q.getTitle());
-                        questionMap.put("desc", q.getDesc());
-                        questionMap.put("likes", q.getLikes());
-                        questionMap.put("qpic", q.getQpic());
-                        questionMap.put("checkFav", true);
-                        questionMap.put("checkLike", q.getCheckLike());
-                        questionMap.put("tanswers", q.getTansers());
-                        questionMap.put("uname", q.getUname());
-                        questionMap.put("userId", SharedPrefManager.getInstance(context).getsUser().getUid());
-                        questionMap.put("id", q.getID());
-                        questionMap.put("timestamp", System.currentTimeMillis());
-                        mFirestore.collection("favorite").add(questionMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Log.d(TAG, "onSuccess: success" + documentReference);
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "onFailure: " + e);
-                            }
-                        });
-                    } else {
-                        //already favorite
-                        mFirestore.collection("favorite").whereEqualTo("id", q.getID())
-                                .whereEqualTo("userId", SharedPrefManager.getInstance(context).getsUser().getUid()).get()
-                                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                        String docId = queryDocumentSnapshots.getDocuments().get(0).getId();
-                                        mFirestore.collection("favorite").document(docId).delete()
-                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void unused) {
-                                                        Log.d(TAG, "onSuccess: success");
-                                                        q.setCheckFav(false);
-                                                        notifyDataSetChanged();
-                                                    }
-                                                }).addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Log.d(TAG, "onFailure: " + e);
-                                                    }
-                                                });
-                                    }
-                                });
-                    }
-
+                isFavChecked = isChecked;
             }
         });
 
@@ -213,7 +238,6 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         holder.questionimg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent i = new Intent(context.getApplicationContext(), ViewPic.class);
                 i.putExtra("photourl", nlist.get(position).getQpic());
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -225,6 +249,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         holder.likeBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("checkLike", true);
                 map.put("likes", (Long.parseLong(q.getLikes()) + 1) + "");
