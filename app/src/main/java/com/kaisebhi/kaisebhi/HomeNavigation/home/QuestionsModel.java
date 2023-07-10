@@ -42,11 +42,14 @@ public class QuestionsModel {
     @ColumnInfo(name = "tansers", defaultValue = "null")
     private String tansers;
 
+    @ColumnInfo(name = "likedByUser", defaultValue = "null")
+    private String likedByUser;
+
     public QuestionsModel() {
         //mandatory by room db to have empty constructor of entity class
     }
 
-    public QuestionsModel(String ID, String title, String desc, String qpic, String uname, String upro, Boolean checkFav, String likes, Boolean checkLike, String tansers) {
+    public QuestionsModel(String ID, String title, String desc, String qpic, String uname, String upro, Boolean checkFav, String likes, Boolean checkLike, String tansers, String likedByUser) {
         this.ID = ID;
         Title = title;
         this.desc = desc;
@@ -57,6 +60,15 @@ public class QuestionsModel {
         this.likes = likes;
         this.checkLike = checkLike;
         this.tansers = tansers;
+        this.likedByUser = likedByUser;
+    }
+
+    public String getLikedByUser() {
+        return likedByUser;
+    }
+
+    public void setLikedByUser(String likedByUser) {
+        this.likedByUser = likedByUser;
     }
 
     public int getUniqueId() {

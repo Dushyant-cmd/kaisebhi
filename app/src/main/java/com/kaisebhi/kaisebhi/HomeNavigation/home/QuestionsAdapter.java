@@ -32,6 +32,8 @@ import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 import com.kaisebhi.kaisebhi.ViewPic;
 import com.kaisebhi.kaisebhi.room.RoomDb;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -41,6 +43,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
 
 
     private List<QuestionsModel> nlist;
+    private boolean isLiked = false;
     private Context context;
     private FirebaseFirestore mFirestore;
     private String TAG = "QuestionsAdapter.java", comeFrom = "";
@@ -92,7 +95,8 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         final String uid = sh.getsUser().getUid();
 
         if (comeFrom.matches("home")) {
-            mFirestore.collection("favorite").whereEqualTo("id", q.getID()).whereEqualTo("userId", SharedPrefManager.getInstance(context).getsUser().getUid())
+            mFirestore.collection("favorite").whereEqualTo("id", q.getID())
+                    .whereEqualTo("userId", SharedPrefManager.getInstance(context).getsUser().getUid())
                     .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -111,7 +115,14 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         } else
             holder.favBtn.setChecked(nlist.get(position).getCheckFav());
 
-        holder.likeBtn.setChecked(nlist.get(position).getCheckLike());
+        String[] likedByUsersArr = q.getLikedByUser().split(",");
+        for(String userId: likedByUsersArr) {
+            if(userId.matches(q.getID())) {
+                holder.likeBtn.setChecked(true);
+                isLiked = q.getCheckLike();
+                break;
+            }
+        }
 
         holder.shareBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -206,11 +217,18 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                                                 @Override
                                                 public void onSuccess(Void unused) {
                                                     try {
-                                                        Log.d(TAG, "onSuccess: success");
-                                                        roomDb.getFavDao().deleteFav(q);
-                                                        q.setCheckFav(false);
-                                                        nlist.remove(position);
-                                                        QuestionsAdapter.this.notifyDataSetChanged();
+                                                        if (comeFrom.matches("home")) {
+                                                            Log.d(TAG, "onSuccess: success");
+                                                            roomDb.getFavDao().deleteFav(q);
+                                                            q.setCheckFav(false);
+                                                            QuestionsAdapter.this.notifyDataSetChanged();
+                                                        } else {
+                                                            Log.d(TAG, "onSuccess: success");
+                                                            roomDb.getFavDao().deleteFav(q);
+                                                            q.setCheckFav(false);
+                                                            nlist.remove(position);
+                                                            QuestionsAdapter.this.notifyDataSetChanged();
+                                                        }
                                                     } catch (Exception e) {
                                                         Log.d(TAG, "onSuccess: " + e);
                                                     }
@@ -246,25 +264,111 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         });
 
 
+        holder.likeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isLiked) {
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("checkLike", false);
+                    map.put("likes", Long.parseLong(q.getLikes()) - 1 + "");
+                    mFirestore.collection("questions").document(q.getID() + "")
+                            .update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    HashMap<String, Object> map = new HashMap<>();
+                                    String usersLikedBy = "";
+                                    for(String userId : likedByUsersArr) {
+                                        if(userId.matches(q.getID())) {
+                                            continue;
+                                        } else
+                                            usersLikedBy += userId;
+
+                                    }
+                                    map.put("likedByUser", usersLikedBy);
+                                    mFirestore.collection("questions").document(q.getID()).update(map)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    Log.d(TAG, "onSuccess: questions liked success");
+                                                    q.setLikes(Long.parseLong(q.getLikes()) - 1 + "");
+                                                    q.setCheckLike(false);
+                                                    isLiked = false;
+                                                    notifyDataSetChanged();
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.d(TAG, "onFailure: exception " + e);
+                                                }
+                                            });
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(TAG, "onFailure: " + e);
+                                }
+                            });
+
+                    mFirestore.collection("favorite").whereEqualTo("userId", SharedPrefManager.getInstance(context).getsUser().getUid())
+                            .whereEqualTo("id", q.getID()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful() && !task.getResult().getDocuments().isEmpty()) {
+                                        mFirestore.collection("favorite").document(task.getResult().getDocuments().get(0).getId() + "")
+                                                .update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Log.d(TAG, "onSuccess: questions favorite success");
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.d(TAG, "onFailure: " + e);
+                                                    }
+                                                });
+                                    }
+                                }
+                            });
+                } else {
+                    Log.d(TAG, "onCheckedChanged: not checked");
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("checkLike", true);
+                    map.put("likes", (Long.parseLong(q.getLikes()) + 1) + "");
+                    mFirestore.collection("questions").document(q.getID()).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            HashMap<String, Object> map = new HashMap<>();
+                            map.put("likedByUser", q.getLikedByUser() + "," + q.getID());
+                            mFirestore.collection("questions").document(q.getID()).update(map)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            Log.d(TAG, "onSuccess: liked decreased success");
+                                            q.setLikes(Long.parseLong(q.getLikes()) + 1 + "");
+                                            q.setCheckLike(true);
+                                            isLiked = true;
+                                            notifyDataSetChanged();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.d(TAG, "onFailure: exception " + e);
+                                        }
+                                    });
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: " + e);
+                        }
+                    });
+                }
+            }
+        });
+
         holder.likeBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("checkLike", true);
-                map.put("likes", (Long.parseLong(q.getLikes()) + 1) + "");
-                mFirestore.collection("questions").document(q.getID()).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Log.d(TAG, "onSuccess: success");
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: " + e);
-                    }
-                });
-
             }
         });
 

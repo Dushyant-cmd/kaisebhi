@@ -79,7 +79,8 @@ public class MineQuestFragment extends Fragment {
                             for(DocumentSnapshot d: list) {
                                 questions.add(new QuestionsModel(d.getString("id"), d.getString("title"), d.getString("desc"),
                                         d.getString("qpic"), d.getString("uname"), "NA", d.getBoolean("checkFav"),
-                                        d.getString("likes"), d.getBoolean("checkLike"), d.getString("tanswers")));
+                                        d.getString("likes"), d.getBoolean("checkLike"), d.getString("tanswers"),
+                                        d.getString("likedByUser")));
                             }
                             adapter = new MineQuestionsAdapter(questions,getActivity(), mFirestore);
                             recyclerView.setAdapter(adapter);

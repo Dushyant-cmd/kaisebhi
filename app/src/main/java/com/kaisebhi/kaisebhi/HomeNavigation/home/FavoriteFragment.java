@@ -79,15 +79,15 @@ public class FavoriteFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            roomDb.getFavDao().deleteAllFav();
+//                            roomDb.getFavDao().deleteAllFav();
                             for (DocumentSnapshot d : task.getResult().getDocuments()) {
                                 QuestionsModel model = new QuestionsModel(
                                         d.getString("id"), d.getString("title"), d.getString("desc"),
                                         d.getString("qpic"), d.getString("uname"), d.getString("upro"),
                                         d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                        d.getString("tanswers"));
+                                        d.getString("tanswers"), d.getString("likedByUser"));
                                 questions.add(model);
-                                roomDb.getFavDao().insertFav(model);
+//                                roomDb.getFavDao().insertFav(model);
                             }
                             adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, roomDb);
                             recyclerView.setAdapter(adapter);
