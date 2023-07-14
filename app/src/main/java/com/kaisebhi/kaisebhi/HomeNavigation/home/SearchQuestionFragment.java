@@ -47,6 +47,7 @@ public class SearchQuestionFragment extends Fragment {
     FrameLayout framLa;
     private ShimmerFrameLayout shimmerFrameLayout;
     private String TAG = "SearchQuestionsFrag.java";
+    private ApplicationCustom applicationCustom;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -55,6 +56,7 @@ public class SearchQuestionFragment extends Fragment {
         shimmerFrameLayout = root.findViewById(R.id.SearchloadingShimmer);
         mFirestore = ((ApplicationCustom) getActivity().getApplication()).mFirestore;
         questions = new ArrayList<>();
+        applicationCustom = ((ApplicationCustom) getActivity().getApplication());
 
         SearchQues = root.findViewById(R.id.searchQues);
         framLa = root.findViewById(R.id.framLa);
@@ -100,10 +102,10 @@ public class SearchQuestionFragment extends Fragment {
                                         d.getString("id"), d.getString("title"), d.getString("desc"),
                                         d.getString("qpic"), d.getString("uname"), d.getString("upro"),
                                         d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                        d.getString("tanswers"), d.getString("likedByUser")));
+                                        d.getString("tanswers"), d.getString("likedByUser"), d.getString("image")));
                             }
 
-                            adapter = new QuestionsAdapter(questions, getActivity(), mFirestore, ((ApplicationCustom) getActivity().getApplication()).roomDb);
+                            adapter = new QuestionsAdapter(questions, getActivity(), mFirestore, applicationCustom.roomDb, applicationCustom.storage);
                             recyclerView.setAdapter(adapter);
                             framLa.setVisibility(View.GONE);
                             shimmerFrameLayout.stopShimmerAnimation();

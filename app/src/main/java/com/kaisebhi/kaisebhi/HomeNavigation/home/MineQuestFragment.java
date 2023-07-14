@@ -80,7 +80,7 @@ public class MineQuestFragment extends Fragment {
                                 questions.add(new QuestionsModel(d.getString("id"), d.getString("title"), d.getString("desc"),
                                         d.getString("qpic"), d.getString("uname"), "NA", d.getBoolean("checkFav"),
                                         d.getString("likes"), d.getBoolean("checkLike"), d.getString("tanswers"),
-                                        d.getString("likedByUser")));
+                                        d.getString("likedByUser"), d.getString("image")));
                             }
                             adapter = new MineQuestionsAdapter(questions,getActivity(), mFirestore);
                             recyclerView.setAdapter(adapter);

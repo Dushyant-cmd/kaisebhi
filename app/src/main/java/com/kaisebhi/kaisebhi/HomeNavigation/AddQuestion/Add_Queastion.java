@@ -25,28 +25,26 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.kaisebhi.kaisebhi.HomeActivity;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
-import com.kaisebhi.kaisebhi.Utility.DefaultResponse;
-import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 import com.kaisebhi.kaisebhi.Utility.Utility;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.HashMap;
-
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import java.util.UUID;
 
 public class Add_Queastion extends AppCompatActivity {
 
@@ -137,7 +135,7 @@ public class Add_Queastion extends AppCompatActivity {
             return;
         }
         progressDialog.show();
-        if(uploadBtn.getText().toString().matches("Update Question")) {
+        if (uploadBtn.getText().toString().matches("Update Question")) {
             HashMap<String, Object> map = new HashMap<>();
             map.put("title", title);
             map.put("desc", desc);
@@ -179,6 +177,8 @@ public class Add_Queastion extends AppCompatActivity {
                                 questionMap.put("id", updateId + "");
                                 questionMap.put("qualityCheck", false);
                                 questionMap.put("timestamp", System.currentTimeMillis());
+                                questionMap.put("likedByUser", "");
+                                questionMap.put("image", "");
                                 mFirestore.collection("questions").document(updateId + "").set(questionMap)
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
@@ -231,35 +231,119 @@ public class Add_Queastion extends AppCompatActivity {
 
         progressDialog.show();
 
-        File file = new File(postUri.getPath());
-        RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
-        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
-        RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
-
-        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().addImgQuestion(fileToUpload, filename, title, desc, "", SharedPrefManager.getInstance(getApplicationContext()).getsUser().getUid());
-        call.enqueue(new Callback<DefaultResponse>() {
-            @Override
-            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-                DefaultResponse dr = response.body();
-                if (response.code() == 201) {
-                    progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Question Waiting for Approve! ", Toast.LENGTH_SHORT).show();
-                    Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
-                    cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(cart);
-                    finish();
-
-                } else if (response.code() == 422) {
-                    progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_SHORT).show();
+        try {
+            File file = new File(postUri.getPath());
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference storageRef = storage.getReference();
+            String imagePath = UUID.randomUUID().toString();
+            StorageReference imageRef = storageRef.child("images/" + imagePath);
+            InputStream inputStream = new FileInputStream(file);
+            UploadTask uploadTask = imageRef.putStream(inputStream);
+            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    mFirestore.collection("ids").document("questionId").get()
+                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        long updateId = task.getResult().getLong("id") + 1;
+                                        HashMap<String, Object> questionMap = new HashMap<>();
+                                        questionMap.put("title", title);
+                                        questionMap.put("desc", desc);
+                                        questionMap.put("likes", "0");
+                                        questionMap.put("qpic", "na");
+                                        questionMap.put("checkFav", false);
+                                        questionMap.put("checkLike", false);
+                                        questionMap.put("tanswers", "false");
+                                        questionMap.put("uname", sharedPrefManager.getsUser().getName());
+                                        questionMap.put("userId", sharedPrefManager.getsUser().getUid());
+                                        questionMap.put("id", updateId + "");
+                                        questionMap.put("qualityCheck", false);
+                                        questionMap.put("timestamp", System.currentTimeMillis());
+                                        questionMap.put("likedByUser", "");
+                                        questionMap.put("image", "images/" + imagePath);
+                                        mFirestore.collection("questions").document(updateId + "").set(questionMap)
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        HashMap<String, Object> map = new HashMap<>();
+                                                        map.put("id", updateId);
+                                                        mFirestore.collection("ids").document("questionId").update(map)
+                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                    @Override
+                                                                    public void onSuccess(Void unused) {
+                                                                        Log.d(TAG, "onSuccess: success");
+                                                                        progressDialog.dismiss();
+                                                                        Toast.makeText(getApplicationContext(), "Question Waiting for Approve! ", Toast.LENGTH_SHORT).show();
+                                                                        Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
+                                                                        cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                                        cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                                        startActivity(cart);
+                                                                        finish();
+                                                                    }
+                                                                }).addOnFailureListener(new OnFailureListener() {
+                                                                    @Override
+                                                                    public void onFailure(@NonNull Exception e) {
+                                                                        Log.d(TAG, "onFailure: " + e);
+                                                                    }
+                                                                });
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(Exception e) {
+                                                        Log.d(TAG, "onFailure: " + e);
+                                                    }
+                                                });
+                                    }
+                                }
+                            });
                 }
-            }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(TAG, "onFailure: " + e);
+                    progressDialog.dismiss();
+                    Toast.makeText(Add_Queastion.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
 
-            @Override
-            public void onFailure(Call<DefaultResponse> call, Throwable t) {
-            }
-        });
+                }
+            });
+        } catch (Exception e) {
+            Log.d(TAG, "uploadQuesImage: " + e);
+        }
+
+//        RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
+//        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
+//        RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+//
+//        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().addImgQuestion(fileToUpload, filename, title, desc, "", SharedPrefManager.getInstance(getApplicationContext()).getsUser().getUid());
+//        call.enqueue(new Callback<DefaultResponse>() {
+//            @Override
+//            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
+//                DefaultResponse dr = response.body();
+//                if (response.code() == 201) {
+//                    progressDialog.dismiss();
+//                    Toast.makeText(getApplicationContext(), "Question Waiting for Approve! ", Toast.LENGTH_SHORT).show();
+//                    Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
+//                    cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                    startActivity(cart);
+//                    finish();
+//
+//                } else if (response.code() == 422) {
+//                    progressDialog.dismiss();
+//                    Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<DefaultResponse> call, Throwable t) {
+//            }
+//        });
 
 
     }

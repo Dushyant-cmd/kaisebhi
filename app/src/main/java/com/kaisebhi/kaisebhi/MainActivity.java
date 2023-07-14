@@ -29,7 +29,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.iid.FirebaseInstanceId;
+//import com.google.firebase.iid.FirebaseInstanceId;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
 import java.util.HashMap;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         signProgress = findViewById(R.id.pgore);
         findViewById(R.id.root).isInEditMode();
 
-        Token = FirebaseInstanceId.getInstance().getToken();
+//        Token = FirebaseInstanceId.getInstance().getToken();
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken("316855122484-l6bun4vaf6ve6rt08fekbrjo5712qhqa.apps.googleusercontent.com")
                 .requestEmail()

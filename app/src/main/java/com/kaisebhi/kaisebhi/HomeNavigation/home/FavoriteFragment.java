@@ -18,6 +18,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
 import com.kaisebhi.kaisebhi.Utility.Main_Interface;
@@ -45,7 +46,7 @@ public class FavoriteFragment extends Fragment {
     private FirebaseFirestore mFirestore;
     private String TAG = "FavoriteFragment.java";
     private RoomDb roomDb;
-
+    private FirebaseStorage storage;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -60,6 +61,7 @@ public class FavoriteFragment extends Fragment {
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
+        storage = FirebaseStorage.getInstance();
 
         fetchQuestions();
 
@@ -79,17 +81,15 @@ public class FavoriteFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-//                            roomDb.getFavDao().deleteAllFav();
                             for (DocumentSnapshot d : task.getResult().getDocuments()) {
                                 QuestionsModel model = new QuestionsModel(
                                         d.getString("id"), d.getString("title"), d.getString("desc"),
                                         d.getString("qpic"), d.getString("uname"), d.getString("upro"),
                                         d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                        d.getString("tanswers"), d.getString("likedByUser"));
+                                        d.getString("tanswers"), d.getString("likedByUser"), d.getString("image"));
                                 questions.add(model);
-//                                roomDb.getFavDao().insertFav(model);
                             }
-                            adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, roomDb);
+                            adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, roomDb, storage);
                             recyclerView.setAdapter(adapter);
 
                             shimmerFrameLayout.stopShimmerAnimation();

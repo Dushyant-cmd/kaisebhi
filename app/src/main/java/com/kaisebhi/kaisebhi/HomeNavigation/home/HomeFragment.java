@@ -22,6 +22,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
 import com.kaisebhi.kaisebhi.ActivityForFrag;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
@@ -48,6 +49,8 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore mFirestore;
     private long lastItemTimestamp;
     private DocumentSnapshot lastItem;
+    private FirebaseStorage storage;
+    private ApplicationCustom applicationCustom;
     int totalItems,currentItems,scrollOutItems=0;
 
     SwipeRefreshLayout refreshQuesitons;
@@ -64,12 +67,13 @@ public class HomeFragment extends Fragment {
 
         refreshQuesitons = root.findViewById(R.id.refreshQuesitons);
         questions = new ArrayList<>();
+        applicationCustom = ((ApplicationCustom) getActivity().getApplication());
 
         shimmerFrameLayout = root.findViewById(R.id.SearchloadingShimmer);
         loadMoreProgress = root.findViewById(R.id.loadMoreProgress);
         nestRecy = root.findViewById(R.id.nestRecy);
         mFirestore = ((ApplicationCustom) getActivity().getApplication()).mFirestore;
-
+        storage = FirebaseStorage.getInstance();
         root.findViewById(R.id.searchQues).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,14 +140,14 @@ public class HomeFragment extends Fragment {
                                             d.getString("id"), d.getString("title"), d.getString("desc"),
                                             d.getString("qpic"), d.getString("uname"), d.getString("upro"),
                                             d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                            d.getString("tanswers"), d.getString("likedByUser")));
+                                            d.getString("tanswers"), d.getString("likedByUser"), d.getString("image")));
                                     if(i == list.size() - 1) {
                                         lastItemTimestamp = d.getLong("timestamp");
                                         lastItem = d;
                                     }
                                 }
 
-                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb);
+                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb, applicationCustom.storage);
                                 recyclerView.setAdapter(adapter);
 
                                 shimmerFrameLayout.stopShimmerAnimation();
@@ -178,7 +182,7 @@ public class HomeFragment extends Fragment {
                                             d.getString("id"), d.getString("title"), d.getString("desc"),
                                             d.getString("qpic"), d.getString("uname"), d.getString("upro"),
                                             d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                            d.getString("tanswers"), d.getString("likedByUser")));
+                                            d.getString("tanswers"), d.getString("likedByUser"), d.getString("image")));
 
                                 }
                                 if(!task.getResult().getDocuments().isEmpty()) {
@@ -187,7 +191,7 @@ public class HomeFragment extends Fragment {
                                 }
 
 
-                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb);
+                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb, applicationCustom.storage);
                                 recyclerView.setAdapter(adapter);
                                 loadMoreProgress.setVisibility(View.GONE);
                             } catch (Exception e) {

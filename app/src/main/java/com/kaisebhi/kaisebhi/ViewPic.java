@@ -22,7 +22,7 @@ public class ViewPic extends AppCompatActivity {
 
         if (extras != null) {
 
-            Glide.with(this).load(BASE_URL + "qimg/"+ extras.getString("photourl")).fitCenter().into(img);
+            Glide.with(this).load(extras.getString("photourl")).fitCenter().into(img);
 
         }
 
