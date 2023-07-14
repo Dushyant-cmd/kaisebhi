@@ -5,6 +5,7 @@ import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,14 +27,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.kaisebhi.kaisebhi.AnswersActivity;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 import com.kaisebhi.kaisebhi.ViewPic;
 import com.kaisebhi.kaisebhi.room.RoomDb;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -48,21 +49,26 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
     private FirebaseFirestore mFirestore;
     private String TAG = "QuestionsAdapter.java", comeFrom = "";
     private boolean isFavChecked = true;
+    private FirebaseStorage storage;
     public RoomDb roomDb;
+    private String url = "";
 
-    public QuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore firestore, RoomDb roomDb) {
+    public QuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore firestore, RoomDb roomDb, FirebaseStorage storage) {
         this.nlist = nlist;
         this.context = context;
         this.mFirestore = firestore;
         this.roomDb = roomDb;
+        this.storage = storage;
     }
 
-    public QuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore firestore, String comeFrom, RoomDb roomDb) {
+    public QuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore firestore,
+                            String comeFrom, RoomDb roomDb, FirebaseStorage storage) {
         this.nlist = nlist;
         this.context = context;
         this.mFirestore = firestore;
         this.comeFrom = comeFrom;
         this.roomDb = roomDb;
+        this.storage = storage;
     }
 
     @NonNull
@@ -75,7 +81,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
 
     @SuppressLint("ResourceType")
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
         QuestionsModel q = nlist.get(position);
         holder.Title.setText(nlist.get(position).getTitle());
         holder.Desc.setText(nlist.get(position).getDesc());
@@ -87,12 +93,30 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
 
         if (!nlist.get(position).getLikes().equals("0")) {
             holder.totalLike.setText(nlist.get(position).getLikes());
-        }
+        } else
+            holder.totalLike.setText("");
 
         final String Id = nlist.get(position).getID();
 
         SharedPrefManager sh = new SharedPrefManager(context);
         final String uid = sh.getsUser().getUid();
+
+        if (!q.getPathOfImg().isEmpty()) {
+            StorageReference storageReference = storage.getReference();
+            StorageReference imageRef = storageReference.child(q.getPathOfImg());
+            imageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        url = task.getResult().toString();
+                        holder.questionimg.setVisibility(View.VISIBLE);
+                        Glide.with(context).load(url).fitCenter().into((holder).questionimg);
+
+                        Log.d(TAG, "onComplete: " + url);
+                    }
+                }
+            });
+        }
 
         if (comeFrom.matches("home")) {
             mFirestore.collection("favorite").whereEqualTo("id", q.getID())
@@ -115,10 +139,12 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         } else
             holder.favBtn.setChecked(nlist.get(position).getCheckFav());
 
+        Log.d(TAG, "onBindViewHolder: " + q.getLikes());
         String[] likedByUsersArr = q.getLikedByUser().split(",");
-        for(String userId: likedByUsersArr) {
-            if(userId.matches(q.getID())) {
+        for (String userId : likedByUsersArr) {
+            if (userId.matches(q.getID())) {
                 holder.likeBtn.setChecked(true);
+                q.setCheckLike(true);
                 isLiked = q.getCheckLike();
                 break;
             }
@@ -193,6 +219,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     questionMap.put("userId", SharedPrefManager.getInstance(context).getsUser().getUid());
                     questionMap.put("id", q.getID());
                     questionMap.put("timestamp", System.currentTimeMillis());
+                    questionMap.put("likedByUser", q.getLikedByUser());
                     mFirestore.collection("favorite").add(questionMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
@@ -219,12 +246,12 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                                                     try {
                                                         if (comeFrom.matches("home")) {
                                                             Log.d(TAG, "onSuccess: success");
-                                                            roomDb.getFavDao().deleteFav(q);
+//                                                            roomDb.getFavDao().deleteFav(q);
                                                             q.setCheckFav(false);
                                                             QuestionsAdapter.this.notifyDataSetChanged();
                                                         } else {
                                                             Log.d(TAG, "onSuccess: success");
-                                                            roomDb.getFavDao().deleteFav(q);
+//                                                            roomDb.getFavDao().deleteFav(q);
                                                             q.setCheckFav(false);
                                                             nlist.remove(position);
                                                             QuestionsAdapter.this.notifyDataSetChanged();
@@ -256,8 +283,9 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         holder.questionimg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(TAG, "onClick: " + url);
                 Intent i = new Intent(context.getApplicationContext(), ViewPic.class);
-                i.putExtra("photourl", nlist.get(position).getQpic());
+                i.putExtra("photourl", url);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }
@@ -271,45 +299,33 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("checkLike", false);
                     map.put("likes", Long.parseLong(q.getLikes()) - 1 + "");
-                    mFirestore.collection("questions").document(q.getID() + "")
-                            .update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    String usersLikedBy = "";
+                    for (String userId : likedByUsersArr) {
+                        if (userId.matches(q.getID())) {
+                            continue;
+                        } else
+                            usersLikedBy += userId;
+                    }
+                    map.put("likedByUser", usersLikedBy);
+                    mFirestore.collection("questions").document(q.getID()).update(map)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
-                                    HashMap<String, Object> map = new HashMap<>();
-                                    String usersLikedBy = "";
-                                    for(String userId : likedByUsersArr) {
-                                        if(userId.matches(q.getID())) {
-                                            continue;
-                                        } else
-                                            usersLikedBy += userId;
-
-                                    }
-                                    map.put("likedByUser", usersLikedBy);
-                                    mFirestore.collection("questions").document(q.getID()).update(map)
-                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void unused) {
-                                                    Log.d(TAG, "onSuccess: questions liked success");
-                                                    q.setLikes(Long.parseLong(q.getLikes()) - 1 + "");
-                                                    q.setCheckLike(false);
-                                                    isLiked = false;
-                                                    notifyDataSetChanged();
-                                                }
-                                            }).addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.d(TAG, "onFailure: exception " + e);
-                                                }
-                                            });
+                                    Log.d(TAG, "onSuccess: questions liked success");
+                                    q.setLikes((Long.parseLong(q.getLikes()) - 1) + "");
+                                    q.setCheckLike(false);
+                                    isLiked = false;
+                                    QuestionsAdapter.this.notifyDataSetChanged();
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    Log.d(TAG, "onFailure: " + e);
+                                    Log.d(TAG, "onFailure: exception " + e);
                                 }
                             });
 
-                    mFirestore.collection("favorite").whereEqualTo("userId", SharedPrefManager.getInstance(context).getsUser().getUid())
+                    mFirestore.collection("favorite")
+                            .whereEqualTo("userId", SharedPrefManager.getInstance(context).getsUser().getUid())
                             .whereEqualTo("id", q.getID()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -334,34 +350,45 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("checkLike", true);
                     map.put("likes", (Long.parseLong(q.getLikes()) + 1) + "");
-                    mFirestore.collection("questions").document(q.getID()).update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void unused) {
-                            HashMap<String, Object> map = new HashMap<>();
-                            map.put("likedByUser", q.getLikedByUser() + "," + q.getID());
-                            mFirestore.collection("questions").document(q.getID()).update(map)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-                                            Log.d(TAG, "onSuccess: liked decreased success");
-                                            q.setLikes(Long.parseLong(q.getLikes()) + 1 + "");
-                                            q.setCheckLike(true);
-                                            isLiked = true;
-                                            notifyDataSetChanged();
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.d(TAG, "onFailure: exception " + e);
-                                        }
-                                    });
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "onFailure: " + e);
-                        }
-                    });
+                    map.put("likedByUser", q.getLikedByUser() + "," + q.getID());
+                    mFirestore.collection("questions").document(q.getID()).update(map)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    Log.d(TAG, "onSuccess: liked decreased success");
+                                    q.setLikes(Long.parseLong(q.getLikes()) + 1 + "");
+                                    q.setCheckLike(true);
+                                    isLiked = true;
+                                    QuestionsAdapter.this.notifyDataSetChanged();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d(TAG, "onFailure: exception " + e);
+                                }
+                            });
+
+                    mFirestore.collection("favorite")
+                            .whereEqualTo("userId", SharedPrefManager.getInstance(context).getsUser().getUid())
+                            .whereEqualTo("id", q.getID()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful() && !task.getResult().getDocuments().isEmpty()) {
+                                        mFirestore.collection("favorite").document(task.getResult().getDocuments().get(0).getId() + "")
+                                                .update(map).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Log.d(TAG, "onSuccess: questions favorite success");
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.d(TAG, "onFailure: " + e);
+                                                    }
+                                                });
+                                    }
+                                }
+                            });
                 }
             }
         });
@@ -371,12 +398,6 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             }
         });
-
-
-        if (nlist.get(position).getQpic().length() > 0) {
-            holder.questionimg.setVisibility(View.VISIBLE);
-            Glide.with(context).load(BASE_URL + "qimg/" + nlist.get(position).getQpic()).fitCenter().into((holder).questionimg);
-        }
 
         Glide.with(context).load(BASE_URL + "user/" + nlist.get(position).getUpro()).dontAnimate().centerCrop().placeholder(R.drawable.profile).fitCenter().into((holder).pro);
 
