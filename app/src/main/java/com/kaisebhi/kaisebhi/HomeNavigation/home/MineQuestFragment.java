@@ -82,7 +82,7 @@ public class MineQuestFragment extends Fragment {
                                         d.getString("likes"), d.getBoolean("checkLike"), d.getString("tanswers"),
                                         d.getString("likedByUser"), d.getString("image")));
                             }
-                            adapter = new MineQuestionsAdapter(questions,getActivity(), mFirestore);
+                            adapter = new MineQuestionsAdapter(questions,getActivity(), mFirestore, ((ApplicationCustom) requireActivity().getApplication()).storage);
                             recyclerView.setAdapter(adapter);
 
                             shimmerFrameLayout.stopShimmerAnimation();

@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                                                     Log.d(TAG, "onComplete: user exist " + d.toString());
                                                     signProgress.setVisibility(View.GONE);
                                                     SharedPrefManager.getInstance(getApplicationContext()).saveUser(d.getString("name"), d.getLong("mobile").toString(),
-                                                            (updatedUserId - 1) + "", d.getString("profile"), d.getString("email"));
+                                                            d.getLong("userId").toString(), d.getString("profile"), d.getString("email"));
                                                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                                     startActivity(intent);
                                                     finish();

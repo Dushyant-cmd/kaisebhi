@@ -5,7 +5,6 @@ import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +27,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.kaisebhi.kaisebhi.AnswersActivity;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
@@ -47,7 +45,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
     private boolean isLiked = false;
     private Context context;
     private FirebaseFirestore mFirestore;
-    private String TAG = "QuestionsAdapter.java", comeFrom = "";
+    private String TAG = "QuestionsAdapter.java", comeFrom = "", usersLikedBy = "";;
     private boolean isFavChecked = true;
     private FirebaseStorage storage;
     public RoomDb roomDb;
@@ -102,20 +100,12 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         final String uid = sh.getsUser().getUid();
 
         if (!q.getPathOfImg().isEmpty()) {
-            StorageReference storageReference = storage.getReference();
-            StorageReference imageRef = storageReference.child(q.getPathOfImg());
-            imageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                @Override
-                public void onComplete(@NonNull Task<Uri> task) {
-                    if (task.isSuccessful()) {
-                        url = task.getResult().toString();
-                        holder.questionimg.setVisibility(View.VISIBLE);
-                        Glide.with(context).load(url).fitCenter().into((holder).questionimg);
-
-                        Log.d(TAG, "onComplete: " + url);
-                    }
-                }
-            });
+            url = q.getPathOfImg();
+            holder.questionimg.setVisibility(View.VISIBLE);
+            Glide.with(context).load(url).fitCenter().into((holder).questionimg);
+//            Log.d(TAG, "onComplete: " + url);
+        } else {
+            holder.questionimg.setVisibility(View.VISIBLE);
         }
 
         if (comeFrom.matches("home")) {
@@ -125,7 +115,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
-                                Log.d(TAG, "onComplete: success ");
+//                                Log.d(TAG, "onComplete: success ");
                                 if (!task.getResult().getDocuments().isEmpty()) {
                                     q.setCheckFav(true);
                                     holder.favBtn.setChecked(q.getCheckFav());
@@ -147,6 +137,8 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                 q.setCheckLike(true);
                 isLiked = q.getCheckLike();
                 break;
+            } else {
+                holder.likeBtn.setChecked(false);
             }
         }
 
@@ -193,7 +185,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                 i.putExtra("user", nlist.get(position).getUname());
                 i.putExtra("userpic", nlist.get(position).getUpro());
                 i.putExtra("desc", nlist.get(position).getDesc());
-                i.putExtra("qimg", nlist.get(position).getQpic());
+                i.putExtra("qimg", q.getPathOfImg());
                 i.putExtra("tans", nlist.get(position).getTansers());
                 i.putExtra("tlikes", nlist.get(position).getCheckLike());
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -220,10 +212,11 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     questionMap.put("id", q.getID());
                     questionMap.put("timestamp", System.currentTimeMillis());
                     questionMap.put("likedByUser", q.getLikedByUser());
+                    questionMap.put("image", q.getPathOfImg());
                     mFirestore.collection("favorite").add(questionMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
-                            Log.d(TAG, "onSuccess: success" + documentReference);
+//                            Log.d(TAG, "onSuccess: success" + documentReference);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -245,12 +238,12 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                                                 public void onSuccess(Void unused) {
                                                     try {
                                                         if (comeFrom.matches("home")) {
-                                                            Log.d(TAG, "onSuccess: success");
+//                                                            Log.d(TAG, "onSuccess: success");
 //                                                            roomDb.getFavDao().deleteFav(q);
                                                             q.setCheckFav(false);
                                                             QuestionsAdapter.this.notifyDataSetChanged();
                                                         } else {
-                                                            Log.d(TAG, "onSuccess: success");
+//                                                            Log.d(TAG, "onSuccess: success");
 //                                                            roomDb.getFavDao().deleteFav(q);
                                                             q.setCheckFav(false);
                                                             nlist.remove(position);
@@ -291,15 +284,14 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
             }
         });
 
-
         holder.likeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isLiked) {
+                    Log.d(TAG, "onCheckedChanged: checked");
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("checkLike", false);
                     map.put("likes", Long.parseLong(q.getLikes()) - 1 + "");
-                    String usersLikedBy = "";
                     for (String userId : likedByUsersArr) {
                         if (userId.matches(q.getID())) {
                             continue;
@@ -313,6 +305,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                                 public void onSuccess(Void unused) {
                                     Log.d(TAG, "onSuccess: questions liked success");
                                     q.setLikes((Long.parseLong(q.getLikes()) - 1) + "");
+                                    q.setLikedByUser(usersLikedBy);
                                     q.setCheckLike(false);
                                     isLiked = false;
                                     QuestionsAdapter.this.notifyDataSetChanged();
@@ -350,13 +343,15 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("checkLike", true);
                     map.put("likes", (Long.parseLong(q.getLikes()) + 1) + "");
-                    map.put("likedByUser", q.getLikedByUser() + "," + q.getID());
+                    usersLikedBy = q.getLikedByUser() + "," + q.getID();
+                    map.put("likedByUser", usersLikedBy);
                     mFirestore.collection("questions").document(q.getID()).update(map)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
-                                    Log.d(TAG, "onSuccess: liked decreased success");
+                                    Log.d(TAG, "onSuccess: liked increased success");
                                     q.setLikes(Long.parseLong(q.getLikes()) + 1 + "");
+                                    q.setLikedByUser(usersLikedBy);
                                     q.setCheckLike(true);
                                     isLiked = true;
                                     QuestionsAdapter.this.notifyDataSetChanged();

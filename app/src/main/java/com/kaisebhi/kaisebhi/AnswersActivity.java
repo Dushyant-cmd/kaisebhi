@@ -123,9 +123,9 @@ public class AnswersActivity extends AppCompatActivity {
             likeBtn.setChecked(extras.getBoolean("tlikes"));
 
 
-            if (extras.getString("qimg").length() > 0) {
+            if (!extras.getString("qimg").matches("na")) {
                 questionimg.setVisibility(View.VISIBLE);
-                Glide.with(getApplicationContext()).load(BASE_URL + "qimg/" + extras.getString("qimg")).fitCenter().into(questionimg);
+                Glide.with(getApplicationContext()).load(extras.getString("qimg")).fitCenter().into(questionimg);
             }
             Glide.with(getApplicationContext()).load(BASE_URL + "user/" + extras.getString("userpic")).placeholder(R.drawable.profile).fitCenter().into(pro);
 
@@ -181,6 +181,7 @@ public class AnswersActivity extends AppCompatActivity {
                     map.put("selfAnswer", false);
                     map.put("selfHideAnswer", false);
                     map.put("userReportCheck", false);
+                    map.put("userId", sharedPrefManager.getsUser().getUid());
                     mFirestore.collection("answers").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {

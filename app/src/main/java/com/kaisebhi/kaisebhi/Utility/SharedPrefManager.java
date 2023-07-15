@@ -75,6 +75,8 @@ public class SharedPrefManager {
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()) {
                     mAuth.signOut();
+                } else {
+                    mAuth.signOut();
                 }
             }
         });
