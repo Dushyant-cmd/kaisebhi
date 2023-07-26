@@ -88,7 +88,7 @@ public class HomeFragment extends Fragment {
         refreshQuesitons.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fetchQuestions(1);
+                fetchQuestions();
             }
         });
 
@@ -96,7 +96,7 @@ public class HomeFragment extends Fragment {
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
 
-        fetchQuestions(currentPage);
+        fetchQuestions();
 
         nestRecy.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
@@ -116,17 +116,15 @@ public class HomeFragment extends Fragment {
 
 
 
-    public void fetchQuestions(int cPage)
-    {
+    public void fetchQuestions() {
         questions.clear();
         shimmerFrameLayout.setVisibility(View.VISIBLE);
         shimmerFrameLayout.startShimmerAnimation();
         recyclerView.setAdapter(null);
-
-        SharedPrefManager sh = new SharedPrefManager(getActivity());
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
 
-        mFirestore.collection("questions").orderBy("timestamp", Query.Direction.DESCENDING).limit(2).get().addOnCompleteListener(
+        mFirestore.collection("questions").whereEqualTo("qualityCheck", true).orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(2).get().addOnCompleteListener(
                 new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -149,7 +147,6 @@ public class HomeFragment extends Fragment {
 
                                 adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb, applicationCustom.storage);
                                 recyclerView.setAdapter(adapter);
-
                                 shimmerFrameLayout.stopShimmerAnimation();
                                 shimmerFrameLayout.setVisibility(View.GONE);
                                 refreshQuesitons.setRefreshing(false);
@@ -165,13 +162,10 @@ public class HomeFragment extends Fragment {
     }
 
 
-    public void fetchMore()
-    {
-
-        SharedPrefManager sh = new SharedPrefManager(getActivity());
-
+    public void fetchMore() {
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
-        mFirestore.collection("questions").orderBy("timestamp", Query.Direction.DESCENDING).startAfter(lastItem).limit(2).get().addOnCompleteListener(
+        mFirestore.collection("questions").whereEqualTo("qualityCheck", true)
+                .orderBy("timestamp", Query.Direction.DESCENDING).startAfter(lastItem).limit(2).get().addOnCompleteListener(    
                 new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -183,7 +177,6 @@ public class HomeFragment extends Fragment {
                                             d.getString("qpic"), d.getString("uname"), d.getString("upro"),
                                             d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
                                             d.getString("tanswers"), d.getString("likedByUser"), d.getString("image")));
-
                                 }
                                 if(!task.getResult().getDocuments().isEmpty()) {
                                     lastItem = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);

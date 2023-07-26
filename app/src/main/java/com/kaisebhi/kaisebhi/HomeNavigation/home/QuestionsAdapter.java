@@ -132,7 +132,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         Log.d(TAG, "onBindViewHolder: " + q.getLikes());
         String[] likedByUsersArr = q.getLikedByUser().split(",");
         for (String userId : likedByUsersArr) {
-            if (userId.matches(q.getID())) {
+            if (userId.matches(sh.getsUser().getUid())) {
                 holder.likeBtn.setChecked(true);
                 q.setCheckLike(true);
                 isLiked = q.getCheckLike();
@@ -293,12 +293,14 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     map.put("checkLike", false);
                     map.put("likes", Long.parseLong(q.getLikes()) - 1 + "");
                     for (String userId : likedByUsersArr) {
-                        if (userId.matches(q.getID())) {
+                        if (userId.matches(sh.getsUser().getUid())) {
                             continue;
-                        } else
+                        } else {
                             usersLikedBy += userId;
+                        }
                     }
                     map.put("likedByUser", usersLikedBy);
+                    Log.d(TAG, "onClick: like decreased. " + map);
                     mFirestore.collection("questions").document(q.getID()).update(map)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
@@ -343,8 +345,9 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("checkLike", true);
                     map.put("likes", (Long.parseLong(q.getLikes()) + 1) + "");
-                    usersLikedBy = q.getLikedByUser() + "," + q.getID();
+                    usersLikedBy = q.getLikedByUser() + "," + sh.getsUser().getUid();
                     map.put("likedByUser", usersLikedBy);
+                    Log.d(TAG, "onClick: liked map " + usersLikedBy);
                     mFirestore.collection("questions").document(q.getID()).update(map)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
