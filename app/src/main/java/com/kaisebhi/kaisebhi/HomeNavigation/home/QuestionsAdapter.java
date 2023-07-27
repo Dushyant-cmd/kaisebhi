@@ -3,6 +3,7 @@ package com.kaisebhi.kaisebhi.HomeNavigation.home;
 import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -42,14 +43,16 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
 
 
     private List<QuestionsModel> nlist;
-    private boolean isLiked = false;
+//    private boolean isLiked = false;
     private Context context;
     private FirebaseFirestore mFirestore;
-    private String TAG = "QuestionsAdapter.java", comeFrom = "", usersLikedBy = "";;
+    private String TAG = "QuestionsAdapter.java", comeFrom = "", usersLikedBy = "";
+    ;
     private boolean isFavChecked = true;
     private FirebaseStorage storage;
     public RoomDb roomDb;
     private String url = "";
+    private ProgressDialog progressDialog;
 
     public QuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore firestore, RoomDb roomDb, FirebaseStorage storage) {
         this.nlist = nlist;
@@ -57,6 +60,9 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         this.mFirestore = firestore;
         this.roomDb = roomDb;
         this.storage = storage;
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("Please Wait...");
+        progressDialog.setCancelable(false);
     }
 
     public QuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore firestore,
@@ -67,6 +73,9 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         this.comeFrom = comeFrom;
         this.roomDb = roomDb;
         this.storage = storage;
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("Please Wait...");
+        progressDialog.setCancelable(false);
     }
 
     @NonNull
@@ -81,6 +90,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
         QuestionsModel q = nlist.get(position);
+        Log.d(TAG, "onBindViewHolder: model: " + q);
         holder.Title.setText(nlist.get(position).getTitle());
         holder.Desc.setText(nlist.get(position).getDesc());
         holder.Author.setText("By " + nlist.get(position).getUname());
@@ -129,15 +139,16 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         } else
             holder.favBtn.setChecked(nlist.get(position).getCheckFav());
 
-        Log.d(TAG, "onBindViewHolder: " + q.getLikes());
+        Log.d(TAG, "onBindViewHolder: " + q.getLikedByUser());
         String[] likedByUsersArr = q.getLikedByUser().split(",");
         for (String userId : likedByUsersArr) {
-            if (userId.matches(sh.getsUser().getUid())) {
+            if (userId.matches(uid)) {
                 holder.likeBtn.setChecked(true);
                 q.setCheckLike(true);
-                isLiked = q.getCheckLike();
+                Log.d(TAG, "liked by user");
                 break;
             } else {
+                q.setCheckLike(false);
                 holder.likeBtn.setChecked(false);
             }
         }
@@ -166,7 +177,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                 i.putExtra("user", nlist.get(position).getUname());
                 i.putExtra("userpic", nlist.get(position).getUpro());
                 i.putExtra("desc", nlist.get(position).getDesc());
-                i.putExtra("qimg", nlist.get(position).getQpic());
+                i.putExtra("qimg", q.getPathOfImg());
                 i.putExtra("tans", nlist.get(position).getTansers());
                 i.putExtra("tlikes", nlist.get(position).getCheckLike());
                 i.putExtra("likes", nlist.get(position).getLikes());
@@ -197,6 +208,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         holder.favBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressDialog.show();
                 if (isFavChecked) {
                     //not already favorite
                     HashMap<String, Object> questionMap = new HashMap<>();
@@ -216,11 +228,13 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     mFirestore.collection("favorite").add(questionMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
+                            progressDialog.dismiss();
 //                            Log.d(TAG, "onSuccess: success" + documentReference);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
                             Log.d(TAG, "onFailure: " + e);
                         }
                     });
@@ -237,6 +251,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                                                 @Override
                                                 public void onSuccess(Void unused) {
                                                     try {
+                                                        progressDialog.dismiss();
                                                         if (comeFrom.matches("home")) {
 //                                                            Log.d(TAG, "onSuccess: success");
 //                                                            roomDb.getFavDao().deleteFav(q);
@@ -256,6 +271,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                                             }).addOnFailureListener(new OnFailureListener() {
                                                 @Override
                                                 public void onFailure(@NonNull Exception e) {
+                                                    progressDialog.dismiss();
                                                     Log.d(TAG, "onFailure: " + e);
                                                 }
                                             });
@@ -278,7 +294,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
             public void onClick(View v) {
                 Log.d(TAG, "onClick: " + url);
                 Intent i = new Intent(context.getApplicationContext(), ViewPic.class);
-                i.putExtra("photourl", url);
+                i.putExtra("photourl", q.getPathOfImg());
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }
@@ -287,17 +303,19 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         holder.likeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isLiked) {
+                progressDialog.show();
+                if (q.getCheckLike()) {
                     Log.d(TAG, "onCheckedChanged: checked");
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("checkLike", false);
                     map.put("likes", Long.parseLong(q.getLikes()) - 1 + "");
+                    usersLikedBy = "";
                     for (String userId : likedByUsersArr) {
-                        if (userId.matches(sh.getsUser().getUid())) {
+                        if (userId.matches(sh.getsUser().getUid()))
                             continue;
-                        } else {
+                        else
                             usersLikedBy += userId;
-                        }
+
                     }
                     map.put("likedByUser", usersLikedBy);
                     Log.d(TAG, "onClick: like decreased. " + map);
@@ -306,15 +324,16 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                                 @Override
                                 public void onSuccess(Void unused) {
                                     Log.d(TAG, "onSuccess: questions liked success");
+                                    progressDialog.dismiss();
                                     q.setLikes((Long.parseLong(q.getLikes()) - 1) + "");
                                     q.setLikedByUser(usersLikedBy);
                                     q.setCheckLike(false);
-                                    isLiked = false;
                                     QuestionsAdapter.this.notifyDataSetChanged();
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
+                                    progressDialog.dismiss();
                                     Log.d(TAG, "onFailure: exception " + e);
                                 }
                             });
@@ -352,16 +371,17 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
+                                    progressDialog.dismiss();
                                     Log.d(TAG, "onSuccess: liked increased success");
                                     q.setLikes(Long.parseLong(q.getLikes()) + 1 + "");
                                     q.setLikedByUser(usersLikedBy);
                                     q.setCheckLike(true);
-                                    isLiked = true;
                                     QuestionsAdapter.this.notifyDataSetChanged();
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
+                                    progressDialog.dismiss();
                                     Log.d(TAG, "onFailure: exception " + e);
                                 }
                             });

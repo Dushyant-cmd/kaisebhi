@@ -47,10 +47,9 @@ public class MineAnswersAdapter extends RecyclerView.Adapter<MineAnswersAdapter.
     @SuppressLint("ResourceType")
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-
         holder.Answer.setText(nlist.get(position).getTansers());
         holder.Author.setText(nlist.get(position).getUname());
-        holder.Question.setText(nlist.get(position).getLikes());
+        holder.Question.setText(nlist.get(position).getQuestionsTitle());
         final String Id = nlist.get(position).getID();
         SharedPrefManager sh = new SharedPrefManager(context);
         final String uid = sh.getsUser().getUid();

@@ -16,6 +16,7 @@ import com.kaisebhi.kaisebhi.HomeNavigation.home.HomeFragment;
 import com.kaisebhi.kaisebhi.HomeNavigation.home.MenuFragment;
 import com.kaisebhi.kaisebhi.HomeNavigation.home.MineQuestFragment;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
+import com.kaisebhi.kaisebhi.Utility.Utility;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -112,6 +113,10 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
         });
+
+        if(!Utility.isNetworkAvailable(HomeActivity.this)) {
+            Utility.noNetworkDialog(HomeActivity.this);
+        }
     }
 
 

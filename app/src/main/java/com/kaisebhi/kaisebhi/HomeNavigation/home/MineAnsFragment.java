@@ -23,6 +23,7 @@ import com.kaisebhi.kaisebhi.Utility.Main_Interface;
 import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -34,7 +35,7 @@ public class MineAnsFragment extends Fragment {
     private String TAG = "MineAnsFragment.java";
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
-    private List<AnswersModel> answers;
+    private List<AnswersModel> answers = new ArrayList<>();
     private MineAnswersAdapter adapter;
     private Main_Interface main_interface;
     private ShimmerFrameLayout shimmerFrameLayout;
@@ -63,13 +64,14 @@ public class MineAnsFragment extends Fragment {
         SharedPrefManager sh = new SharedPrefManager(getActivity());
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
 
-        mFirestore.collection("answers").whereEqualTo("userId", sh.getsUser().getUid().toString())
+        mFirestore.collection("answers").whereEqualTo("userId", sh.getsUser().getUid())
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         try {
                             if (task.isSuccessful()) {
                                 List<DocumentSnapshot> list = task.getResult().getDocuments();
+                                Log.d(TAG, "onComplete: size of list " + list.size());
                                 for (DocumentSnapshot d : list) {
                                     answers.add(new AnswersModel(
                                             d.getString("id"), d.getBoolean("checkOwnQuestion"),
@@ -77,7 +79,7 @@ public class MineAnsFragment extends Fragment {
                                             d.getString("qdesc"), d.getString("qimg"), d.getBoolean("likeCheck"),
                                             d.getString("answer"), d.getBoolean("checkHideAnswer"), d.getBoolean("paidCheck"),
                                             d.getString("paidAmount"), d.getBoolean("selfAnswer"), d.getBoolean("selfHideAnswer"),
-                                            d.getBoolean("userReportCheck")
+                                            d.getBoolean("userReportCheck"), d.getString("title")
                                     ));
                                 }
 
@@ -93,26 +95,6 @@ public class MineAnsFragment extends Fragment {
                         }
                     }
                 });
-//        Call<List<AnswersModel>> call = main_interface.getMineAnswers(sh.getsUser().getUid());
-//
-//        call.enqueue(new Callback<List<AnswersModel>>() {
-//            @Override
-//            public void onResponse(Call<List<AnswersModel>> call, Response<List<AnswersModel>> response) {
-//
-//                answers = response.body();
-//                adapter = new MineAnswersAdapter(answers,getActivity());
-//                recyclerView.setAdapter(adapter);
-//
-//                shimmerFrameLayout.stopShimmerAnimation();
-//                shimmerFrameLayout.setVisibility(View.GONE);
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<AnswersModel>> call, Throwable t) {
-//
-//            }
-//        });
-//    }
     }
 
 }

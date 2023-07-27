@@ -127,8 +127,8 @@ public class AnswersActivity extends AppCompatActivity {
                 questionimg.setVisibility(View.VISIBLE);
                 Glide.with(getApplicationContext()).load(extras.getString("qimg")).fitCenter().into(questionimg);
             }
-            Glide.with(getApplicationContext()).load(BASE_URL + "user/" + extras.getString("userpic")).placeholder(R.drawable.profile).fitCenter().into(pro);
 
+            Glide.with(getApplicationContext()).load(BASE_URL + "user/" + extras.getString("userpic")).placeholder(R.drawable.profile).fitCenter().into(pro);
 
             fetchAnsers();
         }
@@ -255,7 +255,7 @@ public class AnswersActivity extends AppCompatActivity {
                                             d.getString("qdesc"), d.getString("qimg"), d.getBoolean("likeCheck"),
                                             d.getString("answer"), d.getBoolean("checkHideAnswer"), d.getBoolean("paidCheck"),
                                             d.getString("paidAmount"), d.getBoolean("selfAnswer"), d.getBoolean("selfHideAnswer"),
-                                            d.getBoolean("userReportCheck")
+                                            d.getBoolean("userReportCheck"), d.getString("title")
                                     ));
                                 }
                                 adapter = new AnswersAdapter(answers, getApplicationContext());

@@ -181,6 +181,9 @@ public class HomeFragment extends Fragment {
                                 if(!task.getResult().getDocuments().isEmpty()) {
                                     lastItem = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
                                     lastItemTimestamp = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1).getLong("timestamp");
+                                } else {
+                                    loadMoreProgress.setVisibility(View.GONE);
+                                    return;
                                 }
 
 

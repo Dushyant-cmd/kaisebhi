@@ -170,6 +170,24 @@ public class QuestionsModel {
         return checkLike;
     }
 
+    @Override
+    public String toString() {
+        return "QuestionsModel{" +
+                "uniqueId=" + uniqueId +
+                ", ID='" + ID + '\'' +
+                ", Title='" + Title + '\'' +
+                ", desc='" + desc + '\'' +
+                ", qpic='" + qpic + '\'' +
+                ", uname='" + uname + '\'' +
+                ", upro='" + upro + '\'' +
+                ", checkFav=" + checkFav +
+                ", likes='" + likes + '\'' +
+                ", checkLike=" + checkLike +
+                ", tansers='" + tansers + '\'' +
+                ", likedByUser='" + likedByUser + '\'' +
+                ", pathOfImg='" + pathOfImg + '\'' +
+                '}';
+    }
 }
 
 
