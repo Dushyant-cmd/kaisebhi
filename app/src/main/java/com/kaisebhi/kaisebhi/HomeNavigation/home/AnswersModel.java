@@ -51,8 +51,11 @@ public class AnswersModel {
 
     @SerializedName("title")
     private String questionsTitle;
+    private String answerDocId;
 
-    public AnswersModel(String ID, Boolean checkOwnQuestion, String uname, String upro, String likes, String desc, String qimg, Boolean checkLike, String anser, boolean checkHideAnswer, boolean checkPaid, String paidAmount, boolean selfAnswer, boolean selfHideAnswer, boolean userReport, String questionsTitle) {
+    private String reportBy, likedBy, userId;
+
+    public AnswersModel(String ID, Boolean checkOwnQuestion, String uname, String upro, String likes, String desc, String qimg, Boolean checkLike, String anser, boolean checkHideAnswer, boolean checkPaid, String paidAmount, boolean selfAnswer, boolean selfHideAnswer, boolean userReport, String questionsTitle, String answerDocId, String reportBy, String likedBy, String userId) {
         this.ID = ID;
         this.checkOwnQuestion = checkOwnQuestion;
         this.uname = uname;
@@ -69,6 +72,42 @@ public class AnswersModel {
         this.selfHideAnswer = selfHideAnswer;
         this.userReport = userReport;
         this.questionsTitle = questionsTitle;
+        this.answerDocId = answerDocId;
+        this.reportBy = reportBy;
+        this.likedBy = likedBy;
+        this.userId = userId;
+    }
+
+    public void setLikes(String likes) {
+        this.likes = likes;
+    }
+
+    public void setLikedBy(String likedBy) {
+        this.likedBy = likedBy;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getLikedBy() {
+        return likedBy;
+    }
+
+    public String getReportBy() {
+        return reportBy;
+    }
+
+    public void setReportBy(String reportBy) {
+        this.reportBy = reportBy;
+    }
+
+    public String getAnswerDocId() {
+        return answerDocId;
+    }
+
+    public void setAnswerDocId(String answerDocId) {
+        this.answerDocId = answerDocId;
     }
 
     public String getQuestionsTitle() {

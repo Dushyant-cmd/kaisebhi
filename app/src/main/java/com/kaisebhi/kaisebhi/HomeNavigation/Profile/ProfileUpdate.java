@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -14,11 +15,23 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
+import com.kaisebhi.kaisebhi.Utility.Utility;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 import com.kaisebhi.kaisebhi.HomeActivity;
@@ -28,7 +41,10 @@ import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.MediaType;
@@ -51,6 +67,8 @@ public class ProfileUpdate extends AppCompatActivity {
     private LinearLayout pro, pass;
     private TextView dd;
     private EditText edName, edAdd, edMobile, edEmail, edPass;
+    private FirebaseStorage firebaseStorage;
+    private FirebaseFirestore mFirestore;
 
     TextView btnText;
     ProgressBar btnProgress;
@@ -58,13 +76,16 @@ public class ProfileUpdate extends AppCompatActivity {
     int Check = 0;
     ProgressBar passProgress;
     FrameLayout updateProgress;
+    private String TAG = "ProfileUpdate.java";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_update);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,WindowManager.LayoutParams.FLAG_SECURE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         sharedPrefManager = new SharedPrefManager(this);
+        mFirestore = ((ApplicationCustom) getApplication()).mFirestore;
+        firebaseStorage = ((ApplicationCustom) getApplication()).storage;
 
         ID = sharedPrefManager.getsUser().getUid();
         edName = findViewById(R.id.dName);
@@ -125,44 +146,64 @@ public class ProfileUpdate extends AppCompatActivity {
     }
 
     public void fetchProfile() {
-
-
         updateProgress.setVisibility(View.VISIBLE);
-        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().getFullProfile(ID);
-        call.enqueue(new Callback<DefaultResponse>() {
+        mFirestore.collection("users").document(sharedPrefManager.getsUser().getUid()).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot d = task.getResult();
+                            Glide.with(getApplicationContext()).load(d.getString("picUrl")).dontAnimate().centerCrop().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).placeholder(R.drawable.profile).into(ProfileImage);
+                            edName.setText(d.getString("name"));
+                            String email = d.getString("email");
+//                            String address = d.getString("address");
+                            String address = "";
+                            String mobile = d.getLong("mobile").toString();
+                            if (!email.isEmpty())
+                                edEmail.setText(email);
 
-            @SuppressLint("ResourceType")
-            @Override
-            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-                DefaultResponse dr = response.body();
+                            if (!address.isEmpty())
+                                edAdd.setText(address);
 
-                if (response.code() == 201) {
+                            if (!mobile.isEmpty())
+                                edMobile.setText(mobile);
 
-                    String data = dr.getMessage();
-                    String[] dif = data.split("#");
-                    Glide.with(getApplicationContext()).load(BASE_URL + "user/" + dif[0]).dontAnimate().centerCrop().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).placeholder(R.drawable.profile).into(ProfileImage);
-                    edName.setText(dif[1]);
+                            updateProgress.setVisibility(View.GONE);
+                        } else {
+                            Log.d(TAG, "onComplete: " + task.getException());
+                        }
+                    }
+                });
 
-                    if(!dif[2].contains("empty"))
-                    edEmail.setText(dif[2]);
-
-                    if(!dif[3].contains("empty"))
-                    edAdd.setText(dif[3]);
-
-                    if(!dif[4].contains("empty"))
-                    edMobile.setText(dif[4]);
-                }
-                updateProgress.setVisibility(View.GONE);
-
-            }
-
-            @Override
-            public void onFailure(Call<DefaultResponse> call, Throwable t) {
-                Toast.makeText(getApplicationContext(),t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
-
-            }
-
-        });
+//        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().getFullProfile(ID);
+//        call.enqueue(new Callback<DefaultResponse>() {
+//            @SuppressLint("ResourceType")
+//            @Override
+//            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
+//                DefaultResponse dr = response.body();
+//                if (response.code() == 201) {
+//                    String data = dr.getMessage();
+//                    String[] dif = data.split("#");
+//                    Glide.with(getApplicationContext()).load(BASE_URL + "user/" + dif[0]).dontAnimate().centerCrop().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).placeholder(R.drawable.profile).into(ProfileImage);
+//                    edName.setText(dif[1]);
+//                    if(!dif[2].contains("empty"))
+//                    edEmail.setText(dif[2]);
+//
+//                    if(!dif[3].contains("empty"))
+//                    edAdd.setText(dif[3]);
+//
+//                    if(!dif[4].contains("empty"))
+//                    edMobile.setText(dif[4]);
+//                }
+//                updateProgress.setVisibility(View.GONE);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<DefaultResponse> call, Throwable t) {
+//                Toast.makeText(getApplicationContext(),t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
+//            }
+//
+//        });
     }
 
 
@@ -191,89 +232,123 @@ public class ProfileUpdate extends AppCompatActivity {
         Random rand = new Random();
         final String otp = String.format("%04d", rand.nextInt(10000));
 
-            if (name.isEmpty()) {
-                edName.setError("Add Name");
-                return;
-            }
+        if (name.isEmpty()) {
+            edName.setError("Add Name");
+            return;
+        }
 
-            if (email.isEmpty()) {
-                edEmail.setError("Add Email");
-                return;
-            }
+        if (email.isEmpty()) {
+            edEmail.setError("Add Email");
+            return;
+        }
 
-            if (address.isEmpty()) {
-                edAdd.setError("Add Address");
-                return;
-            }
+        if (address.isEmpty()) {
+            edAdd.setError("Add Address");
+            return;
+        }
 
-            if (pCheck != null) {
+        if (pCheck != null) {
 
-                btnProgress.setVisibility(View.VISIBLE);
-                btnText.setVisibility(View.INVISIBLE);
+            btnProgress.setVisibility(View.VISIBLE);
+            btnText.setVisibility(View.INVISIBLE);
 
-                File file = new File(postUri.getPath());
-                RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
-                MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
-                RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+//            File file = new File(postUri.getPath());
+//            Log.d(TAG, "updateProfile uri: " + postUri);
+//            RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
+//            MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
+//            RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+            StorageReference storageReference = firebaseStorage.getReference();
+            StorageReference imageRef = storageReference.child("profileImages/" + UUID.randomUUID());
+            UploadTask uploadTask = imageRef.putFile(postUri);
+            uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    if(task.isSuccessful()) {
+                        Map<String,Object> map = new HashMap<>();
+                        map.put("name", name);
+                        map.put("mobile", Long.parseLong(mob));
+                        map.put("email", email);
+                        map.put("address", address);
+                        map.put("picUrl", imageRef.getDownloadUrl().toString());
+                        mFirestore.collection("users").document(sharedPrefManager.getsUser().getUid()).update(map)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Utility.toast(ProfileUpdate.this, "Profile Updated Successfully");
+                                        sharedPrefManager.saveProfilePic(imageRef.getDownloadUrl().toString());
+                                        Check = 1;
+                                        btnText.setVisibility(View.VISIBLE);
+                                        btnProgress.setVisibility(View.INVISIBLE);
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d(TAG, "onFailure: " + e);
+                                    }
+                                });
+                    } else {
+                        Utility.toast(ProfileUpdate.this, task.getException().toString());
+                        Log.d(TAG, "onComplete: " + task.getException());
+                    }
+                }
+            });
 
-                Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().uploadProfile(fileToUpload, filename, name, mob,email, address, ID);
-                call.enqueue(new Callback<DefaultResponse>() {
-                    @Override
-                    public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-                        DefaultResponse dr = response.body();
+//            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().uploadProfile(fileToUpload, filename, name, mob, email, address, ID);
+//            call.enqueue(new Callback<DefaultResponse>() {
+//                @Override
+//                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
+//                    DefaultResponse dr = response.body();
+//
+//                    if (response.code() == 201) {
+//                        String data = dr.getMessage();
+//                        Toast.makeText(getApplicationContext(), data, Toast.LENGTH_SHORT).show();
+////                            sharedPrefManager.saveUser(edName.getText().toString(), sharedPrefManager.getsUser().getMobile(), sharedPrefManager.getsUser().getUid(),"");
+//                    } else {
+//
+//                    }
+//                    Check = 1;
+//
+//                    btnText.setVisibility(View.VISIBLE);
+//                    btnProgress.setVisibility(View.INVISIBLE);
+//                }
+//
+//                @Override
+//                public void onFailure(Call<DefaultResponse> call, Throwable t) {
+//                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+//
+//                }
+//
+//            });
+        } else {
 
-                        if (response.code() == 201) {
-                            String data = dr.getMessage();
-                            Toast.makeText(getApplicationContext(), data, Toast.LENGTH_SHORT).show();
+            btnText.setVisibility(View.INVISIBLE);
+            btnProgress.setVisibility(View.VISIBLE);
+
+            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().updatePro(name, mob, email, address, ID);
+            call.enqueue(new Callback<DefaultResponse>() {
+                @Override
+                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
+                    DefaultResponse dr = response.body();
+
+                    if (response.code() == 201) {
+                        String data = dr.getMessage();
+                        Toast.makeText(getApplicationContext(), data, Toast.LENGTH_SHORT).show();
 //                            sharedPrefManager.saveUser(edName.getText().toString(), sharedPrefManager.getsUser().getMobile(), sharedPrefManager.getsUser().getUid(),"");
-                        } else {
 
-                        }
-                        Check = 1;
-
-                        btnText.setVisibility(View.VISIBLE);
-                        btnProgress.setVisibility(View.INVISIBLE);
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Some error occured!", Toast.LENGTH_SHORT).show();
                     }
 
-                    @Override
-                    public void onFailure(Call<DefaultResponse> call, Throwable t) {
-                        Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+                    btnText.setVisibility(View.VISIBLE);
+                    btnProgress.setVisibility(View.INVISIBLE);
+                }
 
-                    }
+                @Override
+                public void onFailure(Call<DefaultResponse> call, Throwable t) {
+                }
 
-                });
-            } else {
-
-                btnText.setVisibility(View.INVISIBLE);
-                btnProgress.setVisibility(View.VISIBLE);
-
-                Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().updatePro(name, mob, email, address, ID);
-                call.enqueue(new Callback<DefaultResponse>() {
-                    @Override
-                    public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-                        DefaultResponse dr = response.body();
-
-                        if (response.code() == 201) {
-                            String data = dr.getMessage();
-                            Toast.makeText(getApplicationContext(), data, Toast.LENGTH_SHORT).show();
-//                            sharedPrefManager.saveUser(edName.getText().toString(), sharedPrefManager.getsUser().getMobile(), sharedPrefManager.getsUser().getUid(),"");
-
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Some error occured!", Toast.LENGTH_SHORT).show();
-                        }
-
-                        btnText.setVisibility(View.VISIBLE);
-                        btnProgress.setVisibility(View.INVISIBLE);
-                    }
-
-                    @Override
-                    public void onFailure(Call<DefaultResponse> call, Throwable t) {
-                    }
-
-                });
-            }
-
-
+            });
+        }
 
 
     }
@@ -333,28 +408,21 @@ public class ProfileUpdate extends AppCompatActivity {
     }
 
 
-
     public void backtoActivity(View view) {
-        if(Check==1)
-        {
-            startActivity(new Intent(getApplicationContext(),HomeActivity.class));
+        if (Check == 1) {
+            startActivity(new Intent(getApplicationContext(), HomeActivity.class));
             finish();
-        }
-        else
-        {
+        } else {
             super.onBackPressed();
         }
     }
 
     @Override
     public void onBackPressed() {
-        if(Check==1)
-        {
+        if (Check == 1) {
             startActivity(new Intent(getApplicationContext(), HomeActivity.class));
             finish();
-        }
-        else
-        {
+        } else {
             super.onBackPressed();
         }
     }

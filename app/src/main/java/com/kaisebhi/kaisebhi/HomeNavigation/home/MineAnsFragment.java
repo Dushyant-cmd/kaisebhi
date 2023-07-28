@@ -79,7 +79,8 @@ public class MineAnsFragment extends Fragment {
                                             d.getString("qdesc"), d.getString("qimg"), d.getBoolean("likeCheck"),
                                             d.getString("answer"), d.getBoolean("checkHideAnswer"), d.getBoolean("paidCheck"),
                                             d.getString("paidAmount"), d.getBoolean("selfAnswer"), d.getBoolean("selfHideAnswer"),
-                                            d.getBoolean("userReportCheck"), d.getString("title")
+                                            d.getBoolean("userReportCheck"), d.getString("title"), d.getId(), d.getString("reportBy"),
+                                            d.getString("likedBy"), d.getString("userId")
                                     ));
                                 }
 

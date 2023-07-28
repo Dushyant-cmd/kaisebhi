@@ -50,6 +50,16 @@ public class SharedPrefManager {
         editor.apply();
     }
 
+    public void saveProfilePic(String picUrl) {
+        SharedPreferences sharedPreferences = ctx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        sharedPreferences.edit().putString("picUrl", picUrl).apply();
+    }
+
+    public String getProfilePic() {
+        SharedPreferences sharedPreferences = ctx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        return sharedPreferences.getString("picUrl", "");
+    }
+
     public User getsUser() {
         SharedPreferences sharedPreferences = ctx.getSharedPreferences(SHARED_PREF_NAME,Context.MODE_PRIVATE);
         return new User(

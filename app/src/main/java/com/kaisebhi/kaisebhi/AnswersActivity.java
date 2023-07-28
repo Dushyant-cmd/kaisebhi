@@ -69,7 +69,7 @@ public class AnswersActivity extends AppCompatActivity {
     TextView Title, Desc, totalAns, userHead;
     CheckBox favBtn, likeBtn;
     ProgressBar loadAns;
-    private String id, title, userName, userPic, desc, qImg, tAns, tLikes;
+    private String id, title, userName, userPic, desc, qImg, tAns, tLikes, userId;
 
 
     String Qid;
@@ -121,6 +121,7 @@ public class AnswersActivity extends AppCompatActivity {
             userHead.setText(extras.getString("user"));
             totalAns.setText(extras.getString("tans"));
             likeBtn.setChecked(extras.getBoolean("tlikes"));
+            userId = extras.getString("userId");
 
 
             if (!extras.getString("qimg").matches("na")) {
@@ -178,10 +179,16 @@ public class AnswersActivity extends AppCompatActivity {
                     map.put("checkHideAnswer", false);
                     map.put("paidCheck", false);
                     map.put("paidAmount", "0");
-                    map.put("selfAnswer", false);
+                    if (userId.matches(sh.getsUser().getUid()))
+                        map.put("selfAnswer", true);
+                    else
+                        map.put("selfAnswer", false);
                     map.put("selfHideAnswer", false);
                     map.put("userReportCheck", false);
                     map.put("userId", sharedPrefManager.getsUser().getUid());
+                    map.put("title", extras.getString("title"));
+                    map.put("reportBy", "");
+                    map.put("likedBy", "");
                     mFirestore.collection("answers").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
@@ -246,16 +253,17 @@ public class AnswersActivity extends AppCompatActivity {
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.isSuccessful()) {
+                        if (task.isSuccessful()) {
                             try {
-                                for(DocumentSnapshot d: task.getResult().getDocuments()) {
+                                for (DocumentSnapshot d : task.getResult().getDocuments()) {
                                     answers.add(new AnswersModel(
                                             d.getString("id"), d.getBoolean("checkOwnQuestion"),
                                             d.getString("uname"), d.getString("upro"), d.getString("likes"),
                                             d.getString("qdesc"), d.getString("qimg"), d.getBoolean("likeCheck"),
                                             d.getString("answer"), d.getBoolean("checkHideAnswer"), d.getBoolean("paidCheck"),
                                             d.getString("paidAmount"), d.getBoolean("selfAnswer"), d.getBoolean("selfHideAnswer"),
-                                            d.getBoolean("userReportCheck"), d.getString("title")
+                                            d.getBoolean("userReportCheck"), d.getString("title"), d.getId(), d.getString("reportBy"),
+                                            d.getString("likedBy"), d.getString("userId")
                                     ));
                                 }
                                 adapter = new AnswersAdapter(answers, getApplicationContext());

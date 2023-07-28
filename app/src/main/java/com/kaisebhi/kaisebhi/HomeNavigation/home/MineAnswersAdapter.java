@@ -55,12 +55,11 @@ public class MineAnswersAdapter extends RecyclerView.Adapter<MineAnswersAdapter.
         final String uid = sh.getsUser().getUid();
         holder.Desc.setText(nlist.get(position).getDesc());
 
-        if(nlist.get(position).getQimg()!=null)
-        if(nlist.get(position).getQimg().length()>0)
-        {
+        if(nlist.get(position).getQimg().length()>0) {
             holder.qImg.setVisibility(View.VISIBLE);
-            Glide.with(context).load(BASE_URL + nlist.get(position).getQimg()).fitCenter().into((holder).qImg);
-        }
+            Glide.with(context).load(nlist.get(position).getQimg()).fitCenter().into((holder).qImg);
+        } else
+            holder.qImg.setVisibility(View.VISIBLE);
         Glide.with(context).load(BASE_URL + nlist.get(position).getUpro()).placeholder(R.drawable.profile).fitCenter().into((holder).pro);
 
     }

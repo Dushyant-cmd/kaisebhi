@@ -86,7 +86,9 @@ public class FavoriteFragment extends Fragment {
                                         d.getString("id"), d.getString("title"), d.getString("desc"),
                                         d.getString("qpic"), d.getString("uname"), d.getString("upro"),
                                         d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                        d.getString("tanswers"), d.getString("likedByUser"), d.getString("image"));
+                                        d.getString("tanswers"), d.getString("likedByUser"), d.getString("image"),
+                                        d.getString("userId")
+                                );
                                 questions.add(model);
                             }
                             adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, roomDb, storage);

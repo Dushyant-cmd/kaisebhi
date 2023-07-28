@@ -138,7 +138,9 @@ public class HomeFragment extends Fragment {
                                             d.getString("id"), d.getString("title"), d.getString("desc"),
                                             d.getString("qpic"), d.getString("uname"), d.getString("upro"),
                                             d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                            d.getString("tanswers"), d.getString("likedByUser"), d.getString("image")));
+                                            d.getString("tanswers"), d.getString("likedByUser"), d.getString("image"),
+                                            d.getString("userId")
+                                    ));
                                     if(i == list.size() - 1) {
                                         lastItemTimestamp = d.getLong("timestamp");
                                         lastItem = d;
@@ -176,7 +178,9 @@ public class HomeFragment extends Fragment {
                                             d.getString("id"), d.getString("title"), d.getString("desc"),
                                             d.getString("qpic"), d.getString("uname"), d.getString("upro"),
                                             d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                            d.getString("tanswers"), d.getString("likedByUser"), d.getString("image")));
+                                            d.getString("tanswers"), d.getString("likedByUser"), d.getString("image"),
+                                            d.getString("userId")
+                                    ));
                                 }
                                 if(!task.getResult().getDocuments().isEmpty()) {
                                     lastItem = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);

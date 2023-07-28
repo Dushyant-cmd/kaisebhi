@@ -102,7 +102,9 @@ public class SearchQuestionFragment extends Fragment {
                                         d.getString("id"), d.getString("title"), d.getString("desc"),
                                         d.getString("qpic"), d.getString("uname"), d.getString("upro"),
                                         d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                        d.getString("tanswers"), d.getString("likedByUser"), d.getString("image")));
+                                        d.getString("tanswers"), d.getString("likedByUser"), d.getString("image"),
+                                        d.getString("userId")
+                                ));
                             }
 
                             adapter = new QuestionsAdapter(questions, getActivity(), mFirestore, applicationCustom.roomDb, applicationCustom.storage);

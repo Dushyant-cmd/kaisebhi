@@ -45,21 +45,13 @@ public class QuestionsModel {
     @ColumnInfo(name = "likedByUser", defaultValue = "null")
     private String likedByUser;
 
-    private String pathOfImg;
-
-    public String getPathOfImg() {
-        return pathOfImg;
-    }
-
-    public void setPathOfImg(String pathOfImg) {
-        this.pathOfImg = pathOfImg;
-    }
+    private String pathOfImg, userId;
 
     public QuestionsModel() {
         //mandatory by room db to have empty constructor of entity class
     }
 
-    public QuestionsModel(String ID, String title, String desc, String qpic, String uname, String upro, Boolean checkFav, String likes, Boolean checkLike, String tansers, String likedByUser, String image) {
+    public QuestionsModel(String ID, String title, String desc, String qpic, String uname, String upro, Boolean checkFav, String likes, Boolean checkLike, String tansers, String likedByUser, String image, String userId) {
         this.ID = ID;
         Title = title;
         this.desc = desc;
@@ -72,6 +64,23 @@ public class QuestionsModel {
         this.tansers = tansers;
         this.likedByUser = likedByUser;
         this.pathOfImg = image;
+        this.userId = userId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getPathOfImg() {
+        return pathOfImg;
+    }
+
+    public void setPathOfImg(String pathOfImg) {
+        this.pathOfImg = pathOfImg;
     }
 
     public String getLikedByUser() {
