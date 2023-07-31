@@ -179,6 +179,7 @@ public class Add_Queastion extends AppCompatActivity {
                                 questionMap.put("timestamp", System.currentTimeMillis());
                                 questionMap.put("likedByUser", "");
                                 questionMap.put("image", "");
+                                questionMap.put("userPicUrl", sharedPrefManager.getProfilePic());
                                 mFirestore.collection("questions").document(updateId + "").set(questionMap)
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
@@ -268,6 +269,7 @@ public class Add_Queastion extends AppCompatActivity {
                                                     questionMap.put("timestamp", System.currentTimeMillis());
                                                     questionMap.put("likedByUser", "");
                                                     questionMap.put("image", downloadImgTask.getResult().toString());
+                                                    questionMap.put("userPicUrl", sharedPrefManager.getProfilePic());
                                                     mFirestore.collection("questions").document(updateId + "").set(questionMap)
                                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                 @Override

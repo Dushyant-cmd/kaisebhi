@@ -130,6 +130,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/dMobile"
+            android:ems="10"
             android:textColor="#222"
             android:singleLine="true"
             android:inputType="number"

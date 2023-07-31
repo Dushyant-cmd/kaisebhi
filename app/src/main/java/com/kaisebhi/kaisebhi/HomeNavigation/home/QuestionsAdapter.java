@@ -195,11 +195,12 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                 i.putExtra("key", Id);
                 i.putExtra("title", nlist.get(position).getTitle());
                 i.putExtra("user", nlist.get(position).getUname());
-                i.putExtra("userpic", nlist.get(position).getUpro());
+                i.putExtra("userpic", q.getUserPicUrl());
                 i.putExtra("desc", nlist.get(position).getDesc());
                 i.putExtra("qimg", q.getPathOfImg());
                 i.putExtra("tans", nlist.get(position).getTansers());
                 i.putExtra("tlikes", nlist.get(position).getCheckLike());
+                i.putExtra("userId", q.getUserId());
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }
@@ -226,6 +227,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     questionMap.put("timestamp", System.currentTimeMillis());
                     questionMap.put("likedByUser", q.getLikedByUser());
                     questionMap.put("image", q.getPathOfImg());
+                    questionMap.put("userPicUrl", sh.getProfilePic());
                     mFirestore.collection("favorite").add(questionMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
@@ -418,7 +420,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
             }
         });
 
-        Glide.with(context).load(BASE_URL + "user/" + nlist.get(position).getUpro()).dontAnimate().centerCrop().placeholder(R.drawable.profile).fitCenter().into((holder).pro);
+        Glide.with(context).load(q.getUserPicUrl()).dontAnimate().centerCrop().placeholder(R.drawable.profile).fitCenter().into((holder).pro);
 
 
     }

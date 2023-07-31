@@ -69,7 +69,7 @@ public class AnswersActivity extends AppCompatActivity {
     TextView Title, Desc, totalAns, userHead;
     CheckBox favBtn, likeBtn;
     ProgressBar loadAns;
-    private String id, title, userName, userPic, desc, qImg, tAns, tLikes, userId;
+    private String id, title, userName, userPic, desc, qImg, tAns, tLikes, userId = "";
 
 
     String Qid;
@@ -104,7 +104,7 @@ public class AnswersActivity extends AppCompatActivity {
         sendBtn = findViewById(R.id.sendMsg);
 
         sh = new SharedPrefManager(getApplication());
-        Glide.with(getApplicationContext()).load(BASE_URL + "user/" + sh.getsUser().getProfile()).dontAnimate().centerInside().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).placeholder(R.drawable.profile).into(userImage);
+        Glide.with(getApplicationContext()).load(sh.getProfilePic()).dontAnimate().centerInside().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).placeholder(R.drawable.profile).into(userImage);
 
         recyclerView = findViewById(R.id.allanswers);
         layoutManager = new LinearLayoutManager(getApplicationContext());
@@ -129,7 +129,7 @@ public class AnswersActivity extends AppCompatActivity {
                 Glide.with(getApplicationContext()).load(extras.getString("qimg")).fitCenter().into(questionimg);
             }
 
-            Glide.with(getApplicationContext()).load(BASE_URL + "user/" + extras.getString("userpic")).placeholder(R.drawable.profile).fitCenter().into(pro);
+            Glide.with(getApplicationContext()).load(extras.getString("userpic")).placeholder(R.drawable.profile).fitCenter().into(pro);
 
             fetchAnsers();
         }
@@ -170,8 +170,8 @@ public class AnswersActivity extends AppCompatActivity {
                     map.put("id", getIntent().getStringExtra("key"));
                     map.put("checkOwnQuestion", false);
                     map.put("uname", sharedPrefManager.getsUser().getName());
-                    map.put("upro", sharedPrefManager.getsUser().getProfile());
-                    map.put("likes", getIntent().getStringExtra("likes"));
+                    map.put("upro", sh.getProfilePic());
+                    map.put("likes", "0");
                     map.put("qdesc", getIntent().getStringExtra("desc"));
                     map.put("qimg", getIntent().getStringExtra("qimg"));
                     map.put("likeCheck", getIntent().getBooleanExtra("tlikes", false));

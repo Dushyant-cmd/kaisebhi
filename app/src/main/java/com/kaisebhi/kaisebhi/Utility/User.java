@@ -10,8 +10,9 @@ public class User {
     private String location;
     private int item;
     private boolean edel;
+    private String email;
 
-    public User(String name,String mobile,String uid,String profile,String location,int item,boolean edel)
+    public User(String name,String mobile,String uid,String profile,String location,int item,boolean edel, String email)
     {
         this.name = name;
         this.mobile = mobile;
@@ -20,8 +21,16 @@ public class User {
         this.location = location;
         this.item = item;
         this.edel = edel;
+        this.email = email;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getName() {
         return name;

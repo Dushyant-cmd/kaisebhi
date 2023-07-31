@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
     TextView name, user;
     CircleImageView prof;
     SharedPrefManager sharedPrefManager;
+    private String TAG = "MenuFragment.java";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -189,6 +191,9 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
 
 
     public void fetchProfile() {
+        Log.d(TAG, "fetchProfile: " + sharedPrefManager.getProfilePic());
+        Glide.with(getActivity()).load(sharedPrefManager.getProfilePic()).dontAnimate().centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).placeholder(R.drawable.profile).into(prof);
 
 //        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().getPro(sharedPrefManager.getsUser().getUid());
 //        call.enqueue(new Callback<DefaultResponse>() {

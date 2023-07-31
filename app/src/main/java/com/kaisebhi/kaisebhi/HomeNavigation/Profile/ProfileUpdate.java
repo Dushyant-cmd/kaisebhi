@@ -99,6 +99,7 @@ public class ProfileUpdate extends AppCompatActivity {
         updateProgress = findViewById(R.id.updateProgress);
         updatePass = findViewById(R.id.updatePassword);
         edEmail = findViewById(R.id.dEmail);
+        edEmail.setEnabled(false);
         ProfileImage = findViewById(R.id.Dprofile);
 
 
@@ -156,8 +157,7 @@ public class ProfileUpdate extends AppCompatActivity {
                             Glide.with(getApplicationContext()).load(d.getString("picUrl")).dontAnimate().centerCrop().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).placeholder(R.drawable.profile).into(ProfileImage);
                             edName.setText(d.getString("name"));
                             String email = d.getString("email");
-//                            String address = d.getString("address");
-                            String address = "";
+                            String address = d.getString("address");
                             String mobile = d.getLong("mobile").toString();
                             if (!email.isEmpty())
                                 edEmail.setText(email);
@@ -217,15 +217,19 @@ public class ProfileUpdate extends AppCompatActivity {
 
 
     public void updateProfile() {
-
         final String name, mob, email, address;
         name = edName.getText().toString();
         mob = edMobile.getText().toString();
         email = edEmail.getText().toString();
         address = edAdd.getText().toString();
 
-        if (mob.isEmpty()) {
-            edMobile.setError("Add Mobile");
+        if (mob.length() != 10) {
+            edMobile.setError("Number must be of 10 digits");
+            return;
+        }
+
+        if(Long.parseLong(mob.substring(0, 1)) < 6) {
+            edMobile.setError("Add valid mobile number");
             return;
         }
 
@@ -264,28 +268,40 @@ public class ProfileUpdate extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     if(task.isSuccessful()) {
-                        Map<String,Object> map = new HashMap<>();
-                        map.put("name", name);
-                        map.put("mobile", Long.parseLong(mob));
-                        map.put("email", email);
-                        map.put("address", address);
-                        map.put("picUrl", imageRef.getDownloadUrl().toString());
-                        mFirestore.collection("users").document(sharedPrefManager.getsUser().getUid()).update(map)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void unused) {
-                                        Utility.toast(ProfileUpdate.this, "Profile Updated Successfully");
-                                        sharedPrefManager.saveProfilePic(imageRef.getDownloadUrl().toString());
-                                        Check = 1;
-                                        btnText.setVisibility(View.VISIBLE);
-                                        btnProgress.setVisibility(View.INVISIBLE);
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.d(TAG, "onFailure: " + e);
-                                    }
-                                });
+                        Task<Uri> imageTask = imageRef.getDownloadUrl();
+                        imageTask.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Map<String,Object> map = new HashMap<>();
+                                map.put("name", name);
+                                map.put("mobile", Long.parseLong(mob));
+                                map.put("address", address);
+                                map.put("picUrl", uri.toString());
+                                Log.d(TAG, "onComplete: with img " + map);
+                                mFirestore.collection("users").document(sharedPrefManager.getsUser().getUid()).update(map)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                Utility.toast(ProfileUpdate.this, "Profile Updated Successfully");
+                                                sharedPrefManager.saveProfilePic(uri.toString());
+                                                Check = 1;
+                                                btnText.setVisibility(View.VISIBLE);
+                                                btnProgress.setVisibility(View.INVISIBLE);
+                                            }
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.d(TAG, "onFailure: " + e);
+                                            }
+                                        });
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "onFailure: " + e);
+                                Utility.toast(ProfileUpdate.this, e.toString());
+                            }
+                        });
                     } else {
                         Utility.toast(ProfileUpdate.this, task.getException().toString());
                         Log.d(TAG, "onComplete: " + task.getException());
@@ -324,30 +340,52 @@ public class ProfileUpdate extends AppCompatActivity {
             btnText.setVisibility(View.INVISIBLE);
             btnProgress.setVisibility(View.VISIBLE);
 
-            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().updatePro(name, mob, email, address, ID);
-            call.enqueue(new Callback<DefaultResponse>() {
-                @Override
-                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-                    DefaultResponse dr = response.body();
 
-                    if (response.code() == 201) {
-                        String data = dr.getMessage();
-                        Toast.makeText(getApplicationContext(), data, Toast.LENGTH_SHORT).show();
-//                            sharedPrefManager.saveUser(edName.getText().toString(), sharedPrefManager.getsUser().getMobile(), sharedPrefManager.getsUser().getUid(),"");
+            Map<String,Object> map = new HashMap<>();
+            map.put("name", name);
+            map.put("mobile", Long.parseLong(mob));
+            map.put("address", address);
+            Log.d(TAG, "onComplete: no image" + map);
+            mFirestore.collection("users").document(sharedPrefManager.getsUser().getUid()).update(map)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Utility.toast(ProfileUpdate.this, "Profile Updated Successfully");
+                            Check = 1;
+                            btnText.setVisibility(View.VISIBLE);
+                            btnProgress.setVisibility(View.INVISIBLE);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: " + e);
+                        }
+                    });
 
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Some error occured!", Toast.LENGTH_SHORT).show();
-                    }
-
-                    btnText.setVisibility(View.VISIBLE);
-                    btnProgress.setVisibility(View.INVISIBLE);
-                }
-
-                @Override
-                public void onFailure(Call<DefaultResponse> call, Throwable t) {
-                }
-
-            });
+//            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().updatePro(name, mob, email, address, ID);
+//            call.enqueue(new Callback<DefaultResponse>() {
+//                @Override
+//                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
+//                    DefaultResponse dr = response.body();
+//
+//                    if (response.code() == 201) {
+//                        String data = dr.getMessage();
+//                        Toast.makeText(getApplicationContext(), data, Toast.LENGTH_SHORT).show();
+////                            sharedPrefManager.saveUser(edName.getText().toString(), sharedPrefManager.getsUser().getMobile(), sharedPrefManager.getsUser().getUid(),"");
+//
+//                    } else {
+//                        Toast.makeText(getApplicationContext(), "Some error occured!", Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                    btnText.setVisibility(View.VISIBLE);
+//                    btnProgress.setVisibility(View.INVISIBLE);
+//                }
+//
+//                @Override
+//                public void onFailure(Call<DefaultResponse> call, Throwable t) {
+//                }
+//
+//            });
         }
 
 

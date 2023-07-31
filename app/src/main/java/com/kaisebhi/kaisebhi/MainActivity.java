@@ -193,7 +193,8 @@ public class MainActivity extends AppCompatActivity {
                                                     Log.d(TAG, "onComplete: user exist " + d.toString());
                                                     signProgress.setVisibility(View.GONE);
                                                     SharedPrefManager.getInstance(getApplicationContext()).saveUser(d.getString("name"), d.getLong("mobile").toString(),
-                                                            d.getLong("userId").toString(), d.getString("profile"), d.getString("email"));
+                                                            d.getLong("userId").toString(), d.getString("profile"), d.getString("email"), d.getString("address"));
+                                                    SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic(d.getString("picUrl"));
                                                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                                     startActivity(intent);
                                                     finish();
@@ -211,6 +212,9 @@ public class MainActivity extends AppCompatActivity {
                                                                 map.put("profile", "incomplete");
                                                                 map.put("email", email);
                                                                 map.put("timestamp", System.currentTimeMillis());
+                                                                map.put("picUrl", "");
+                                                                map.put("address", "");
+                                                                map.put("pass", "loginByGoogle");
 
                                                                 mFirestore.collection("users").document(updatedUserId + "")
                                                                         .set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -226,7 +230,8 @@ public class MainActivity extends AppCompatActivity {
                                                                                                         public void onComplete(@NonNull Task<Void> task) {
                                                                                                             if(task.isSuccessful()) {
                                                                                                                 signProgress.setVisibility(View.VISIBLE);
-                                                                                                                SharedPrefManager.getInstance(getApplicationContext()).saveUser(name, 0 + "", updatedUserId + "", "inComplete", email);
+                                                                                                                SharedPrefManager.getInstance(getApplicationContext()).saveUser(name, 0 + "", updatedUserId + "", "inComplete", email, "");
+                                                                                                                SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic("");
                                                                                                                 Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                                                                                                 startActivity(intent);
                                                                                                                 finish();
@@ -286,7 +291,8 @@ public class MainActivity extends AppCompatActivity {
                                                             DocumentSnapshot doc1 = task.getResult().getDocuments().get(0);
                                                             signProgress.setVisibility(View.GONE);
                                                             SharedPrefManager.getInstance(getApplicationContext()).saveUser(doc1.getString("name"), doc1.getLong("mobile").toString(),
-                                                                    (updatedUserId - 1) + "", doc1.getString("profile"), doc1.getString("email"));
+                                                                    (updatedUserId - 1) + "", doc1.getString("profile"), doc1.getString("email"), doc1.getString("address"));
+                                                            SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic(doc.getString("picUrl"));
                                                             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                                             startActivity(intent);
                                                             finish();
@@ -313,6 +319,9 @@ public class MainActivity extends AppCompatActivity {
                                                     map.put("userId", updatedUserId);
                                                     map.put("profile", "incomplete");
                                                     map.put("email", email);
+                                                    map.put("pass", pass);
+                                                    map.put("address", "");
+                                                    map.put("picUrl", "");
                                                     map.put("timestamp", System.currentTimeMillis());
 
                                                     mFirestore.collection("users").document(updatedUserId + "").set(map)
@@ -334,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
                                                                             });
                                                                     signProgress.setVisibility(View.GONE);
                                                                     SharedPrefManager.getInstance(getApplicationContext()).saveUser("Guest_" + updatedUserId, "0",
-                                                                            updatedUserId + "", "inComplete", email);
+                                                                            updatedUserId + "", "inComplete", email, "");
                                                                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                                                     startActivity(intent);
                                                                     finish();

@@ -173,6 +173,7 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Map<String, Object> map = new HashMap<>();
+                likedByUser = "";
                 if (isChecked) {
                     Log.d(TAG, "onCheckedChanged: checked");
                     map.put("likedBy", dataObj.getLikedBy() + "," + uid);
@@ -303,7 +304,7 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
             }
         });
 
-        Glide.with(context).load(BASE_URL + "user/" + nlist.get(position).getUpro()).dontAnimate().centerCrop().placeholder(R.drawable.profile).fitCenter().into((holder).pro);
+        Glide.with(context).load(dataObj.getUpro()).dontAnimate().centerCrop().placeholder(R.drawable.profile).fitCenter().into((holder).pro);
 
     }
 
