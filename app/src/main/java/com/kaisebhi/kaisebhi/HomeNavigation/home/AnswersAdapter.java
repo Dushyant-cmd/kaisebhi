@@ -71,6 +71,7 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         AnswersModel dataObj = nlist.get(position);
+        Log.d(TAG, "onBindViewHolder answers data: " + dataObj);
         holder.Answer.setText(nlist.get(position).getTansers());
         try {
             if (!nlist.get(position).getUname().isEmpty()) {
@@ -144,6 +145,7 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
         if (nlist.get(position).getCheckOwnQuestion()) {
             holder.hideAns.setVisibility(View.VISIBLE);
         }
+
         if (dataObj.getUserId().matches(uid)) {
             holder.Report.setVisibility(View.GONE);
         }
@@ -281,13 +283,12 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
                             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             context.startActivity(i);
                         } else {
-                            Toast.makeText(context, "Please select your Expeirence!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Please select your Experience!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
 
                 myDialog.show();
-
             }
         });
 

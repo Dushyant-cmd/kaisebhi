@@ -51,7 +51,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class AnswersActivity extends AppCompatActivity {
-
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private List<AnswersModel> answers;
@@ -103,8 +102,10 @@ public class AnswersActivity extends AppCompatActivity {
         msg = findViewById(R.id.msg);
         sendBtn = findViewById(R.id.sendMsg);
 
-        sh = new SharedPrefManager(getApplication());
-        Glide.with(getApplicationContext()).load(sh.getProfilePic()).dontAnimate().centerInside().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).placeholder(R.drawable.profile).into(userImage);
+        sh = new SharedPrefManager(AnswersActivity.this);
+        Log.d(TAG, "onCreate profile pic: " + sh.getProfilePic());
+        Glide.with(getApplicationContext()).load(sh.getProfilePic()).dontAnimate().centerInside()
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).placeholder(R.drawable.profile).into(userImage);
 
         recyclerView = findViewById(R.id.allanswers);
         layoutManager = new LinearLayoutManager(getApplicationContext());
@@ -122,7 +123,6 @@ public class AnswersActivity extends AppCompatActivity {
             totalAns.setText(extras.getString("tans"));
             likeBtn.setChecked(extras.getBoolean("tlikes"));
             userId = extras.getString("userId");
-
 
             if (!extras.getString("qimg").matches("na")) {
                 questionimg.setVisibility(View.VISIBLE);
@@ -189,6 +189,7 @@ public class AnswersActivity extends AppCompatActivity {
                     map.put("title", extras.getString("title"));
                     map.put("reportBy", "");
                     map.put("likedBy", "");
+                    Log.d(TAG, "onClick answer post map: " + map);
                     mFirestore.collection("answers").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
@@ -209,28 +210,6 @@ public class AnswersActivity extends AppCompatActivity {
                             sendBtn.setVisibility(View.VISIBLE);
                         }
                     });
-
-//                    Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().addAns(text, Qid, sh.getsUser().getUid());
-//                    call.enqueue(new Callback<DefaultResponse>() {
-//                        @Override
-//                        public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-//                            Toast.makeText(getApplicationContext(), "Answer Added!", Toast.LENGTH_LONG).show();
-//                            sendBtn.setEnabled(true);
-//                            fetchAnsers();
-//                            loadAns.setVisibility(View.GONE);
-//                            sendBtn.setVisibility(View.VISIBLE);
-//
-//                        }
-//
-//                        @Override
-//                        public void onFailure(Call<DefaultResponse> call, Throwable t) {
-//
-//                            Toast.makeText(getApplicationContext(), "There is and error posting answer! ", Toast.LENGTH_SHORT).show();
-//                            loadAns.setVisibility(View.GONE);
-//                            sendBtn.setEnabled(true);
-//                            sendBtn.setVisibility(View.VISIBLE);
-//                        }
-//                    });
                 } else {
                     msg.setError("Type Answer First!");
                 }
@@ -238,12 +217,7 @@ public class AnswersActivity extends AppCompatActivity {
             }
         });
 
-
-        SharedPrefManager sh = new SharedPrefManager(this);
-        TextView toolbar = findViewById(R.id.textHeader);
-
     }
-
 
     public void fetchAnsers() {
         answers.clear();
@@ -256,7 +230,7 @@ public class AnswersActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             try {
                                 for (DocumentSnapshot d : task.getResult().getDocuments()) {
-                                    answers.add(new AnswersModel(
+                                    AnswersModel ans = new AnswersModel(
                                             d.getString("id"), d.getBoolean("checkOwnQuestion"),
                                             d.getString("uname"), d.getString("upro"), d.getString("likes"),
                                             d.getString("qdesc"), d.getString("qimg"), d.getBoolean("likeCheck"),
@@ -264,7 +238,12 @@ public class AnswersActivity extends AppCompatActivity {
                                             d.getString("paidAmount"), d.getBoolean("selfAnswer"), d.getBoolean("selfHideAnswer"),
                                             d.getBoolean("userReportCheck"), d.getString("title"), d.getId(), d.getString("reportBy"),
                                             d.getString("likedBy"), d.getString("userId")
-                                    ));
+                                    );
+                                    answers.add(ans);
+                                    if(userId.matches(sh.getsUser().getUid())) {
+                                        ans.setCheckOwnQuestion(true);
+                                        ans.setSelfAnswer(true);
+                                    }
                                 }
                                 adapter = new AnswersAdapter(answers, getApplicationContext());
                                 recyclerView.setAdapter(adapter);

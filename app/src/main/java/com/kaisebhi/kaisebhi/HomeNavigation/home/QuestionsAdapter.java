@@ -175,7 +175,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                 i.putExtra("key", Id);
                 i.putExtra("title", nlist.get(position).getTitle());
                 i.putExtra("user", nlist.get(position).getUname());
-                i.putExtra("userpic", nlist.get(position).getUpro());
+                i.putExtra("userpic", q.getUserPicUrl());
                 i.putExtra("desc", nlist.get(position).getDesc());
                 i.putExtra("qimg", q.getPathOfImg());
                 i.putExtra("tans", nlist.get(position).getTansers());

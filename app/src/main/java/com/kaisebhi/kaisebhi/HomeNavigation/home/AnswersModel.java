@@ -78,6 +78,66 @@ public class AnswersModel {
         this.userId = userId;
     }
 
+    public void setID(String ID) {
+        this.ID = ID;
+    }
+
+    public void setCheckOwnQuestion(Boolean checkOwnQuestion) {
+        this.checkOwnQuestion = checkOwnQuestion;
+    }
+
+    public void setUname(String uname) {
+        this.uname = uname;
+    }
+
+    public void setUpro(String upro) {
+        this.upro = upro;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public void setQimg(String qimg) {
+        this.qimg = qimg;
+    }
+
+    public void setCheckLike(Boolean checkLike) {
+        this.checkLike = checkLike;
+    }
+
+    public void setAnser(String anser) {
+        this.anser = anser;
+    }
+
+    public void setCheckHideAnswer(boolean checkHideAnswer) {
+        this.checkHideAnswer = checkHideAnswer;
+    }
+
+    public void setCheckPaid(boolean checkPaid) {
+        this.checkPaid = checkPaid;
+    }
+
+    public void setPaidAmount(String paidAmount) {
+        this.paidAmount = paidAmount;
+    }
+
+    public void setSelfAnswer(boolean selfAnswer) {
+        this.selfAnswer = selfAnswer;
+    }
+
+    public void setSelfHideAnswer(boolean selfHideAnswer) {
+        this.selfHideAnswer = selfHideAnswer;
+    }
+
+    public void setUserReport(boolean userReport) {
+        this.userReport = userReport;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public void setLikes(String likes) {
         this.likes = likes;
     }
@@ -176,6 +236,32 @@ public class AnswersModel {
 
     public boolean isUserReport() {
         return userReport;
+    }
+
+    @Override
+    public String toString() {
+        return "AnswersModel{" +
+                "ID='" + ID + '\'' +
+                ", checkOwnQuestion=" + checkOwnQuestion +
+                ", uname='" + uname + '\'' +
+                ", upro='" + upro + '\'' +
+                ", likes='" + likes + '\'' +
+                ", desc='" + desc + '\'' +
+                ", qimg='" + qimg + '\'' +
+                ", checkLike=" + checkLike +
+                ", anser='" + anser + '\'' +
+                ", checkHideAnswer=" + checkHideAnswer +
+                ", checkPaid=" + checkPaid +
+                ", paidAmount='" + paidAmount + '\'' +
+                ", selfAnswer=" + selfAnswer +
+                ", selfHideAnswer=" + selfHideAnswer +
+                ", userReport=" + userReport +
+                ", questionsTitle='" + questionsTitle + '\'' +
+                ", answerDocId='" + answerDocId + '\'' +
+                ", reportBy='" + reportBy + '\'' +
+                ", likedBy='" + likedBy + '\'' +
+                ", userId='" + userId + '\'' +
+                '}';
     }
 }
 

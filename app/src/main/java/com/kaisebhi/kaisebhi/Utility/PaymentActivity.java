@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.razorpay.Checkout;
 import com.razorpay.PaymentData;
 import com.razorpay.PaymentResultWithDataListener;
@@ -42,17 +44,21 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
 
     String orderId=null;
     String userid = "";
+    private String TAG = "PaymentActivity.java";
+    private FirebaseFirestore mFirestore;
+
     @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_succesfull);
 
-        TextView header = findViewById(R.id.textHeader);
+//        TextView header = findViewById(R.id.textHeader);
 
         sharedPrefManager = new SharedPrefManager(getApplication());
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
+        mFirestore = ((ApplicationCustom) getApplication()).mFirestore;
 
         Random rand = new Random();
         final String otp = String.format("%04d", rand.nextInt(10000));
@@ -103,7 +109,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
 
         final Activity activity = this;
         Checkout checkout = new Checkout();
-        checkout.setKeyID("rzp_live_a2XOrcelzZlkvx");
+        checkout.setKeyID(getResources().getString(R.string.razorpay_key_id));
         checkout.setImage(R.drawable.logo);
 
         try {
@@ -114,9 +120,10 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             options.put("description", "Reference No. "+orderId);
             options.put("image", "https://s3.amazonaws.com/rzp-mobile/images/rzp.png");
             options.put("currency", "INR");
-            options.put("amount",am*100);
+            options.put("amount",(am * 100));
             options.put("theme",new JSONObject("{color: '#1278dd'}"));
 
+            Log.d(TAG, "startPayment: payment json: " + options);
             JSONObject preFill = new JSONObject();
             options.put("prefill", preFill);
 
@@ -147,37 +154,38 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
         dialog.setCancelable(false);
 
         if(b.getString("payType").equals("show")){
-            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().showAns(qid,b.getString("oamount"),SharedPrefManager.getInstance(getApplication()).getsUser().getUid());
-            call.enqueue(new Callback<DefaultResponse>() {
-                @Override
-                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-                    Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
-                    seac.putExtra("Frag","showAns");
-                    seac.putExtra("tabType","show");
-                    startActivity(seac);
-                    dialog.dismiss();
-                }
-
-                @Override
-                public void onFailure(Call<DefaultResponse> call, Throwable t) {
-                    dialog.dismiss();
-                }
-            });
+//            mFirestore.collection("answers")
+//            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().showAns(qid,b.getString("oamount"),SharedPrefManager.getInstance(getApplication()).getsUser().getUid());
+//            call.enqueue(new Callback<DefaultResponse>() {
+//                @Override
+//                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
+//                    Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
+//                    seac.putExtra("Frag","showAns");
+//                    seac.putExtra("tabType","show");
+//                    startActivity(seac);
+//                    dialog.dismiss();
+//                }
+//
+//                @Override
+//                public void onFailure(Call<DefaultResponse> call, Throwable t) {
+//                    dialog.dismiss();
+//                }
+//            });
         }
         else{
-            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().hideAns(qid,b.getString("oamount"),SharedPrefManager.getInstance(getApplication()).getsUser().getUid());
-            call.enqueue(new Callback<DefaultResponse>() {
-                @Override
-                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-                    Toast.makeText(getApplicationContext(),"Answer Hide Successfully!",Toast.LENGTH_LONG).show();
-                    dialog.dismiss();
-                }
-
-                @Override
-                public void onFailure(Call<DefaultResponse> call, Throwable t) {
-                    dialog.dismiss();
-                }
-            });
+//            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().hideAns(qid,b.getString("oamount"),SharedPrefManager.getInstance(getApplication()).getsUser().getUid());
+//            call.enqueue(new Callback<DefaultResponse>() {
+//                @Override
+//                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
+//                    Toast.makeText(getApplicationContext(),"Answer Hide Successfully!",Toast.LENGTH_LONG).show();
+//                    dialog.dismiss();
+//                }
+//
+//                @Override
+//                public void onFailure(Call<DefaultResponse> call, Throwable t) {
+//                    dialog.dismiss();
+//                }
+//            });
         }
 
 
