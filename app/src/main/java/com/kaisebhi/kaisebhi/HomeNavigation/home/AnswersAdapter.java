@@ -279,10 +279,10 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
                     public void onClick(View v) {
                         if (amount != 0) {
                             Intent i = new Intent(context, PaymentActivity.class);
-                            i.putExtra("ansId", dataObj.getAnswerDocId());
                             i.putExtra("oamount", String.valueOf(amount));
                             i.putExtra("qid", Id);
                             i.putExtra("payType", "hide");
+                            i.putExtra("ansId", dataObj.getAnswerDocId());
                             i.putExtra("isSelfAns", dataObj.isSelfAnswer());
                             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             context.startActivity(i);
@@ -304,6 +304,8 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
                 i.putExtra("oamount", nlist.get(position).getPaidAmount());
                 i.putExtra("qid", Id);
                 i.putExtra("payType", "show");
+                i.putExtra("ansId", dataObj.getAnswerDocId());
+                i.putExtra("isSelfAns", dataObj.isSelfAnswer());
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }

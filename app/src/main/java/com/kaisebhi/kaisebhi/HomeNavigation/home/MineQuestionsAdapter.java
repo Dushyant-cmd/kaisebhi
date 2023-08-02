@@ -146,6 +146,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
                 i.putExtra("qimg", url);
                 i.putExtra("tans", nlist.get(position).getTansers());
                 i.putExtra("tlikes", nlist.get(position).getCheckLike());
+                i.putExtra("userId", nlist.get(position).getUserId());
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }

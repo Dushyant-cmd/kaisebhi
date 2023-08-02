@@ -16,7 +16,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.razorpay.Checkout;
 import com.razorpay.PaymentData;
@@ -163,11 +166,25 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
         if (b.getString("payType").equals("show")) {
             map.clear();
             map.put("ansDocId", answerDocId);
-            map.put("userId", userid);
+            map.put("userId", sharedPrefManager.getsUser().getUid());
             map.put("quesId", qid);
             map.put("hideAmount", amount);
-            mFirestore.collection("paidAnswers");
-//            mFirestore.collection("answers")
+            mFirestore.collection("paidAnswers").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(DocumentReference documentReference) {
+                    Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
+                    seac.putExtra("Frag","showAns");
+                    seac.putExtra("tabType","show");
+                    startActivity(seac);
+                    dialog.dismiss();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(TAG, "onFailure: " + e);
+                    dialog.dismiss();
+                }
+            });
 //            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().showAns(qid,b.getString("oamount"),SharedPrefManager.getInstance(getApplication()).getsUser().getUid());
 //            call.enqueue(new Callback<DefaultResponse>() {
 //                @Override
@@ -187,6 +204,8 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
         } else {
             map.clear();
             map.put("checkHideAnswer", true);
+            map.put("checkOwnQuestion", true);
+            map.put("paidAmount", amount.toString());
             if (isSelfAns) {
                 map.put("selfHideAnswer", true);
                 mFirestore.collection("answers").document(answerDocId).update(map)
@@ -204,7 +223,6 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
                             }
                         });
             } else {
-                map.put("checkOwnQuestion", true);
                 mFirestore.collection("answers").document(answerDocId).update(map)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
