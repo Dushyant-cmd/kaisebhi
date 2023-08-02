@@ -12,8 +12,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.razorpay.Checkout;
 import com.razorpay.PaymentData;
@@ -25,6 +28,8 @@ import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import retrofit2.Call;
@@ -42,9 +47,11 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
     String qid = null;
     String Amount = null;
 
-    String orderId=null;
+    String orderId = null;
     String userid = "";
-    private String TAG = "PaymentActivity.java";
+    private String TAG = "PaymentActivity.java", answerDocId;
+    private Double amount = 0.00;
+    private boolean isSelfAns = false;
     private FirebaseFirestore mFirestore;
 
     @SuppressLint("ResourceType")
@@ -62,7 +69,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
 
         Random rand = new Random();
         final String otp = String.format("%04d", rand.nextInt(10000));
-        orderId = "ORDX"+otp+sharedPrefManager.getsUser().getUid();
+        orderId = "ORDX" + otp + sharedPrefManager.getsUser().getUid();
 
         progressDialog.setTitle("Order Progressing!");
         progressDialog.setMessage("Keep Calm! Status is Updating.... ");
@@ -76,15 +83,12 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             @Override
             public void onClick(View v) {
 
-                if(MyOrders.getText().toString().contains("My Orders"))
-                {
+                if (MyOrders.getText().toString().contains("My Orders")) {
                     Intent id = new Intent(getApplicationContext(), HomeActivity.class);
                     id.putExtra("Frag", "myorder");
                     startActivity(id);
                     finish();
-                }
-                else
-                {
+                } else {
                     onBackPressed();
                 }
             }
@@ -96,12 +100,15 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             b = getIntent().getExtras();
             if (b == null) {
             } else {
-                Double amount = Double.parseDouble(b.getString("oamount"));
+                amount = Double.parseDouble(b.getString("oamount"));
                 userid = b.getString("userId");
                 qid = b.getString("qid");
+                answerDocId = b.getString("ansId");
+                isSelfAns = b.getBoolean("isSelfAns");
                 startPayment(amount);
             }
         }
+        Log.d(TAG, "onCreate: " + answerDocId);
 
     }
 
@@ -117,11 +124,11 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             JSONObject options = new JSONObject();
 
             options.put("name", "Kaisebhi");
-            options.put("description", "Reference No. "+orderId);
+            options.put("description", "Reference No. " + orderId);
             options.put("image", "https://s3.amazonaws.com/rzp-mobile/images/rzp.png");
             options.put("currency", "INR");
-            options.put("amount",(am * 100));
-            options.put("theme",new JSONObject("{color: '#1278dd'}"));
+            options.put("amount", (am * 100));
+            options.put("theme", new JSONObject("{color: '#1278dd'}"));
 
             Log.d(TAG, "startPayment: payment json: " + options);
             JSONObject preFill = new JSONObject();
@@ -129,16 +136,15 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
 
             checkout.open(activity, options);
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             Toast.makeText(activity, "Error in payment: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }
 
 
-
     public void backtoActivity(View view) {
-        startActivity(new Intent(getApplicationContext(),HomeActivity.class));
+        startActivity(new Intent(getApplicationContext(), HomeActivity.class));
         finish();
     }
 
@@ -153,7 +159,14 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
         dialog.show();
         dialog.setCancelable(false);
 
-        if(b.getString("payType").equals("show")){
+        Map<String, Object> map = new HashMap<>();
+        if (b.getString("payType").equals("show")) {
+            map.clear();
+            map.put("ansDocId", answerDocId);
+            map.put("userId", userid);
+            map.put("quesId", qid);
+            map.put("hideAmount", amount);
+            mFirestore.collection("paidAnswers");
 //            mFirestore.collection("answers")
 //            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().showAns(qid,b.getString("oamount"),SharedPrefManager.getInstance(getApplication()).getsUser().getUid());
 //            call.enqueue(new Callback<DefaultResponse>() {
@@ -171,8 +184,45 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
 //                    dialog.dismiss();
 //                }
 //            });
-        }
-        else{
+        } else {
+            map.clear();
+            map.put("checkHideAnswer", true);
+            if (isSelfAns) {
+                map.put("selfHideAnswer", true);
+                mFirestore.collection("answers").document(answerDocId).update(map)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(getApplicationContext(), "Answer Hide Successfully!", Toast.LENGTH_LONG).show();
+                                    dialog.dismiss();
+                                    onBackPressed();
+                                } else {
+                                    dialog.dismiss();
+                                    onBackPressed();
+                                }
+                            }
+                        });
+            } else {
+                map.put("checkOwnQuestion", true);
+                mFirestore.collection("answers").document(answerDocId).update(map)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(getApplicationContext(), "Answer Hide Successfully!", Toast.LENGTH_LONG).show();
+                                    dialog.dismiss();
+                                    onBackPressed();
+                                } else {
+                                    dialog.dismiss();
+                                    onBackPressed();
+                                }
+                            }
+                        });
+            }
+
+//            onBackPressed();
+
 //            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().hideAns(qid,b.getString("oamount"),SharedPrefManager.getInstance(getApplication()).getsUser().getUid());
 //            call.enqueue(new Callback<DefaultResponse>() {
 //                @Override
@@ -195,16 +245,17 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
     @Override
     public void onPaymentError(int i, String s, PaymentData paymentData) {
 
-            Toast.makeText(getApplicationContext(),s, Toast.LENGTH_LONG).show();
-            check.setText("Your Payment has Unsuccessful! \n");
-            gif.setImageResource(R.drawable.cross);
-            MyOrders.setText("Try Again!");
+        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+        check.setText("Your Payment has Unsuccessful! \n");
+        gif.setImageResource(R.drawable.cross);
+        MyOrders.setText("Try Again!");
 
     }
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(getApplicationContext(),HomeActivity.class));
+        startActivity(new Intent(getApplicationContext(), HomeActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
         finish();
     }
 }

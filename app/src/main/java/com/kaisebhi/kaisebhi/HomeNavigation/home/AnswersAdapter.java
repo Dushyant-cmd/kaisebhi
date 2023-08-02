@@ -156,7 +156,9 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
             }
 
             holder.hideAns.setVisibility(View.GONE);
+
             if (nlist.get(position).isSelfHideAnswer()) {
+                holder.Report.setVisibility(View.VISIBLE);
                 holder.Report.setText("Hide by You!");
                 holder.Report.setClickable(false);
                 holder.ansHideBox.setVisibility(View.GONE);
@@ -277,9 +279,11 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
                     public void onClick(View v) {
                         if (amount != 0) {
                             Intent i = new Intent(context, PaymentActivity.class);
+                            i.putExtra("ansId", dataObj.getAnswerDocId());
                             i.putExtra("oamount", String.valueOf(amount));
                             i.putExtra("qid", Id);
                             i.putExtra("payType", "hide");
+                            i.putExtra("isSelfAns", dataObj.isSelfAnswer());
                             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             context.startActivity(i);
                         } else {

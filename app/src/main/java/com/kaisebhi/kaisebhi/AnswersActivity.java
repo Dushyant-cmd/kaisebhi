@@ -168,7 +168,6 @@ public class AnswersActivity extends AppCompatActivity {
 
                     HashMap<String, Object> map = new HashMap<>();
                     map.put("id", getIntent().getStringExtra("key"));
-                    map.put("checkOwnQuestion", false);
                     map.put("uname", sharedPrefManager.getsUser().getName());
                     map.put("upro", sh.getProfilePic());
                     map.put("likes", "0");
@@ -179,10 +178,13 @@ public class AnswersActivity extends AppCompatActivity {
                     map.put("checkHideAnswer", false);
                     map.put("paidCheck", false);
                     map.put("paidAmount", "0");
-                    if (userId.matches(sh.getsUser().getUid()))
+                    if (userId.matches(sh.getsUser().getUid())) {
                         map.put("selfAnswer", true);
+                        map.put("checkOwnQuestion", true);
+                    }
                     else
                         map.put("selfAnswer", false);
+
                     map.put("selfHideAnswer", false);
                     map.put("userReportCheck", false);
                     map.put("userId", sharedPrefManager.getsUser().getUid());
@@ -243,6 +245,10 @@ public class AnswersActivity extends AppCompatActivity {
                                     if(userId.matches(sh.getsUser().getUid())) {
                                         ans.setCheckOwnQuestion(true);
                                         ans.setSelfAnswer(true);
+                                    } else {
+                                        ans.setCheckOwnQuestion(false);
+                                        ans.setSelfHideAnswer(false);
+                                        ans.setSelfAnswer(false);
                                     }
                                 }
                                 adapter = new AnswersAdapter(answers, getApplicationContext());
