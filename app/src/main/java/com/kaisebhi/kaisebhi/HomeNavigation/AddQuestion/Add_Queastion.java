@@ -34,6 +34,8 @@ import com.google.firebase.storage.UploadTask;
 import com.kaisebhi.kaisebhi.HomeActivity;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
+import com.kaisebhi.kaisebhi.Utility.DefaultResponse;
+import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 import com.kaisebhi.kaisebhi.Utility.Utility;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -45,6 +47,10 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.UUID;
+
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
 
 public class Add_Queastion extends AppCompatActivity {
 
@@ -330,7 +336,8 @@ public class Add_Queastion extends AppCompatActivity {
 //        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
 //        RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
 //
-//        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().addImgQuestion(fileToUpload, filename, title, desc, "", SharedPrefManager.getInstance(getApplicationContext()).getsUser().getUid());
+//        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().addImgQuestion(fileToUpload, filename, title, d
+//                esc, "", SharedPrefManager.getInstance(getApplicationContext()).getsUser().getUid());
 //        call.enqueue(new Callback<DefaultResponse>() {
 //            @Override
 //            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
@@ -354,8 +361,6 @@ public class Add_Queastion extends AppCompatActivity {
 //            public void onFailure(Call<DefaultResponse> call, Throwable t) {
 //            }
 //        });
-
-
     }
 
 
