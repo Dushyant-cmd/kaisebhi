@@ -23,6 +23,23 @@ public class HideAnswersModel {
     @SerializedName("thumb")
     private String thumb;
 
+    public HideAnswersModel(String ques, String desc, String qimg, String ans, String author, String thumb) {
+        this.ques = ques;
+        this.desc = desc;
+        this.qimg = qimg;
+        this.ans = ans;
+        this.author = author;
+        this.thumb = thumb;
+    }
+
+    public String getQimg() {
+        return qimg;
+    }
+
+    public void setQimg(String qimg) {
+        this.qimg = qimg;
+    }
+
     public String getQues() {
         return ques;
     }

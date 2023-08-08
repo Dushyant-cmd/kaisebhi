@@ -301,9 +301,15 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(context, PaymentActivity.class);
+                i.putExtra("payType", "show");
+                //question related extras
                 i.putExtra("oamount", nlist.get(position).getPaidAmount());
                 i.putExtra("qid", Id);
-                i.putExtra("payType", "show");
+                i.putExtra("qDesc", dataObj.getDesc());
+                i.putExtra("ques", dataObj.getQuestionsTitle());
+                i.putExtra("qImg", dataObj.getQimg());
+                i.putExtra("ans", dataObj.getTansers());
+                i.putExtra("author", dataObj.getUname());
                 i.putExtra("ansId", dataObj.getAnswerDocId());
                 i.putExtra("isSelfAns", dataObj.isSelfAnswer());
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

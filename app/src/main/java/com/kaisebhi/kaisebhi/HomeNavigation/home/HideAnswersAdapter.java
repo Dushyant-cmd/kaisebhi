@@ -56,7 +56,7 @@ public class HideAnswersAdapter extends RecyclerView.Adapter<HideAnswersAdapter.
         if(!nlist.get(position).getThumb().equals("default"))
         {
             holder.qImg.setVisibility(View.VISIBLE);
-            Glide.with(context).load(BASE_URL + nlist.get(position).getThumb()).fitCenter().into((holder).qImg);
+            Glide.with(context).load(nlist.get(position).getQimg()).fitCenter().into((holder).qImg);
         }
     }
 

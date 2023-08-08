@@ -121,7 +121,6 @@ public class HomeActivity extends AppCompatActivity {
 
 
     private void changeFragment(Fragment fragment) {
-
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(MainFrame.getId(), fragment);
         fragmentTransaction.addToBackStack(null);

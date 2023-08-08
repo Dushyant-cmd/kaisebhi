@@ -177,6 +177,7 @@ public class AnswersActivity extends AppCompatActivity {
                     map.put("answer", text);
                     map.put("checkHideAnswer", false);
                     map.put("paidCheck", false);
+                    map.put("timestamp", System.currentTimeMillis());
                     map.put("paidAmount", "0");
                     if (userId.matches(sh.getsUser().getUid())) {
                         map.put("selfAnswer", true);
@@ -241,15 +242,38 @@ public class AnswersActivity extends AppCompatActivity {
                                             d.getBoolean("userReportCheck"), d.getString("title"), d.getId(), d.getString("reportBy"),
                                             d.getString("likedBy"), d.getString("userId")
                                     );
-                                    answers.add(ans);
-                                    if(userId.matches(sh.getsUser().getUid())) {
-                                        ans.setCheckOwnQuestion(true);
-                                        ans.setSelfAnswer(true);
-                                    } else {
-                                        ans.setCheckOwnQuestion(false);
-                                        ans.setSelfHideAnswer(false);
-                                        ans.setSelfAnswer(false);
-                                    }
+                                    mFirestore.collection("paidAnswers").whereEqualTo("ansDocId", ans.getAnswerDocId())
+                                            .whereEqualTo("userId", sh.getsUser().getUid().toString()).get()
+                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if(task.isSuccessful() && !task.getResult().getDocuments().isEmpty()) {
+                                                        ans.setPaidAmount(task.getResult().getDocuments().get(0).getLong("hideAmount").toString());
+                                                        ans.setCheckPaid(true);
+                                                        answers.add(ans);
+                                                        if(userId.matches(sh.getsUser().getUid())) {
+                                                            ans.setCheckOwnQuestion(true);
+                                                            ans.setSelfAnswer(true);
+                                                        } else {
+                                                            ans.setCheckOwnQuestion(false);
+                                                            ans.setSelfHideAnswer(false);
+                                                            ans.setSelfAnswer(false);
+                                                        }
+                                                        Log.d(TAG, "onComplete: doc paid result: " + task.getResult().getDocuments().get(0));
+                                                    } else {
+                                                        answers.add(ans);
+                                                        if(userId.matches(sh.getsUser().getUid())) {
+                                                            ans.setCheckOwnQuestion(true);
+                                                            ans.setSelfAnswer(true);
+                                                        } else {
+                                                            ans.setCheckOwnQuestion(false);
+                                                            ans.setSelfHideAnswer(false);
+                                                            ans.setSelfAnswer(false);
+                                                        }
+                                                        Log.d(TAG, "onFailure: " + task.getException());
+                                                    }
+                                                }
+                                            });
                                 }
                                 adapter = new AnswersAdapter(answers, getApplicationContext());
                                 recyclerView.setAdapter(adapter);

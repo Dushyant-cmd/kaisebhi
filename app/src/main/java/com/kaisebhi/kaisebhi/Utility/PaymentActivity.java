@@ -52,7 +52,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
 
     String orderId = null;
     String userid = "";
-    private String TAG = "PaymentActivity.java", answerDocId;
+    private String TAG = "PaymentActivity.java", answerDocId, ques, qDesc, ans, author, qImg;
     private Double amount = 0.00;
     private boolean isSelfAns = false;
     private FirebaseFirestore mFirestore;
@@ -103,6 +103,11 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             b = getIntent().getExtras();
             if (b == null) {
             } else {
+                qDesc = b.getString("qDesc", "");
+                ques = b.getString("ques", "");
+                ans = b.getString("ans", "");
+                author = b.getString("author", "");
+                qImg = b.getString("qImg", "");
                 amount = Double.parseDouble(b.getString("oamount"));
                 userid = b.getString("userId");
                 qid = b.getString("qid");
@@ -154,7 +159,6 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
     @SuppressLint("ResourceType")
     @Override
     public void onPaymentSuccess(String s, PaymentData paymentData) {
-
         check.setText("Your Payment has Successful! \n Connect you Soon!");
         gif.setImageResource(R.drawable.check);
         final ProgressDialog dialog = new ProgressDialog(PaymentActivity.this);
@@ -169,14 +173,40 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             map.put("userId", sharedPrefManager.getsUser().getUid());
             map.put("quesId", qid);
             map.put("hideAmount", amount);
+            map.put("timestamp", System.currentTimeMillis());
+            map.put("qDesc", qDesc);
+            map.put("ques", ques);
+            map.put("ans", ans);
+            map.put("author", author);
+            map.put("qImg", qImg);
             mFirestore.collection("paidAnswers").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(DocumentReference documentReference) {
-                    Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
-                    seac.putExtra("Frag","showAns");
-                    seac.putExtra("tabType","show");
-                    startActivity(seac);
-                    dialog.dismiss();
+                    Map<String, Object> rewardMap = new HashMap<>();
+                    Log.d(TAG, "onSuccess: " + sharedPrefManager.getsUser().getReward() + ", " + Long.parseLong(amount.toString()));
+                    rewardMap.put("rewards", sharedPrefManager.getsUser().getReward() + amount);
+                    Log.d(TAG, "onSuccess: map rewards: " + rewardMap);
+                    mFirestore.collection("users").document(sharedPrefManager.getsUser().getUid().toString()).update(rewardMap)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()) {
+                                        Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
+                                        seac.putExtra("Frag","showAns");
+                                        seac.putExtra("tabType","show");
+                                        startActivity(seac);
+                                        dialog.dismiss();
+                                        Log.d(TAG, "onComplete: of show" + task.getResult());
+                                    } else {
+                                        Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
+                                        seac.putExtra("Frag","showAns");
+                                        seac.putExtra("tabType","show");
+                                        startActivity(seac);
+                                        dialog.dismiss();
+                                        Log.d(TAG, "onFailure of show: " + task.getException());
+                                    }
+                                }
+                            });
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -185,22 +215,6 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
                     dialog.dismiss();
                 }
             });
-//            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().showAns(qid,b.getString("oamount"),SharedPrefManager.getInstance(getApplication()).getsUser().getUid());
-//            call.enqueue(new Callback<DefaultResponse>() {
-//                @Override
-//                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-//                    Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
-//                    seac.putExtra("Frag","showAns");
-//                    seac.putExtra("tabType","show");
-//                    startActivity(seac);
-//                    dialog.dismiss();
-//                }
-//
-//                @Override
-//                public void onFailure(Call<DefaultResponse> call, Throwable t) {
-//                    dialog.dismiss();
-//                }
-//            });
         } else {
             map.clear();
             map.put("checkHideAnswer", true);
@@ -238,22 +252,6 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
                             }
                         });
             }
-
-//            onBackPressed();
-
-//            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().hideAns(qid,b.getString("oamount"),SharedPrefManager.getInstance(getApplication()).getsUser().getUid());
-//            call.enqueue(new Callback<DefaultResponse>() {
-//                @Override
-//                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-//                    Toast.makeText(getApplicationContext(),"Answer Hide Successfully!",Toast.LENGTH_LONG).show();
-//                    dialog.dismiss();
-//                }
-//
-//                @Override
-//                public void onFailure(Call<DefaultResponse> call, Throwable t) {
-//                    dialog.dismiss();
-//                }
-//            });
         }
 
 
@@ -262,7 +260,6 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
     @SuppressLint("ResourceType")
     @Override
     public void onPaymentError(int i, String s, PaymentData paymentData) {
-
         Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
         check.setText("Your Payment has Unsuccessful! \n");
         gif.setImageResource(R.drawable.cross);

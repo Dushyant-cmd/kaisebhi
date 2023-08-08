@@ -11,8 +11,9 @@ public class User {
     private int item;
     private boolean edel;
     private String email;
+    private long reward;
 
-    public User(String name,String mobile,String uid,String profile,String location,int item,boolean edel, String email)
+    public User(String name,String mobile,String uid,String profile,String location,int item,boolean edel, String email, long reward)
     {
         this.name = name;
         this.mobile = mobile;
@@ -22,6 +23,15 @@ public class User {
         this.item = item;
         this.edel = edel;
         this.email = email;
+        this.reward = reward;
+    }
+
+    public long getReward() {
+        return reward;
+    }
+
+    public void setReward(long reward) {
+        this.reward = reward;
     }
 
     public String getEmail() {
