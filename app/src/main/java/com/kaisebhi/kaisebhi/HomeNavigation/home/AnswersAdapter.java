@@ -47,7 +47,7 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
 
     int amount = 0;
     private List<AnswersModel> nlist;
-    private String TAG = "AnswersAdapter.java";
+    public String TAG = "AnswersAdapter.java", qUserId = "";
     private Context context;
     String qid;
     private Dialog myDialog;
@@ -312,6 +312,7 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
                 i.putExtra("author", dataObj.getUname());
                 i.putExtra("ansId", dataObj.getAnswerDocId());
                 i.putExtra("isSelfAns", dataObj.isSelfAnswer());
+                i.putExtra("qUserId", qUserId);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }

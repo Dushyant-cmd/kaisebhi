@@ -16,7 +16,12 @@ public class ModelWalletHistory {
     @SerializedName("remark")
     private String remark;
 
-
+    public ModelWalletHistory(String date, String amount, String type, String remark) {
+        this.date = date;
+        this.amount = amount;
+        this.type = type;
+        this.remark = remark;
+    }
     public String getDate() {
         return date;
     }

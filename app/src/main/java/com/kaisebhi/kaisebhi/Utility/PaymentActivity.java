@@ -20,7 +20,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.annotations.SerializedName;
 import com.razorpay.Checkout;
 import com.razorpay.PaymentData;
 import com.razorpay.PaymentResultWithDataListener;
@@ -31,7 +33,10 @@ import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 
 import org.json.JSONObject;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -109,7 +114,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
                 author = b.getString("author", "");
                 qImg = b.getString("qImg", "");
                 amount = Double.parseDouble(b.getString("oamount"));
-                userid = b.getString("userId");
+                userid = b.getString("qUserId");
                 qid = b.getString("qid");
                 answerDocId = b.getString("ansId");
                 isSelfAns = b.getBoolean("isSelfAns");
@@ -182,28 +187,60 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             mFirestore.collection("paidAnswers").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(DocumentReference documentReference) {
-                    Map<String, Object> rewardMap = new HashMap<>();
-                    Log.d(TAG, "onSuccess: " + sharedPrefManager.getsUser().getReward() + ", " + Long.parseLong(amount.toString()));
-                    rewardMap.put("rewards", sharedPrefManager.getsUser().getReward() + amount);
-                    Log.d(TAG, "onSuccess: map rewards: " + rewardMap);
-                    mFirestore.collection("users").document(sharedPrefManager.getsUser().getUid().toString()).update(rewardMap)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    mFirestore.collection("users").document(userid)
+                            .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()) {
-                                        Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
-                                        seac.putExtra("Frag","showAns");
-                                        seac.putExtra("tabType","show");
-                                        startActivity(seac);
-                                        dialog.dismiss();
-                                        Log.d(TAG, "onComplete: of show" + task.getResult());
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        Map<String, Object> rewardMap = new HashMap<>();
+                                        Log.d(TAG, "onSuccess: " + task.getResult().getLong("rewards") + ", "
+                                                + amount);
+                                        rewardMap.put("rewards", task.getResult().getLong("rewards") + amount);
+                                        Log.d(TAG, "onSuccess: map rewards: " + rewardMap);
+                                        mFirestore.collection("users").document(userid).update(rewardMap)
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+                                                            Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
+                                                            seac.putExtra("Frag", "showAns");
+                                                            seac.putExtra("tabType", "show");
+                                                            startActivity(seac);
+                                                            dialog.dismiss();
+                                                            Log.d(TAG, "onComplete: of show" + task.getResult());
+                                                        } else {
+                                                            Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
+                                                            seac.putExtra("Frag", "showAns");
+                                                            seac.putExtra("tabType", "show");
+                                                            startActivity(seac);
+                                                            dialog.dismiss();
+                                                            Log.d(TAG, "onFailure of show: " + task.getException());
+                                                        }
+                                                    }
+                                                });
+
+                                        HashMap<String, Object> rewardHisMap = new HashMap<>();
+                                        SimpleDateFormat spf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss", Locale.getDefault());
+                                        rewardHisMap.put("date", spf.format(new Date(System.currentTimeMillis())));
+                                        rewardHisMap.put("timestamp", System.currentTimeMillis());
+                                        rewardHisMap.put("amount", amount);
+                                        rewardHisMap.put("type", "show");
+                                        rewardHisMap.put("remark", "");
+                                        rewardHisMap.put("userId", userid);
+                                        mFirestore.collection("rewardHistory").add(rewardHisMap)
+                                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentReference documentReference) {
+                                                        Log.d(TAG, "onSuccess: success");
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.d(TAG, "onFailure: " + e);
+                                                    }
+                                                });
                                     } else {
-                                        Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
-                                        seac.putExtra("Frag","showAns");
-                                        seac.putExtra("tabType","show");
-                                        startActivity(seac);
-                                        dialog.dismiss();
-                                        Log.d(TAG, "onFailure of show: " + task.getException());
+                                        Log.d(TAG, "onComplete: " + task.getException());
                                     }
                                 }
                             });

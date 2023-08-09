@@ -77,6 +77,12 @@ public class SharedPrefManager {
         );
     }
 
+    public void setReward(Long rewards) {
+        SharedPreferences.Editor editor = ctx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
+        editor.putLong("rewards", rewards);
+        editor.apply();
+    }
+
     public void logoutUser()
     {
         SharedPreferences sharedPreferences = ctx.getSharedPreferences(SHARED_PREF_NAME,Context.MODE_PRIVATE);

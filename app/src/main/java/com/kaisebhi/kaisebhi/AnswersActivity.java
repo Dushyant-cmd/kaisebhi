@@ -276,6 +276,7 @@ public class AnswersActivity extends AppCompatActivity {
                                             });
                                 }
                                 adapter = new AnswersAdapter(answers, getApplicationContext());
+                                adapter.qUserId = userId;
                                 recyclerView.setAdapter(adapter);
                                 shimmerFrameLayout.stopShimmerAnimation();
                                 shimmerFrameLayout.setVisibility(View.GONE);
