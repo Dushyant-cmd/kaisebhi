@@ -22,6 +22,7 @@ import com.kaisebhi.kaisebhi.Utility.Main_Interface;
 import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -32,7 +33,7 @@ public class HidesAnsFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
-    private List<HideAnswersModel> answers;
+    private List<HideAnswersModel> answers = new ArrayList<>();
     private HideAnswersAdapter adapter;
     private Main_Interface main_interface;
     private ShimmerFrameLayout shimmerFrameLayout;
@@ -66,17 +67,13 @@ public class HidesAnsFragment extends Fragment {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()) {
                             List<DocumentSnapshot> list = task.getResult().getDocuments();
-//                            for(DocumentSnapshot d: list) {
-//                                answers.add(new HideAnswersModel(
-//                                        d.getString("id"), d.getBoolean("checkOwnQuestion"),
-//                                        d.getString("uname"), d.getString("upro"), d.getString("likes"),
-//                                        d.getString("qdesc"), d.getString("qimg"), d.getBoolean("likeCheck"),
-//                                        d.getString("answer"), d.getBoolean("checkHideAnswer"), d.getBoolean("paidCheck"),
-//                                        d.getString("paidAmount"), d.getBoolean("selfAnswer"), d.getBoolean("selfHideAnswer"),
-//                                        d.getBoolean("userReportCheck"), d.getString("title"), d.getId(), d.getString("reportBy"),
-//                                        d.getString("likedBy"), d.getString("userId")
-//                                );
-//                            }
+                            for(DocumentSnapshot d: list) {
+                                answers.add(new HideAnswersModel(d.getString("title"),
+                                        d.getString("qdesc"), d.getString("qimg"),
+                                        d.getString("answer"), d.getString("uname"),
+                                        ""
+                                ));
+                            }
 
                             adapter = new HideAnswersAdapter(answers,getActivity());
                             recyclerView.setAdapter(adapter);

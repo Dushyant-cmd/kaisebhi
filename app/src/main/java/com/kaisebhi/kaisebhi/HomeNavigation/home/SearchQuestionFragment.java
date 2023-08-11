@@ -39,7 +39,7 @@ public class SearchQuestionFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
-    private List<QuestionsModel> questions;
+    private List<QuestionsModel> questions = new ArrayList<>();
     private QuestionsAdapter adapter;
     private Main_Interface main_interface;
     private FirebaseFirestore mFirestore;
@@ -82,13 +82,9 @@ public class SearchQuestionFragment extends Fragment {
 
 
     public void fetchQuestions(String search) {
-
         framLa.setVisibility(View.GONE);
-
         shimmerFrameLayout.setVisibility(View.VISIBLE);
         shimmerFrameLayout.startShimmerAnimation();
-
-        SharedPrefManager sh = new SharedPrefManager(getActivity());
 
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
 
@@ -118,27 +114,6 @@ public class SearchQuestionFragment extends Fragment {
                     }
                 }
         );
-//        Call<List<QuestionsModel>> call = main_interface.getSearchQ(sh.getsUser().getUid(), search);
-//
-//        call.enqueue(new Callback<List<QuestionsModel>>() {
-//            @Override
-//            public void onResponse(Call<List<QuestionsModel>> call, Response<List<QuestionsModel>> response) {
-//
-//                if (response.code() != 404) {
-//                    questions = response.body();
-//                    adapter = new QuestionsAdapter(questions, getActivity());
-//                    recyclerView.setAdapter(adapter);
-//
-//                } else {
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<QuestionsModel>> call, Throwable t) {
-//
-//            }
-//        });
     }
 
 
