@@ -256,13 +256,21 @@ public class ProfileUpdate extends AppCompatActivity {
             btnProgress.setVisibility(View.VISIBLE);
             btnText.setVisibility(View.INVISIBLE);
 
+
 //            File file = new File(postUri.getPath());
 //            Log.d(TAG, "updateProfile uri: " + postUri);
 //            RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
 //            MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
 //            RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
             StorageReference storageReference = firebaseStorage.getReference();
-            StorageReference imageRef = storageReference.child("profileImages/" + UUID.randomUUID());
+            Log.d(TAG, "updateProfile: " + sharedPrefManager.getProfilePic());
+            StorageReference imageRef;
+            if(sharedPrefManager.getImageRef().isEmpty()) {
+                imageRef = storageReference.child("profileImages/" + UUID.randomUUID());
+            } else {
+                String prevRef = "profileImages/" + sharedPrefManager.getImageRef();
+                imageRef = storageReference.child(prevRef);
+            }
             UploadTask uploadTask = imageRef.putFile(postUri);
             uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -287,6 +295,7 @@ public class ProfileUpdate extends AppCompatActivity {
                                                 Check = 1;
                                                 btnText.setVisibility(View.VISIBLE);
                                                 btnProgress.setVisibility(View.INVISIBLE);
+                                                onBackPressed();
                                             }
                                         }).addOnFailureListener(new OnFailureListener() {
                                             @Override
@@ -354,6 +363,7 @@ public class ProfileUpdate extends AppCompatActivity {
                             Check = 1;
                             btnText.setVisibility(View.VISIBLE);
                             btnProgress.setVisibility(View.INVISIBLE);
+                            onBackPressed();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override

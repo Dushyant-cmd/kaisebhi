@@ -51,7 +51,6 @@ public class SearchQuestionFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
         View root = inflater.inflate(R.layout.fragment_search_ques, container, false);
         shimmerFrameLayout = root.findViewById(R.id.SearchloadingShimmer);
         mFirestore = ((ApplicationCustom) getActivity().getApplication()).mFirestore;
@@ -79,7 +78,6 @@ public class SearchQuestionFragment extends Fragment {
 
         return root;
     }
-
 
     public void fetchQuestions(String search) {
         framLa.setVisibility(View.GONE);

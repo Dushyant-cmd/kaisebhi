@@ -20,13 +20,14 @@ public class SharedPrefManager {
     public static SharedPrefManager mInstance;
     private Context ctx;
     private FirebaseAuth mAuth;
+    private SharedPreferences sharedPreferences;
 
     public SharedPrefManager(Context ctx)
     {
         mAuth = FirebaseAuth.getInstance();
+        sharedPreferences = ctx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         this.ctx = ctx;
     }
-
 
     public static synchronized SharedPrefManager getInstance(Context ctx)
     {
@@ -81,6 +82,16 @@ public class SharedPrefManager {
         SharedPreferences.Editor editor = ctx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE).edit();
         editor.putLong("rewards", rewards);
         editor.apply();
+    }
+
+    public String getImageRef() {
+        return sharedPreferences.getString("imageRef", "");
+    }
+
+    public void setImageRef(String imageRef) {
+        sharedPreferences.edit()
+                .putString("imageRef", imageRef)
+                .apply();
     }
 
     public void logoutUser()

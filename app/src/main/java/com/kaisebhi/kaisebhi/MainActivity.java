@@ -1,6 +1,7 @@
 package com.kaisebhi.kaisebhi;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -33,6 +34,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseFirestore mFirestore;
     private String TAG = "MainActivity.java";
+    private SharedPrefManager sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirestore = FirebaseFirestore.getInstance();
+        sharedPreferences = SharedPrefManager.getInstance(getApplicationContext());
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -196,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
                                                             d.getLong("userId").toString(), d.getString("profile"), d.getString("email"), d.getString("address"),
                                                                     d.getLong("rewards"));
                                                     SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic(d.getString("picUrl"));
+                                                    sharedPreferences.setImageRef(d.getString("imageRef"));
                                                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                                     startActivity(intent);
                                                     finish();
@@ -216,6 +221,8 @@ public class MainActivity extends AppCompatActivity {
                                                                 map.put("picUrl", "");
                                                                 map.put("address", "");
                                                                 map.put("rewards", 0);
+                                                                String imageRef = UUID.randomUUID().toString();
+                                                                map.put("imageRef", imageRef);
                                                                 map.put("pass", "loginByGoogle");
 
                                                                 mFirestore.collection("users").document(updatedUserId + "")
@@ -236,6 +243,7 @@ public class MainActivity extends AppCompatActivity {
                                                                                                                         .saveUser(name, 0 + "", updatedUserId + "", "inComplete", email, "",
                                                                                                                                 0);
                                                                                                                 SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic("");
+                                                                                                                sharedPreferences.setImageRef(imageRef);
                                                                                                                 Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                                                                                                 startActivity(intent);
                                                                                                                 finish();
@@ -299,6 +307,7 @@ public class MainActivity extends AppCompatActivity {
                                                                     doc1.getString("email"), doc1.getString("address"),
                                                                     doc1.getLong("rewards"));
                                                             SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic(doc.getString("picUrl"));
+                                                            sharedPreferences.setImageRef(doc1.getString("imageRef"));
                                                             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                                             startActivity(intent);
                                                             finish();
@@ -330,6 +339,8 @@ public class MainActivity extends AppCompatActivity {
                                                     map.put("picUrl", "");
                                                     map.put("rewards", 0);
                                                     map.put("timestamp", System.currentTimeMillis());
+                                                    String imageRef = UUID.randomUUID().toString();
+                                                    map.put("imageRef", imageRef);
 
                                                     mFirestore.collection("users").document(updatedUserId + "").set(map)
                                                             .addOnCompleteListener(task12 -> {
@@ -352,6 +363,7 @@ public class MainActivity extends AppCompatActivity {
                                                                     SharedPrefManager.getInstance(getApplicationContext())
                                                                             .saveUser("Guest_" + updatedUserId, "0",
                                                                             updatedUserId + "", "inComplete", email, "", 0);
+                                                                    sharedPreferences.setImageRef(imageRef);
                                                                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                                                     startActivity(intent);
                                                                     finish();

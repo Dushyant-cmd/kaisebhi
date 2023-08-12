@@ -91,6 +91,7 @@ public class FavoriteFragment extends Fragment {
                                 );
                                 questions.add(model);
                             }
+
                             adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, roomDb, storage);
                             recyclerView.setAdapter(adapter);
 
