@@ -67,10 +67,10 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
         final String Id = nlist.get(position).getID();
 
 
-        if (!nlist.get(position).getPathOfImg().isEmpty()) {
+        if (!nlist.get(position).getImage().isEmpty()) {
             holder.questionimg.setVisibility(View.VISIBLE);
-            Glide.with(context).load(model.getPathOfImg()).fitCenter().into((holder).questionimg);
-            url = model.getPathOfImg();
+            Glide.with(context).load(model.getImage()).fitCenter().into((holder).questionimg);
+            url = model.getImage();
         } else {
             holder.questionimg.setVisibility(View.VISIBLE);
         }
@@ -125,7 +125,8 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
                 i.putExtra("key", Id);
                 i.putExtra("title", nlist.get(position).getTitle());
                 i.putExtra("desc", nlist.get(position).getDesc());
-                i.putExtra("qimg", nlist.get(position).getQpic());
+                i.putExtra("qimg", nlist.get(position).getImage());
+                i.putExtra("quesImgPath", nlist.get(position).getQuesImgPath());
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
 

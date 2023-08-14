@@ -109,8 +109,8 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         SharedPrefManager sh = new SharedPrefManager(context);
         final String uid = sh.getsUser().getUid();
 
-        if (!q.getPathOfImg().isEmpty()) {
-            url = q.getPathOfImg();
+        if (!q.getImage().isEmpty()) {
+            url = q.getImage();
             holder.questionimg.setVisibility(View.VISIBLE);
             Glide.with(context).load(url).fitCenter().into((holder).questionimg);
 //            Log.d(TAG, "onComplete: " + url);
@@ -177,7 +177,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                 i.putExtra("user", nlist.get(position).getUname());
                 i.putExtra("userpic", q.getUserPicUrl());
                 i.putExtra("desc", nlist.get(position).getDesc());
-                i.putExtra("qimg", q.getPathOfImg());
+                i.putExtra("qimg", q.getImage());
                 i.putExtra("tans", nlist.get(position).getTansers());
                 i.putExtra("tlikes", nlist.get(position).getCheckLike());
                 i.putExtra("likes", nlist.get(position).getLikes());
@@ -197,7 +197,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                 i.putExtra("user", nlist.get(position).getUname());
                 i.putExtra("userpic", q.getUserPicUrl());
                 i.putExtra("desc", nlist.get(position).getDesc());
-                i.putExtra("qimg", q.getPathOfImg());
+                i.putExtra("qimg", q.getImage());
                 i.putExtra("tans", nlist.get(position).getTansers());
                 i.putExtra("tlikes", nlist.get(position).getCheckLike());
                 i.putExtra("userId", q.getUserId());
@@ -226,7 +226,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     questionMap.put("id", q.getID());
                     questionMap.put("timestamp", System.currentTimeMillis());
                     questionMap.put("likedByUser", q.getLikedByUser());
-                    questionMap.put("image", q.getPathOfImg());
+                    questionMap.put("image", q.getImage());
                     questionMap.put("userPicUrl", sh.getProfilePic());
                     mFirestore.collection("favorite").add(questionMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
@@ -297,7 +297,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
             public void onClick(View v) {
                 Log.d(TAG, "onClick: " + url);
                 Intent i = new Intent(context.getApplicationContext(), ViewPic.class);
-                i.putExtra("photourl", q.getPathOfImg());
+                i.putExtra("photourl", q.getImage());
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }

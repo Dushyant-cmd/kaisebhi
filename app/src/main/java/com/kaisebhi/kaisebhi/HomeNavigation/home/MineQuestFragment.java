@@ -66,8 +66,6 @@ public class MineQuestFragment extends Fragment {
     {
         shimmerFrameLayout.startShimmerAnimation();
 
-        SharedPrefManager sh = new SharedPrefManager(getActivity());
-
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
 
         mFirestore.collection("questions").whereEqualTo("userId", SharedPrefManager.getInstance(getActivity()).getsUser().getUid())
@@ -75,13 +73,14 @@ public class MineQuestFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()) {
+                            questions.clear();
                             List<DocumentSnapshot> list = task.getResult().getDocuments();
                             for(DocumentSnapshot d: list) {
                                 questions.add(new QuestionsModel(d.getString("id"), d.getString("title"), d.getString("desc"),
                                         d.getString("qpic"), d.getString("uname"), "NA", d.getBoolean("checkFav"),
                                         d.getString("likes"), d.getBoolean("checkLike"), d.getString("tanswers"),
                                         d.getString("likedByUser"), d.getString("image"), d.getString("userId")
-                                        , d.getString("userPicUrl")
+                                        , d.getString("userPicUrl"), d.getString("imageRef")
                                 ));
                             }
                             adapter = new MineQuestionsAdapter(questions,getActivity(), mFirestore, ((ApplicationCustom) requireActivity().getApplication()).storage);
@@ -89,6 +88,7 @@ public class MineQuestFragment extends Fragment {
 
                             shimmerFrameLayout.stopShimmerAnimation();
                             shimmerFrameLayout.setVisibility(View.GONE);
+                            Log.d(TAG, "onComplete: " + questions.size());
                         } else {
                             shimmerFrameLayout.stopShimmerAnimation();
                             shimmerFrameLayout.setVisibility(View.GONE);

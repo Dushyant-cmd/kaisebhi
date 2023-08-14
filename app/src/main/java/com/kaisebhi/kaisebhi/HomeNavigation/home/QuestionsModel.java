@@ -45,7 +45,8 @@ public class QuestionsModel {
     @ColumnInfo(name = "likedByUser", defaultValue = "null")
     private String likedByUser;
 
-    private String pathOfImg, userId, userPicUrl;
+    private String image, userId, userPicUrl;
+    private String quesImgPath;
 
     public QuestionsModel() {
         //mandatory by room db to have empty constructor of entity class
@@ -53,7 +54,7 @@ public class QuestionsModel {
 
     public QuestionsModel(String ID, String title, String desc, String qpic, String uname, String upro,
                           Boolean checkFav, String likes, Boolean checkLike, String tansers,
-                          String likedByUser, String image, String userId, String userPicUrl) {
+                          String likedByUser, String image, String userId, String userPicUrl, String qImgPath) {
         this.ID = ID;
         Title = title;
         this.desc = desc;
@@ -65,9 +66,18 @@ public class QuestionsModel {
         this.checkLike = checkLike;
         this.tansers = tansers;
         this.likedByUser = likedByUser;
-        this.pathOfImg = image;
+        this.image = image;
         this.userId = userId;
         this.userPicUrl = userPicUrl;
+        this.quesImgPath = qImgPath;
+    }
+
+    public String getQuesImgPath() {
+        return quesImgPath;
+    }
+
+    public void setQuesImgPath(String quesImgPath) {
+        this.quesImgPath = quesImgPath;
     }
 
     public String getUserPicUrl() {
@@ -86,12 +96,12 @@ public class QuestionsModel {
         this.userId = userId;
     }
 
-    public String getPathOfImg() {
-        return pathOfImg;
+    public String getImage() {
+        return image;
     }
 
-    public void setPathOfImg(String pathOfImg) {
-        this.pathOfImg = pathOfImg;
+    public void setImage(String pathOfImg) {
+        this.image = pathOfImg;
     }
 
     public String getLikedByUser() {
@@ -205,7 +215,8 @@ public class QuestionsModel {
                 ", checkLike=" + checkLike +
                 ", tansers='" + tansers + '\'' +
                 ", likedByUser='" + likedByUser + '\'' +
-                ", pathOfImg='" + pathOfImg + '\'' +
+                ", pathOfImg='" + image + '\'' +
+                ", qImgPath='" + quesImgPath + "\'" +
                 '}';
     }
 }

@@ -223,7 +223,6 @@ public class AnswersActivity extends AppCompatActivity {
     }
 
     public void fetchAnsers() {
-        answers.clear();
         shimmerFrameLayout.setVisibility(View.VISIBLE);
         shimmerFrameLayout.startShimmerAnimation();
         mFirestore.collection("answers").whereEqualTo("id", getIntent().getStringExtra("key"))
@@ -232,6 +231,7 @@ public class AnswersActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             try {
+                                answers.clear();
                                 for (DocumentSnapshot d : task.getResult().getDocuments()) {
                                     AnswersModel ans = new AnswersModel(
                                             d.getString("id"), d.getBoolean("checkOwnQuestion"),
@@ -242,6 +242,7 @@ public class AnswersActivity extends AppCompatActivity {
                                             d.getBoolean("userReportCheck"), d.getString("title"), d.getId(), d.getString("reportBy"),
                                             d.getString("likedBy"), d.getString("userId")
                                     );
+
                                     mFirestore.collection("paidAnswers").whereEqualTo("ansDocId", ans.getAnswerDocId())
                                             .whereEqualTo("userId", sh.getsUser().getUid().toString()).get()
                                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -250,7 +251,6 @@ public class AnswersActivity extends AppCompatActivity {
                                                     if(task.isSuccessful() && !task.getResult().getDocuments().isEmpty()) {
                                                         ans.setPaidAmount(task.getResult().getDocuments().get(0).getLong("hideAmount").toString());
                                                         ans.setCheckPaid(true);
-                                                        answers.add(ans);
                                                         if(userId.matches(sh.getsUser().getUid())) {
                                                             ans.setCheckOwnQuestion(true);
                                                             ans.setSelfAnswer(true);
@@ -259,9 +259,9 @@ public class AnswersActivity extends AppCompatActivity {
                                                             ans.setSelfHideAnswer(false);
                                                             ans.setSelfAnswer(false);
                                                         }
+                                                        answers.add(ans);
                                                         Log.d(TAG, "onComplete: doc paid result: " + task.getResult().getDocuments().get(0));
                                                     } else {
-                                                        answers.add(ans);
                                                         if(userId.matches(sh.getsUser().getUid())) {
                                                             ans.setCheckOwnQuestion(true);
                                                             ans.setSelfAnswer(true);
@@ -270,6 +270,7 @@ public class AnswersActivity extends AppCompatActivity {
                                                             ans.setSelfHideAnswer(false);
                                                             ans.setSelfAnswer(false);
                                                         }
+                                                        answers.add(ans);
                                                         Log.d(TAG, "onFailure: " + task.getException());
                                                     }
                                                 }

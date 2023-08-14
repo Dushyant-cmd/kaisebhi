@@ -174,36 +174,6 @@ public class ProfileUpdate extends AppCompatActivity {
                         }
                     }
                 });
-
-//        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().getFullProfile(ID);
-//        call.enqueue(new Callback<DefaultResponse>() {
-//            @SuppressLint("ResourceType")
-//            @Override
-//            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-//                DefaultResponse dr = response.body();
-//                if (response.code() == 201) {
-//                    String data = dr.getMessage();
-//                    String[] dif = data.split("#");
-//                    Glide.with(getApplicationContext()).load(BASE_URL + "user/" + dif[0]).dontAnimate().centerCrop().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).placeholder(R.drawable.profile).into(ProfileImage);
-//                    edName.setText(dif[1]);
-//                    if(!dif[2].contains("empty"))
-//                    edEmail.setText(dif[2]);
-//
-//                    if(!dif[3].contains("empty"))
-//                    edAdd.setText(dif[3]);
-//
-//                    if(!dif[4].contains("empty"))
-//                    edMobile.setText(dif[4]);
-//                }
-//                updateProgress.setVisibility(View.GONE);
-//            }
-//
-//            @Override
-//            public void onFailure(Call<DefaultResponse> call, Throwable t) {
-//                Toast.makeText(getApplicationContext(),t.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
-//            }
-//
-//        });
     }
 
 
@@ -256,14 +226,7 @@ public class ProfileUpdate extends AppCompatActivity {
             btnProgress.setVisibility(View.VISIBLE);
             btnText.setVisibility(View.INVISIBLE);
 
-
-//            File file = new File(postUri.getPath());
-//            Log.d(TAG, "updateProfile uri: " + postUri);
-//            RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
-//            MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
-//            RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
             StorageReference storageReference = firebaseStorage.getReference();
-            Log.d(TAG, "updateProfile: " + sharedPrefManager.getProfilePic());
             StorageReference imageRef;
             if(sharedPrefManager.getImageRef().isEmpty()) {
                 imageRef = storageReference.child("profileImages/" + UUID.randomUUID());
