@@ -67,6 +67,7 @@ public class MineQuestFragment extends Fragment {
         shimmerFrameLayout.startShimmerAnimation();
 
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
+        Log.d(TAG, "fetchQuestions uId: " + SharedPrefManager.getInstance(getActivity()).getsUser().getUid());
 
         mFirestore.collection("questions").whereEqualTo("userId", SharedPrefManager.getInstance(getActivity()).getsUser().getUid())
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

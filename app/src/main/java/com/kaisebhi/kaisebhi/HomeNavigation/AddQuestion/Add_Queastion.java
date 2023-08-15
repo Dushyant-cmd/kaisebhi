@@ -242,7 +242,7 @@ public class Add_Queastion extends AppCompatActivity {
         progressDialog.show();
 
         try {
-            if(uploadBtn.getText().toString().matches("Update Question")) {
+            if (uploadBtn.getText().toString().matches("Update Question")) {
                 Log.d(TAG, "uploadQuesImage: " + getIntent().getStringExtra("quesImgPath"));
                 File file = new File(postUri.getPath());
                 StorageReference storageReference = storage.getReference();
@@ -252,35 +252,42 @@ public class Add_Queastion extends AppCompatActivity {
                 uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        Uri uri = fileRef.getDownloadUrl().getResult();
-                        HashMap<String, Object> map = new HashMap<>();
-                        map.put("title", title);
-                        map.put("desc", desc);
-                        map.put("image", uri.toString());
-                        mFirestore.collection("questions").document(Qid).update(map)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void unused) {
-                                        try {
-                                            Log.d(TAG, "onSuccess: updated success");
-//                                            Utility.toast(Add_Queastion.this, "Question Updated for Approve! ");
-                                            onBackPressed();
-//                                            Intent cart = new Intent(Add_Queastion.this, HomeActivity.class);
-//                                            cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                                            cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                                            startActivity(cart);
-//                                            finish();
-                                        } catch(Exception e) {
-                                            Log.d(TAG, "onSuccess: " + e);
-                                        }
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.d(TAG, "onFailure: " + e);
-                                        progressDialog.dismiss();
-                                    }
-                                });
+                        Task<Uri> taskUri = fileRef.getDownloadUrl();
+                        taskUri.addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task1) {
+                                if (task1.isSuccessful()) {
+                                    String uri = task1.getResult().toString();
+                                    HashMap<String, Object> map = new HashMap<>();
+                                    map.put("title", title);
+                                    map.put("desc", desc);
+                                    map.put("image", uri);
+                                    mFirestore.collection("questions").document(Qid).update(map)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    try {
+                                                        Log.d(TAG, "onSuccess: updated success");
+                                                        Utility.toast(Add_Queastion.this, "Question Updated for Approve! ");
+                                                        Intent cart = new Intent(Add_Queastion.this, HomeActivity.class);
+                                                        cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                        cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                        startActivity(cart);
+                                                        finish();
+                                                    } catch (Exception e) {
+                                                        Log.d(TAG, "onSuccess: " + e);
+                                                    }
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.d(TAG, "onFailure: " + e);
+                                                    progressDialog.dismiss();
+                                                }
+                                            });
+                                }
+                            }
+                        });
                     }
                 });
             } else {
@@ -297,7 +304,7 @@ public class Add_Queastion extends AppCompatActivity {
                         imageTsk.addOnCompleteListener(new OnCompleteListener<Uri>() {
                             @Override
                             public void onComplete(@NonNull Task<Uri> downloadImgTask) {
-                                if(downloadImgTask.isSuccessful()) {
+                                if (downloadImgTask.isSuccessful()) {
                                     mFirestore.collection("ids").document("questionId").get()
                                             .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                 @Override

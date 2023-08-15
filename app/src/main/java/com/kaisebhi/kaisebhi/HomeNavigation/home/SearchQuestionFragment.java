@@ -91,14 +91,17 @@ public class SearchQuestionFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            questions.clear();
                             for (DocumentSnapshot d : task.getResult().getDocuments()) {
-                                questions.add(new QuestionsModel(
-                                        d.getString("id"), d.getString("title"), d.getString("desc"),
-                                        d.getString("qpic"), d.getString("uname"), d.getString("upro"),
-                                        d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
-                                        d.getString("tanswers"), d.getString("likedByUser"), d.getString("image"),
-                                        d.getString("userId"), d.getString("userPicUrl"), d.getString("imageRef")
-                                ));
+                                if(d.getString("title").contains(search)) {
+                                    questions.add(new QuestionsModel(
+                                            d.getString("id"), d.getString("title"), d.getString("desc"),
+                                            d.getString("qpic"), d.getString("uname"), d.getString("upro"),
+                                            d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
+                                            d.getString("tanswers"), d.getString("likedByUser"), d.getString("image"),
+                                            d.getString("userId"), d.getString("userPicUrl"), d.getString("imageRef")
+                                    ));
+                                }
                             }
 
                             adapter = new QuestionsAdapter(questions, getActivity(), mFirestore, applicationCustom.roomDb, applicationCustom.storage);

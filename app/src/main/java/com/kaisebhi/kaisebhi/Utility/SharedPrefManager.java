@@ -104,11 +104,7 @@ public class SharedPrefManager {
         client.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()) {
-                    mAuth.signOut();
-                } else {
-                    mAuth.signOut();
-                }
+                mAuth.signOut();
             }
         });
     }

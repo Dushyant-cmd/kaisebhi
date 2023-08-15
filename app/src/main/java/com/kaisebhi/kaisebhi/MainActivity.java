@@ -196,12 +196,15 @@ public class MainActivity extends AppCompatActivity {
                                                     DocumentSnapshot d = task.getResult().getDocuments().get(0);
                                                     Log.d(TAG, "onComplete: user exist " + d.toString());
                                                     signProgress.setVisibility(View.GONE);
-                                                    SharedPrefManager.getInstance(getApplicationContext()).saveUser(d.getString("name"), d.getLong("mobile").toString(),
-                                                            d.getLong("userId").toString(), d.getString("profile"), d.getString("email"), d.getString("address"),
+                                                    SharedPrefManager.getInstance(getApplicationContext())
+                                                            .saveUser(d.getString("name"), d.getLong("mobile").toString(),
+                                                            d.getLong("userId").toString(), d.getString("profile"),
+                                                                    d.getString("email"), d.getString("address"),
                                                                     d.getLong("rewards"));
                                                     SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic(d.getString("picUrl"));
                                                     sharedPreferences.setImageRef(d.getString("imageRef"));
                                                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                                     startActivity(intent);
                                                     finish();
                                                 } else {
@@ -245,6 +248,7 @@ public class MainActivity extends AppCompatActivity {
                                                                                                                 SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic("");
                                                                                                                 sharedPreferences.setImageRef(imageRef);
                                                                                                                 Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                                                                                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                                                                                                 startActivity(intent);
                                                                                                                 finish();
                                                                                                             } else {
@@ -293,28 +297,29 @@ public class MainActivity extends AppCompatActivity {
                                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                        if (task.getResult().getDocuments().size() > 0) {
+                                        if (task.isSuccessful() && task.getResult().getDocuments().size() > 0) {
                                             //sign user
                                             Log.d(TAG, "loginEmail: sign-in" + updatedUserId);
                                             mFirebaseAuth.signInWithEmailAndPassword(email, pass).addOnCompleteListener(task1 -> {
                                                 try {
                                                     if (task1.isSuccessful()) {
-                                                        if (task.isSuccessful()) {
                                                             DocumentSnapshot doc1 = task.getResult().getDocuments().get(0);
                                                             signProgress.setVisibility(View.GONE);
-                                                            SharedPrefManager.getInstance(getApplicationContext()).saveUser(doc1.getString("name"), doc1.getLong("mobile").toString(),
-                                                                    (updatedUserId - 1) + "", doc1.getString("profile"),
+                                                            SharedPrefManager.getInstance(getApplicationContext()).saveUser(doc1.getString("name"),
+                                                                    doc1.getLong("mobile").toString(),
+                                                                    doc1.getLong("userId").toString(), doc1.getString("profile"),
                                                                     doc1.getString("email"), doc1.getString("address"),
                                                                     doc1.getLong("rewards"));
                                                             SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic(doc.getString("picUrl"));
                                                             sharedPreferences.setImageRef(doc1.getString("imageRef"));
                                                             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                                             startActivity(intent);
                                                             finish();
-                                                        } else {
-                                                            signProgress.setVisibility(View.GONE);
-                                                            Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                                        }
+//                                                        } else {
+//                                                            signProgress.setVisibility(View.GONE);
+//                                                            Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+//                                                        }
                                                     } else {
                                                         signProgress.setVisibility(View.GONE);
                                                         Toast.makeText(MainActivity.this, task1.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -365,6 +370,7 @@ public class MainActivity extends AppCompatActivity {
                                                                             updatedUserId + "", "inComplete", email, "", 0);
                                                                     sharedPreferences.setImageRef(imageRef);
                                                                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                                                     startActivity(intent);
                                                                     finish();
                                                                 } else {

@@ -51,6 +51,7 @@ public class Utility {
             builder.setPositiveButton("Okay", (dialog, which) -> {
                 Log.d(TAG, "noNetworkDialog: " + isNetworkAvailable(ctx));
                 if(isNetworkAvailable(ctx)) {
+                    toast(ctx, "Please refresh to see result");
                     alertDialog.dismiss();
                 } else {
                     alertDialog.dismiss();

@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -26,6 +27,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.AggregateSource;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -38,6 +40,8 @@ import com.kaisebhi.kaisebhi.Utility.DefaultResponse;
 import com.kaisebhi.kaisebhi.Utility.Main_Interface;
 import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
+import com.kaisebhi.kaisebhi.Utility.Utility;
+import com.kaisebhi.kaisebhi.databinding.ActivityAnswerBinding;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,11 +77,13 @@ public class AnswersActivity extends AppCompatActivity {
 
     String Qid;
     private String TAG = "AnswersActivity.java";
+    private ActivityAnswerBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_answer);
+        binding = ActivityAnswerBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         getDelegate().setLocalNightMode(
                 AppCompatDelegate.MODE_NIGHT_NO);
@@ -131,9 +137,24 @@ public class AnswersActivity extends AppCompatActivity {
 
             Glide.with(getApplicationContext()).load(extras.getString("userpic")).placeholder(R.drawable.profile).fitCenter().into(pro);
 
-            fetchAnsers();
+            if(Utility.isNetworkAvailable(AnswersActivity.this)) {
+                fetchAnsers();
+            } else {
+                Utility.noNetworkDialog(AnswersActivity.this);
+            }
         }
 
+        binding.ansSwipeRefLay.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                binding.ansSwipeRefLay.setRefreshing(false);
+                if(Utility.isNetworkAvailable(AnswersActivity.this)) {
+                    fetchAnsers();
+                } else {
+                    Utility.noNetworkDialog(AnswersActivity.this);
+                }
+            }
+        });
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,10 +203,10 @@ public class AnswersActivity extends AppCompatActivity {
                     if (userId.matches(sh.getsUser().getUid())) {
                         map.put("selfAnswer", true);
                         map.put("checkOwnQuestion", true);
-                    }
-                    else
+                    } else {
+                        map.put("checkOwnQuestion", false);
                         map.put("selfAnswer", false);
-
+                    }
                     map.put("selfHideAnswer", false);
                     map.put("userReportCheck", false);
                     map.put("userId", sharedPrefManager.getsUser().getUid());
@@ -223,16 +244,20 @@ public class AnswersActivity extends AppCompatActivity {
     }
 
     public void fetchAnsers() {
+        Log.d(TAG, "fetchAnsers: " + Qid);
         shimmerFrameLayout.setVisibility(View.VISIBLE);
         shimmerFrameLayout.startShimmerAnimation();
-        mFirestore.collection("answers").whereEqualTo("id", getIntent().getStringExtra("key"))
+        mFirestore.collection("answers")
+                .whereEqualTo("id", Qid)
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             try {
                                 answers.clear();
-                                for (DocumentSnapshot d : task.getResult().getDocuments()) {
+                                List<DocumentSnapshot> list = task.getResult().getDocuments();
+                                for (int i = 0; i < list.size(); i++) {
+                                    DocumentSnapshot d = list.get(i);
                                     AnswersModel ans = new AnswersModel(
                                             d.getString("id"), d.getBoolean("checkOwnQuestion"),
                                             d.getString("uname"), d.getString("upro"), d.getString("likes"),
@@ -243,44 +268,49 @@ public class AnswersActivity extends AppCompatActivity {
                                             d.getString("likedBy"), d.getString("userId")
                                     );
 
-                                    mFirestore.collection("paidAnswers").whereEqualTo("ansDocId", ans.getAnswerDocId())
-                                            .whereEqualTo("userId", sh.getsUser().getUid().toString()).get()
-                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                    if(task.isSuccessful() && !task.getResult().getDocuments().isEmpty()) {
-                                                        ans.setPaidAmount(task.getResult().getDocuments().get(0).getLong("hideAmount").toString());
-                                                        ans.setCheckPaid(true);
-                                                        if(userId.matches(sh.getsUser().getUid())) {
-                                                            ans.setCheckOwnQuestion(true);
-                                                            ans.setSelfAnswer(true);
-                                                        } else {
-                                                            ans.setCheckOwnQuestion(false);
-                                                            ans.setSelfHideAnswer(false);
-                                                            ans.setSelfAnswer(false);
-                                                        }
-                                                        answers.add(ans);
-                                                        Log.d(TAG, "onComplete: doc paid result: " + task.getResult().getDocuments().get(0));
-                                                    } else {
-                                                        if(userId.matches(sh.getsUser().getUid())) {
-                                                            ans.setCheckOwnQuestion(true);
-                                                            ans.setSelfAnswer(true);
-                                                        } else {
-                                                            ans.setCheckOwnQuestion(false);
-                                                            ans.setSelfHideAnswer(false);
-                                                            ans.setSelfAnswer(false);
-                                                        }
-                                                        answers.add(ans);
-                                                        Log.d(TAG, "onFailure: " + task.getException());
-                                                    }
-                                                }
-                                            });
+                                    answers.add(ans);
                                 }
+                                Log.d(TAG, "onComplete: answer list: " + answers.size());
                                 adapter = new AnswersAdapter(answers, getApplicationContext());
                                 adapter.qUserId = userId;
                                 recyclerView.setAdapter(adapter);
                                 shimmerFrameLayout.stopShimmerAnimation();
                                 shimmerFrameLayout.setVisibility(View.GONE);
+
+                                for(AnswersModel ans: answers) {
+                                    mFirestore.collection("paidAnswers").whereEqualTo("ansDocId", ans.getAnswerDocId())
+                                            .whereEqualTo("userId", sh.getsUser().getUid().toString()).get()
+                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful() && !task.getResult().getDocuments().isEmpty()) {
+                                                        ans.setPaidAmount(task.getResult().getDocuments().get(0).getLong("hideAmount").toString());
+                                                        ans.setCheckPaid(true);
+                                                        if (userId.matches(sh.getsUser().getUid())) {
+                                                            ans.setCheckOwnQuestion(true);
+                                                            ans.setSelfAnswer(true);
+                                                        } else {
+                                                            ans.setCheckOwnQuestion(false);
+                                                            ans.setSelfHideAnswer(false);
+                                                            ans.setSelfAnswer(false);
+                                                        }
+                                                        Log.d(TAG, "onComplete: doc paid result: " + task.getResult().getDocuments().get(0));
+                                                    } else {
+                                                        if (userId.matches(sh.getsUser().getUid())) {
+                                                            ans.setCheckOwnQuestion(true);
+                                                            ans.setSelfAnswer(true);
+                                                        } else {
+                                                            ans.setCheckOwnQuestion(false);
+                                                            ans.setSelfHideAnswer(false);
+                                                            ans.setSelfAnswer(false);
+                                                        }
+                                                        Log.d(TAG, "onFailure: " + task.getException());
+                                                    }
+
+                                                    adapter.notifyDataSetChanged();
+                                                }
+                                            });
+                                }
                             } catch (Exception e) {
                                 Log.d(TAG, "onComplete: catch " + e);
                             }
@@ -289,30 +319,6 @@ public class AnswersActivity extends AppCompatActivity {
                         }
                     }
                 });
-//        Main_Interface main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
-//
-//        Call<List<AnswersModel>> call = main_interface.getAnswers(Qid, SharedPrefManager.getInstance(getApplication()).getsUser().getUid());
-//
-//        call.enqueue(new Callback<List<AnswersModel>>() {
-//            @Override
-//            public void onResponse(Call<List<AnswersModel>> call, Response<List<AnswersModel>> response) {
-//
-//                if (response.code() != 404) {
-//                    answers = response.body();
-//                    adapter = new AnswersAdapter(answers, getApplicationContext());
-//                    recyclerView.setAdapter(adapter);
-//                }
-//                shimmerFrameLayout.stopShimmerAnimation();
-//                shimmerFrameLayout.setVisibility(View.GONE);
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<AnswersModel>> call, Throwable t) {
-//
-//            }
-//        });
-
     }
 
 
