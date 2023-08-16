@@ -87,7 +87,8 @@ public class FavoriteFragment extends Fragment {
                                         d.getString("qpic"), d.getString("uname"), d.getString("upro"),
                                         d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
                                         d.getString("tanswers"), d.getString("likedByUser"), d.getString("image"),
-                                        d.getString("userId"), d.getString("userPicUrl"), ""
+                                        d.getString("userId"), d.getString("userPicUrl"), "",
+                                        d.getString("portal")
                                 );
                                 questions.add(model);
                             }

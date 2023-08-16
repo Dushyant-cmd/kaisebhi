@@ -12,4 +12,23 @@ public class RoomTypeConverter {
     public Boolean fromStringToBoolean(String value) {
         return Boolean.parseBoolean(value);
     }
+
+    @TypeConverter
+    public String fromStringArrToString(String[] strArr) {
+        String str = "";
+        for (int i = 0; i < strArr.length; i++) {
+            String s = strArr[i];
+            if (i == strArr.length - 1) {
+                str += s;
+            } else
+                str += s + ",";
+        }
+        return str;
+    }
+
+    @TypeConverter
+    public String[] fromStringToStringArr(String str) {
+        String[] strArr = str.split(",");
+        return strArr;
+    }
 }

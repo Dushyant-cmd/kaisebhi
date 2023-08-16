@@ -81,7 +81,8 @@ public class MineQuestFragment extends Fragment {
                                         d.getString("qpic"), d.getString("uname"), "NA", d.getBoolean("checkFav"),
                                         d.getString("likes"), d.getBoolean("checkLike"), d.getString("tanswers"),
                                         d.getString("likedByUser"), d.getString("image"), d.getString("userId")
-                                        , d.getString("userPicUrl"), d.getString("imageRef")
+                                        , d.getString("userPicUrl"), d.getString("imageRef"),
+                                        d.getString("portal")
                                 ));
                             }
                             adapter = new MineQuestionsAdapter(questions,getActivity(), mFirestore, ((ApplicationCustom) requireActivity().getApplication()).storage);

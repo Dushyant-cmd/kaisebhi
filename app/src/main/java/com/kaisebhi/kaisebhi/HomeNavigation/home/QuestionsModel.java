@@ -45,7 +45,7 @@ public class QuestionsModel {
     @ColumnInfo(name = "likedByUser", defaultValue = "null")
     private String likedByUser;
 
-    private String image, userId, userPicUrl;
+    private String image, userId, userPicUrl, portal;
     private String quesImgPath;
 
     public QuestionsModel() {
@@ -54,7 +54,8 @@ public class QuestionsModel {
 
     public QuestionsModel(String ID, String title, String desc, String qpic, String uname, String upro,
                           Boolean checkFav, String likes, Boolean checkLike, String tansers,
-                          String likedByUser, String image, String userId, String userPicUrl, String qImgPath) {
+                          String likedByUser, String image, String userId, String userPicUrl, String qImgPath
+    , String portal) {
         this.ID = ID;
         Title = title;
         this.desc = desc;
@@ -70,6 +71,15 @@ public class QuestionsModel {
         this.userId = userId;
         this.userPicUrl = userPicUrl;
         this.quesImgPath = qImgPath;
+        this.portal = portal;
+    }
+
+    public String getPortal() {
+        return portal;
+    }
+
+    public void setPortal(String portal) {
+        this.portal = portal;
     }
 
     public String getQuesImgPath() {

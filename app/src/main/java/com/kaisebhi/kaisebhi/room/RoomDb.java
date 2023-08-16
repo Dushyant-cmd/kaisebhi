@@ -13,12 +13,19 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.kaisebhi.kaisebhi.HomeNavigation.home.QuestionsModel;
 
-import kotlin.jvm.Volatile;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
-@Database(entities = QuestionsModel.class, exportSchema = false, version = 1)
+import kotlin.jvm.Volatile;
+import kotlin.reflect.KClass;
+
+@Database(entities = {QuestionsModel.class, PortalsEntity.class}, exportSchema = false, version = 1)
 @TypeConverters(RoomTypeConverter.class)
 public abstract class RoomDb extends RoomDatabase {
     public abstract FavDao getFavDao();
+
+    /**Below method is returns Portal Entity table class Dao(data access object) instance*/
+    public abstract PortalsDao getPortalDao();
     public static String DB_NAME = "localDb";
 
     @Volatile
