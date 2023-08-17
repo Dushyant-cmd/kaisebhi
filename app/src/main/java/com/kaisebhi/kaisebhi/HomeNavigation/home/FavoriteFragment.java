@@ -104,25 +104,5 @@ public class FavoriteFragment extends Fragment {
                     }
                 }
         );
-
-//        Call<List<QuestionsModel>> call = main_interface.getallQuestions(sh.getsUser().getUid(),"favorites");
-//
-//        call.enqueue(new Callback<List<QuestionsModel>>() {
-//            @Override
-//            public void onResponse(Call<List<QuestionsModel>> call, Response<List<QuestionsModel>> response) {
-//
-//                questions = response.body();
-//                adapter = new QuestionsAdapter(questions,getActivity());
-//                recyclerView.setAdapter(adapter);
-//
-//                shimmerFrameLayout.stopShimmerAnimation();
-//                shimmerFrameLayout.setVisibility(View.GONE);
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<QuestionsModel>> call, Throwable t) {
-//
-//            }
-//        });
     }
 }

@@ -13,12 +13,10 @@
     app:contentPaddingRight="5dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
 
             <LinearLayout
                 android:layout_marginLeft="10dp"
@@ -61,6 +59,33 @@
                 android:textColor="#717171"
                 android:layout_height="wrap_content"
                 android:text="You will receive am your subscription! subscription! You will receive an email to confim your subscription!"/>
+
+
+            <LinearLayout
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/nunito_black"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Portal: " />
+
+                <TextView
+                    android:textSize="16sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:id="@+id/portalTV"
+                    android:text="Amazon" />
+
+            </LinearLayout>
 
 
             <ImageView

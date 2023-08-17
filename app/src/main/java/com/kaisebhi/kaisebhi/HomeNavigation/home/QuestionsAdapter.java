@@ -94,6 +94,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         holder.Title.setText(nlist.get(position).getTitle());
         holder.Desc.setText(nlist.get(position).getDesc());
         holder.Author.setText("By " + nlist.get(position).getUname());
+        holder.portalTV.setText(q.getPortal());
 
         if (!nlist.get(position).getTansers().equals("0")) {
             holder.totalAns.setText(nlist.get(position).getTansers());
@@ -228,6 +229,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     questionMap.put("likedByUser", q.getLikedByUser());
                     questionMap.put("image", q.getImage());
                     questionMap.put("userPicUrl", sh.getProfilePic());
+                    questionMap.put("portal", q.getPortal());
                     mFirestore.collection("favorite").add(questionMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
@@ -436,7 +438,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
 
         CircleImageView pro;
         ImageView questionimg, shareBtn, answers;
-        TextView Title, Desc, Author, totalAns, totalLike;
+        TextView Title, Desc, Author, totalAns, totalLike, portalTV;
         CheckBox favBtn, likeBtn;
         CardView openQues;
 
@@ -456,6 +458,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
             Author = itemView.findViewById(R.id.username);
             totalAns = itemView.findViewById(R.id.totalAns);
             totalLike = itemView.findViewById(R.id.totalLike);
+            portalTV = itemView.findViewById(R.id.portalTV);
 
         }
 

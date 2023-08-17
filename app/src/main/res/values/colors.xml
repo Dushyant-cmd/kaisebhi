@@ -8,5 +8,6 @@
     <color name="themecolor">#1278dd</color>
     <color name="disthemecolor">#69B6FF</color>
     <color name="placeholder_bg">#ECECEC</color>
+    <color name="black">#000000</color>
 
 </resources>

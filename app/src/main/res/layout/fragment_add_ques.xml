@@ -4,116 +4,126 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keyboardNavigationCluster="true"
-    android:background="#fff">
+    android:background="#fff"
+    android:keyboardNavigationCluster="true">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <LinearLayout
-            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_marginHorizontal="10dp"
             android:background="#fff"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:orientation="vertical">
 
             <TextView
-                android:text="Question Details"
-                android:layout_marginTop="30dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="Question Details" />
 
 
-                <LinearLayout
-                    android:orientation="vertical"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="5dp"
+                    android:layout_marginTop="16dp">
 
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_marginHorizontal="5dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/q_title"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Ask Title" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_marginHorizontal="5dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/a_desc"
-                            android:minLines="3"
-                            android:inputType="textMultiLine"
-                            android:textSize="13dp"
-                            android:backgroundTint="@color/placeholder_bg"
-                            android:layout_height="wrap_content"
-                            android:gravity="top|left"
-                            android:layout_width="match_parent"
-                            android:hint="Description" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <TextView
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/q_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        android:text="Please select a portal"
-                        android:layout_marginTop="16dp"/>
+                        android:hint="Ask Title" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                    <Spinner
-                        android:layout_marginTop="16dp"
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="5dp"
+                    android:layout_marginTop="16dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/a_desc"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/portalSpinner"/>
+                        android:backgroundTint="@color/placeholder_bg"
+                        android:gravity="top|left"
+                        android:hint="Description"
+                        android:inputType="textMultiLine"
+                        android:minLines="3"
+                        android:textSize="13dp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                </LinearLayout>
+                <Spinner
+                    android:id="@+id/portalSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" />
 
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/portalIL"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="5dp"
+                    android:layout_marginTop="16dp"
+                    android:visibility="visible">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/otherPortal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:hint="Type your portal"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
 
 
             <TextView
-                android:text="Optional Details"
-                android:layout_marginTop="30dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:text="Optional Details" />
 
 
             <ImageView
-                android:src="@drawable/placeholderadd"
-                android:layout_width="match_parent"
                 android:id="@+id/quesImage"
-                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
                 android:layout_marginHorizontal="10dp"
-                android:layout_height="160dp"/>
+                android:layout_marginTop="20dp"
+                android:src="@drawable/placeholderadd" />
 
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
 
     <Button
-        android:layout_gravity="center"
-        android:textSize="17dp"
         android:id="@+id/uploadQues"
-        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:keyboardNavigationCluster="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
         android:layout_marginTop="33dp"
-        android:backgroundTint="@color/themecolor"
         android:background="@drawable/btn_bg_main"
+        android:backgroundTint="@color/themecolor"
+        android:keyboardNavigationCluster="true"
         android:text="Add Question"
         android:textAllCaps="false"
-        android:textColor="#FFFFFF"/>
+        android:textColor="#FFFFFF"
+        android:textSize="17dp" />
 
 </RelativeLayout>

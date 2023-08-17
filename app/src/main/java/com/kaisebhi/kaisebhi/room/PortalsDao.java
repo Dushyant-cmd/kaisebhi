@@ -15,8 +15,8 @@ public interface PortalsDao {
     @Query("SELECT * FROM portalTable")
     PortalsEntity getPortals();
 
-    @Delete
-    void deletePortals(PortalsEntity portalsEntity);
+    @Query("DELETE FROM portalTable")
+    void deletePortals();
 
     @Update
     void updatePortals(PortalsEntity portalsEntity);

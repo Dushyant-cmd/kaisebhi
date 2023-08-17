@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,6 +29,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -63,7 +65,7 @@ import retrofit2.Call;
 public class Add_Queastion extends AppCompatActivity {
 
     private Button addDelivery;
-    private EditText quesTitle, quesDesc;
+    private EditText quesTitle, quesDesc, otherPortalEditText;
     private Uri postUri = null;
     private SharedPrefManager sharedPrefManager;
     private FirebaseFirestore mFirestore;
@@ -72,9 +74,11 @@ public class Add_Queastion extends AppCompatActivity {
     String pCheck = null, TAG = "Add_Question.java";
     ProgressDialog progressDialog;
     ImageView selectQues;
-    String Qid = "";
+    String Qid = "", selectedPortal = "";
     private Spinner spinner;
     private RoomDb roomDb;
+    private TextInputLayout portalIL;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,22 +91,25 @@ public class Add_Queastion extends AppCompatActivity {
         progressDialog = new ProgressDialog(Add_Queastion.this);
         progressDialog.setCancelable(false);
         roomDb = ((ApplicationCustom) getApplication()).roomDb;
+        spinner = findViewById(R.id.portalSpinner);
+        otherPortalEditText = findViewById(R.id.otherPortal);
+        portalIL = findViewById(R.id.portalIL);
 
         progressDialog.setTitle("Please Wait");
         progressDialog.setMessage("Question details processing....");
 
         selectQues = findViewById(R.id.quesImage);
-        if(roomDb.getPortalDao().getPortals().portals == null) {
+        if (roomDb.getPortalDao().getPortals() == null) {
             mFirestore.collection("appData").document("portals")
                     .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if(task.isSuccessful()) {
+                            if (task.isSuccessful()) {
                                 try {
                                     DocumentSnapshot d = task.getResult();
                                     List<String> list = new ArrayList<>();
-                                    int i=1;
-                                    while(d.getString(i + "") != null) {
+                                    int i = 1;
+                                    while (d.getString(i + "") != null) {
                                         list.add(d.getString(i + ""));
                                         i++;
                                     }
@@ -112,8 +119,10 @@ public class Add_Queastion extends AppCompatActivity {
                                             System.currentTimeMillis()
                                     );
                                     roomDb.getPortalDao().insertPortals(portalsEntity1);
+                                    spinner.setAdapter(new ArrayAdapter<String>(Add_Queastion.this, android.R.layout.simple_dropdown_item_1line,
+                                            roomDb.getPortalDao().getPortals().portals));
                                     Log.d(TAG, "onComplete: protals " + task.getResult());
-                                } catch(Exception e) {
+                                } catch (Exception e) {
                                     Log.d(TAG, "onCatch: " + e);
                                 }
                             }
@@ -121,10 +130,28 @@ public class Add_Queastion extends AppCompatActivity {
                     });
         } else {
             Log.d(TAG, "onCreate: hasData");
-            spinner = findViewById(R.id.portalSpinner);
             spinner.setAdapter(new ArrayAdapter<String>(Add_Queastion.this, android.R.layout.simple_dropdown_item_1line,
                     roomDb.getPortalDao().getPortals().portals));
         }
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedPortal = spinner.getSelectedItem().toString();
+                Log.d(TAG, "onItemSelected: " + selectedPortal);
+                if (selectedPortal.matches("other")) {
+                    portalIL.setVisibility(View.VISIBLE);
+                    selectedPortal = "";
+                } else {
+                    portalIL.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         quesTitle = findViewById(R.id.q_title);
         quesDesc = findViewById(R.id.a_desc);
         uploadBtn = findViewById(R.id.uploadQues);
@@ -161,7 +188,6 @@ public class Add_Queastion extends AppCompatActivity {
             public void onClick(View v) {
 
                 InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-
                 if (pCheck == null) {
                     findViewById(R.id.uploadQues).setClickable(false);
                     uploadQues();
@@ -182,12 +208,20 @@ public class Add_Queastion extends AppCompatActivity {
 
         if (title.isEmpty()) {
             Toast.makeText(getApplicationContext(), "Add Question !", Toast.LENGTH_SHORT).show();
+            uploadBtn.setClickable(true);
             return;
         }
 
-        if(spinner.getSelectedItem().toString().matches("Please Select a Portal")) {
+        if (spinner.getSelectedItem().toString().matches("Please Select a Portal")) {
             Toast.makeText(getApplicationContext(), "Select Portal !", Toast.LENGTH_SHORT).show();
+            uploadBtn.setClickable(true);
             return;
+        } else if (spinner.getSelectedItem().toString().matches("other") && otherPortalEditText.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Add Portal !", Toast.LENGTH_SHORT).show();
+            uploadBtn.setClickable(true);
+            return;
+        } else {
+            selectedPortal = otherPortalEditText.getText().toString();
         }
 
         progressDialog.show();
@@ -238,7 +272,7 @@ public class Add_Queastion extends AppCompatActivity {
                                 questionMap.put("image", "");
                                 questionMap.put("userPicUrl", sharedPrefManager.getProfilePic());
                                 questionMap.put("imageRef", "");
-                                questionMap.put("portal", spinner.getSelectedItem().toString());
+                                questionMap.put("portal", selectedPortal);
                                 mFirestore.collection("questions").document(updateId + "").set(questionMap)
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
@@ -288,7 +322,7 @@ public class Add_Queastion extends AppCompatActivity {
             return;
         }
 
-        if(spinner.getSelectedItem().toString().matches("Please Select a Portal")) {
+        if (spinner.getSelectedItem().toString().matches("Please Select a Portal")) {
             Toast.makeText(getApplicationContext(), "Select Portal !", Toast.LENGTH_SHORT).show();
             return;
         }

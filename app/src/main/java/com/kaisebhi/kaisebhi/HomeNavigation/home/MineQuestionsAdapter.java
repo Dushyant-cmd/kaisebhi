@@ -63,6 +63,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
         QuestionsModel model = nlist.get(position);
         holder.Title.setText(nlist.get(position).getTitle());
         holder.Desc.setText(nlist.get(position).getDesc());
+        holder.portalTV.setText(model.getPortal());
 
         final String Id = nlist.get(position).getID();
 
@@ -167,7 +168,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView pro, questionimg, shareBtn, answers, editQues, deleteQues;
-        TextView Title, Desc;
+        TextView Title, Desc, portalTV;
         CardView openQues;
 
 
@@ -182,6 +183,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
             Desc = itemView.findViewById(R.id.quesDesc);
             editQues = itemView.findViewById(R.id.edit_question);
             deleteQues = itemView.findViewById(R.id.delete_ques);
+            portalTV = itemView.findViewById(R.id.portalTV);
 
         }
 

@@ -11,6 +11,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.kaisebhi.kaisebhi.room.RoomDb;
 
 
 public class SharedPrefManager {
@@ -98,6 +99,7 @@ public class SharedPrefManager {
     {
         SharedPreferences sharedPreferences = ctx.getSharedPreferences(SHARED_PREF_NAME,Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
+        RoomDb.getDbInstance(ctx).getPortalDao().deletePortals();
         editor.clear();
         editor.commit();
         GoogleSignInClient client = GoogleSignIn.getClient(ctx, GoogleSignInOptions.DEFAULT_SIGN_IN);
