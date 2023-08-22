@@ -98,6 +98,15 @@
                 android:layout_marginTop="30dp"
                 android:text="Optional Details" />
 
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Record Question"
+                android:layout_marginHorizontal="10dp"
+                android:textSize="16sp"
+                android:drawableStart="@drawable/ic_mic_24"
+                android:layout_marginTop="20dp"
+                android:id="@+id/recordAudioBtn"/>
 
             <ImageView
                 android:id="@+id/quesImage"

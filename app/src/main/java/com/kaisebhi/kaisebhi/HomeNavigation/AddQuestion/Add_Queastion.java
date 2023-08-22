@@ -2,13 +2,25 @@ package com.kaisebhi.kaisebhi.HomeNavigation.AddQuestion;
 
 import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Environment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -16,12 +28,16 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.room.Room;
 
 import com.bumptech.glide.Glide;
@@ -29,6 +45,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -52,10 +70,12 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import okhttp3.MultipartBody;
@@ -78,6 +98,9 @@ public class Add_Queastion extends AppCompatActivity {
     private Spinner spinner;
     private RoomDb roomDb;
     private TextInputLayout portalIL;
+    private Button recordBtn;
+    private static File mFile;
+    private boolean isPermissionGranted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +117,7 @@ public class Add_Queastion extends AppCompatActivity {
         spinner = findViewById(R.id.portalSpinner);
         otherPortalEditText = findViewById(R.id.otherPortal);
         portalIL = findViewById(R.id.portalIL);
+        recordBtn = findViewById(R.id.recordAudioBtn);
 
         progressDialog.setTitle("Please Wait");
         progressDialog.setMessage("Question details processing....");
@@ -119,7 +143,8 @@ public class Add_Queastion extends AppCompatActivity {
                                             System.currentTimeMillis()
                                     );
                                     roomDb.getPortalDao().insertPortals(portalsEntity1);
-                                    spinner.setAdapter(new ArrayAdapter<String>(Add_Queastion.this, android.R.layout.simple_dropdown_item_1line,
+                                    spinner.setAdapter(new ArrayAdapter<String>(Add_Queastion.this,
+                                            android.R.layout.simple_dropdown_item_1line,
                                             roomDb.getPortalDao().getPortals().portals));
                                     Log.d(TAG, "onComplete: protals " + task.getResult());
                                 } catch (Exception e) {
@@ -164,6 +189,7 @@ public class Add_Queastion extends AppCompatActivity {
             quesTitle.setText(extras.getString("title"));
             quesDesc.setText(extras.getString("desc"));
 
+
             if (extras.getString("qimg").length() > 0) {
                 Glide.with(getApplicationContext()).load(extras.getString("qimg")).fitCenter().into(selectQues);
             }
@@ -171,6 +197,17 @@ public class Add_Queastion extends AppCompatActivity {
             uploadBtn.setText("Update Question");
         }
 
+        recordBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isPermissionGranted) {
+                    RecordBottomSheetDialog sheet = new RecordBottomSheetDialog();
+                    sheet.show(getSupportFragmentManager(), "add sheet");
+                } else {
+                    checkPerm();
+                }
+            }
+        });
         selectQues.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -197,10 +234,150 @@ public class Add_Queastion extends AppCompatActivity {
                 }
             }
         });
-
-
     }
 
+    private void checkPerm() {
+        if (ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(Add_Queastion.this, new String[]{Manifest.permission.RECORD_AUDIO
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 101);
+        } else {
+            isPermissionGranted = true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 101) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                isPermissionGranted = true;
+            }
+        }
+    }
+
+    public static class RecordBottomSheetDialog extends BottomSheetDialogFragment {
+        private int i = 0, sec = 0;
+        private CountDownTimer cDT;
+        private MediaRecorder mRecorder;
+
+        /**
+         * It will display a sheet without floating dialog instead display it with BottomSheetDialog and
+         * can handle lifecycle.
+         */
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInsState) {
+            View view = inflater.inflate(R.layout.record_bottom_sheet_dialog, container, false);
+            TextView secs = view.findViewById(R.id.secsTV);
+            ProgressBar progressBar = view.findViewById(R.id.secCirPB);
+            Button startBtn = view.findViewById(R.id.startBtn);
+            Button stopBtn = view.findViewById(R.id.stopBtn);
+            getActivity().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            cDT = new CountDownTimer(100000, 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    if (i == 60) {
+                        progressBar.setProgress(i);
+                        i++;
+                        sec = 0;
+                        secs.setText("01 : 0" + sec);
+                        return;
+                    }
+
+                    if (i >= 60) {
+                        if (sec < 10)
+                            secs.setText("01 : 0" + sec);
+                        else
+                            secs.setText("01 : " + sec);
+                    } else {
+                        if (sec < 10)
+                            secs.setText("00 : 0" + sec);
+                        else
+                            secs.setText("00 : " + sec);
+                    }
+                    progressBar.setProgress(i);
+                    i++;
+                    sec++;
+                }
+
+                @Override
+                public void onFinish() {
+                    try {
+                        Toast.makeText(getActivity().getApplicationContext(), "Recording Completed", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Log.d("BottomSheet.java", "onFinish: " + e);
+                    }
+                }
+            };
+
+            startBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("BottomSheet.java", "onClick: clicked");
+                    try {
+                        cDT.start();
+                        startBtn.setVisibility(View.GONE);
+                        stopBtn.setVisibility(View.VISIBLE);
+
+                        mRecorder = new MediaRecorder();
+                        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                        /**Below line will create directory in user external storage. */
+                        File rootDir = new File(Environment.getExternalStorageDirectory(), "Kaisebhi");
+                        if (!rootDir.exists())
+                            rootDir.mkdir();
+                        mFile = File.createTempFile("question_recording", ".3gp", rootDir);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            mRecorder.setOutputFile(mFile);
+                        }
+                        mRecorder.prepare();
+                        mRecorder.start();
+                    } catch (Exception e) {
+                        Log.d("BottomSheet.java", "onCatch: " + e);
+                    }
+                }
+            });
+
+            stopBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        Toast.makeText(getActivity().getApplicationContext(), "Recorded", Toast.LENGTH_SHORT).show();
+                        cDT.cancel();
+                        mRecorder.stop();
+                        mRecorder.release();
+                        mRecorder = null;
+                        Add_Queastion add = (Add_Queastion) getActivity();
+                        add.status();
+                        dismiss();
+                    } catch (Exception e) {
+                        Log.d("BottomSheet.java", "onClick: " + e);
+                    }
+                }
+            });
+            return view;
+        }
+
+//        @Override
+//        public void onPause() {
+//            super.onPause();
+//            cDT.cancel();
+//        }
+
+        @Override
+        public void dismiss() {
+            super.dismiss();
+            cDT.cancel();
+        }
+    }
+
+    public void status() {
+        recordBtn.setText("Recorded");
+        recordBtn.setEnabled(false);
+    }
+
+    String audioDownloadUrl = "";
 
     private void uploadQues() {
         String title = quesTitle.getText().toString();
@@ -249,6 +426,30 @@ public class Add_Queastion extends AppCompatActivity {
                         }
                     });
         } else {
+            String UUID = java.util.UUID.randomUUID().toString();
+            if (mFile != null) {
+                StorageReference rootRef = storage.getReference();
+                StorageReference audioRef = rootRef.child("/audios" + UUID);
+                audioRef.putFile(Uri.fromFile(mFile)).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "onComplete: success audio");
+                        } else {
+                            Log.d(TAG, "onError: audio " + task.getException());
+                        }
+                    }
+                });
+
+                audioRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            audioDownloadUrl = task.getResult().toString();
+                        }
+                    }
+                });
+            }
             mFirestore.collection("ids").document("questionId").get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
@@ -273,6 +474,9 @@ public class Add_Queastion extends AppCompatActivity {
                                 questionMap.put("userPicUrl", sharedPrefManager.getProfilePic());
                                 questionMap.put("imageRef", "");
                                 questionMap.put("portal", selectedPortal);
+                                questionMap.put("audioRef", audioDownloadUrl);
+                                if (!audioDownloadUrl.isEmpty())
+                                    questionMap.put("audioRef", UUID);
                                 mFirestore.collection("questions").document(updateId + "").set(questionMap)
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
@@ -385,6 +589,29 @@ public class Add_Queastion extends AppCompatActivity {
                 StorageReference imageRef = storageRef.child("images/" + imagePath);
                 InputStream inputStream = new FileInputStream(file);
                 UploadTask uploadTask = imageRef.putStream(inputStream);
+
+                String UUID = java.util.UUID.randomUUID().toString();
+                if (mFile != null) {
+                    StorageReference audioRef = storageRef.child("/audios" + UUID);
+                    audioRef.putFile(Uri.fromFile(mFile)).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                audioRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Uri> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d(TAG, "onComplete: success audio");
+                                            audioDownloadUrl = task.getResult().toString();
+                                        }
+                                    }
+                                });
+                            } else {
+                                Log.d(TAG, "onError: audio " + task.getException());
+                            }
+                        }
+                    });
+                }
                 uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -417,6 +644,11 @@ public class Add_Queastion extends AppCompatActivity {
                                                         questionMap.put("userPicUrl", sharedPrefManager.getProfilePic());
                                                         questionMap.put("imageRef", imagePath);
                                                         questionMap.put("portal", spinner.getSelectedItem().toString());
+                                                        questionMap.put("audioRef", audioDownloadUrl);
+                                                        if (!audioDownloadUrl.isEmpty())
+                                                            questionMap.put("audioRef", UUID);
+                                                        else
+                                                            questionMap.put("audioRef", "");
                                                         mFirestore.collection("questions").document(updateId + "").set(questionMap)
                                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                     @Override
