@@ -128,6 +128,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
                 i.putExtra("desc", nlist.get(position).getDesc());
                 i.putExtra("qimg", nlist.get(position).getImage());
                 i.putExtra("quesImgPath", nlist.get(position).getQuesImgPath());
+                i.putExtra("portal", nlist.get(position).getPortal());
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
 

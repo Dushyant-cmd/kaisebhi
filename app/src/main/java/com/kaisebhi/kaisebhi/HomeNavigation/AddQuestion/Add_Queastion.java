@@ -73,6 +73,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -91,7 +92,7 @@ public class Add_Queastion extends AppCompatActivity {
     private FirebaseFirestore mFirestore;
     private Button uploadBtn;
     private FirebaseStorage storage;
-    String pCheck = null, TAG = "Add_Question.java";
+    String pCheck = null, TAG = "Add_Question.java", portal = "";
     ProgressDialog progressDialog;
     ImageView selectQues;
     String Qid = "", selectedPortal = "";
@@ -188,8 +189,12 @@ public class Add_Queastion extends AppCompatActivity {
             Qid = extras.getString("key");
             quesTitle.setText(extras.getString("title"));
             quesDesc.setText(extras.getString("desc"));
-
-
+            portal = extras.getString("portal");
+            for(int i=0; i<roomDb.getPortalDao().getPortals().portals.length; i++) {
+                if(roomDb.getPortalDao().getPortals().portals[i].equals(portal)) {
+                    spinner.setSelection(i);
+                }
+            }
             if (extras.getString("qimg").length() > 0) {
                 Glide.with(getApplicationContext()).load(extras.getString("qimg")).fitCenter().into(selectQues);
             }
@@ -406,6 +411,8 @@ public class Add_Queastion extends AppCompatActivity {
             HashMap<String, Object> map = new HashMap<>();
             map.put("title", title);
             map.put("desc", desc);
+            if(!spinner.getSelectedItem().toString().matches(portal))
+                map.put("portal", spinner.getSelectedItem().toString());
             mFirestore.collection("questions").document(Qid).update(map)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -474,7 +481,7 @@ public class Add_Queastion extends AppCompatActivity {
                                 questionMap.put("userPicUrl", sharedPrefManager.getProfilePic());
                                 questionMap.put("imageRef", "");
                                 questionMap.put("portal", selectedPortal);
-                                questionMap.put("audioRef", audioDownloadUrl);
+                                questionMap.put("audio", audioDownloadUrl);
                                 if (!audioDownloadUrl.isEmpty())
                                     questionMap.put("audioRef", UUID);
                                 mFirestore.collection("questions").document(updateId + "").set(questionMap)
@@ -554,6 +561,8 @@ public class Add_Queastion extends AppCompatActivity {
                                     map.put("title", title);
                                     map.put("desc", desc);
                                     map.put("image", uri);
+                                    if(spinner.getSelectedItem().toString().matches(portal))
+                                        map.put("portal", spinner.getSelectedItem().toString());
                                     mFirestore.collection("questions").document(Qid).update(map)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
@@ -644,7 +653,7 @@ public class Add_Queastion extends AppCompatActivity {
                                                         questionMap.put("userPicUrl", sharedPrefManager.getProfilePic());
                                                         questionMap.put("imageRef", imagePath);
                                                         questionMap.put("portal", spinner.getSelectedItem().toString());
-                                                        questionMap.put("audioRef", audioDownloadUrl);
+                                                        questionMap.put("audio", audioDownloadUrl);
                                                         if (!audioDownloadUrl.isEmpty())
                                                             questionMap.put("audioRef", UUID);
                                                         else
