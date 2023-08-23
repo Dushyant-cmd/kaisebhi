@@ -45,7 +45,7 @@ public class QuestionsModel {
     @ColumnInfo(name = "likedByUser", defaultValue = "null")
     private String likedByUser;
 
-    private String image, userId, userPicUrl, portal;
+    private String image, userId, userPicUrl, portal, audio, audioRef;
     private String quesImgPath;
 
     public QuestionsModel() {
@@ -55,7 +55,7 @@ public class QuestionsModel {
     public QuestionsModel(String ID, String title, String desc, String qpic, String uname, String upro,
                           Boolean checkFav, String likes, Boolean checkLike, String tansers,
                           String likedByUser, String image, String userId, String userPicUrl, String qImgPath
-    , String portal) {
+    , String portal, String audio, String audioRef) {
         this.ID = ID;
         Title = title;
         this.desc = desc;
@@ -72,6 +72,24 @@ public class QuestionsModel {
         this.userPicUrl = userPicUrl;
         this.quesImgPath = qImgPath;
         this.portal = portal;
+        this.audio = audio;
+        this.audioRef = audioRef;
+    }
+
+    public String getAudio() {
+        return audio;
+    }
+
+    public void setAudio(String audio) {
+        this.audio = audio;
+    }
+
+    public String getAudioRef() {
+        return audioRef;
+    }
+
+    public void setAudioRef(String audioRef) {
+        this.audioRef = audioRef;
     }
 
     public String getPortal() {

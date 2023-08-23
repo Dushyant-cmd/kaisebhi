@@ -83,10 +83,11 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
 
-    // Import the BoM for the Firebase platform
+    // Import the BoM for the Firebase platform firebase libraries.
     implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
-
-    // Add the dependency for the Cloud Storage library
-    // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-storage")
+
+    // ExoPlayer
+    implementation 'com.google.android.exoplayer:exoplayer:2.18.0'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.18.0'
 }

@@ -18,6 +18,9 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -40,6 +43,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
     ProgressDialog progressDialog;
     private FirebaseStorage storage;
     private String TAG = "MineQuestionsAdapter.java", url = "";
+    private ExoPlayer exoPlayer;
 
     public MineQuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore mFirestore, FirebaseStorage storage) {
         this.nlist = nlist;
@@ -64,10 +68,10 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
         holder.Title.setText(nlist.get(position).getTitle());
         holder.Desc.setText(nlist.get(position).getDesc());
         holder.portalTV.setText(model.getPortal());
+        //ExoPlayer instance creation.
+        setupAudio(holder.exoPlayer, model.getAudio());
 
         final String Id = nlist.get(position).getID();
-
-
         if (!nlist.get(position).getImage().isEmpty()) {
             holder.questionimg.setVisibility(View.VISIBLE);
             Glide.with(context).load(model.getImage()).fitCenter().into((holder).questionimg);
@@ -159,6 +163,16 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
 
     }
 
+    private void setupAudio(StyledPlayerView playerView, String downloadUrl) {
+        //Create a media item which is audio file can be a URI or download url for dynamic sourced http based
+        //rendering
+        exoPlayer = new ExoPlayer.Builder(context).build();
+        playerView.setPlayer(exoPlayer);
+        MediaItem mediaItem = MediaItem.fromUri(downloadUrl);
+        exoPlayer.setMediaItem(mediaItem);
+        exoPlayer.prepare();
+    }
+
 
     @Override
     public int getItemCount() {
@@ -169,6 +183,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView pro, questionimg, shareBtn, answers, editQues, deleteQues;
+        StyledPlayerView exoPlayer;
         TextView Title, Desc, portalTV;
         CardView openQues;
 
@@ -185,6 +200,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
             editQues = itemView.findViewById(R.id.edit_question);
             deleteQues = itemView.findViewById(R.id.delete_ques);
             portalTV = itemView.findViewById(R.id.portalTV);
+            exoPlayer = itemView.findViewById(R.id.exoPlayer);
 
         }
 

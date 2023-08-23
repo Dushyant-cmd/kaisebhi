@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,6 +21,10 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.ui.StyledPlayerControlView;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -53,6 +58,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
     public RoomDb roomDb;
     private String url = "";
     private ProgressDialog progressDialog;
+    private ExoPlayer exoPlayer;
 
     public QuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore firestore, RoomDb roomDb, FirebaseStorage storage) {
         this.nlist = nlist;
@@ -95,6 +101,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         holder.Desc.setText(nlist.get(position).getDesc());
         holder.Author.setText("By " + nlist.get(position).getUname());
         holder.portalTV.setText(q.getPortal());
+        setupAudio(holder.exoPlayer, q.getAudio());
 
         if (!nlist.get(position).getTansers().equals("0")) {
             holder.totalAns.setText(nlist.get(position).getTansers());
@@ -230,6 +237,8 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     questionMap.put("image", q.getImage());
                     questionMap.put("userPicUrl", sh.getProfilePic());
                     questionMap.put("portal", q.getPortal());
+                    questionMap.put("audio", q.getAudio());
+                    questionMap.put("audioRef", q.getAudioRef());
                     mFirestore.collection("favorite").add(questionMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
@@ -427,6 +436,21 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
 
     }
 
+    private void setupAudio(StyledPlayerView playerView, String downloadUrl) {
+        //Create a media item which is audio file can be a URI or download url for dynamic sourced
+        //http based rendering
+//        if(exoPlayer != null) {
+//            exoPlayer.stop();
+//            exoPlayer.release();
+//            exoPlayer = null;
+//        }
+        exoPlayer = new ExoPlayer.Builder(context).build();
+        playerView.setPlayer(exoPlayer);
+        MediaItem mediaItem = MediaItem.fromUri(downloadUrl);
+        exoPlayer.setMediaItem(mediaItem);
+        exoPlayer.prepare();
+//        exoPlayer.play();
+    }
 
     @Override
     public int getItemCount() {
@@ -441,6 +465,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         TextView Title, Desc, Author, totalAns, totalLike, portalTV;
         CheckBox favBtn, likeBtn;
         CardView openQues;
+        StyledPlayerView exoPlayer;
 
 
         public ViewHolder(@NonNull View itemView) {
@@ -459,10 +484,14 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
             totalAns = itemView.findViewById(R.id.totalAns);
             totalLike = itemView.findViewById(R.id.totalLike);
             portalTV = itemView.findViewById(R.id.portalTV);
-
+            exoPlayer = itemView.findViewById(R.id.exoPlayer);
         }
 
     }
 
-
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        Log.d(TAG, "onDetachedFromRecyclerView: detached");
+    }
 }
