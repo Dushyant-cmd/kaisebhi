@@ -43,7 +43,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
     ProgressDialog progressDialog;
     private FirebaseStorage storage;
     private String TAG = "MineQuestionsAdapter.java", url = "";
-    private ExoPlayer exoPlayer;
+    public ExoPlayer exoPlayer;
 
     public MineQuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore mFirestore, FirebaseStorage storage) {
         this.nlist = nlist;

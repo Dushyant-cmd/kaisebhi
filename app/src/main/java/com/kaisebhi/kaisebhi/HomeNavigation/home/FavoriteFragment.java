@@ -93,9 +93,13 @@ public class FavoriteFragment extends Fragment {
                                 questions.add(model);
                             }
 
+                            if(adapter != null) {
+                                adapter.exoPlayer.stop();
+                                adapter.exoPlayer.release();
+                            }
+                            
                             adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, roomDb, storage);
                             recyclerView.setAdapter(adapter);
-
                             shimmerFrameLayout.stopShimmerAnimation();
                             shimmerFrameLayout.setVisibility(View.GONE);
                         } else {

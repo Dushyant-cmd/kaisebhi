@@ -85,6 +85,11 @@ public class MineQuestFragment extends Fragment {
                                         d.getString("portal"), d.getString("audio"), d.getString("audioRef")
                                 ));
                             }
+
+                            if(adapter != null) {
+                                adapter.exoPlayer.stop();
+                                adapter.exoPlayer.release();
+                            }
                             adapter = new MineQuestionsAdapter(questions,getActivity(), mFirestore, ((ApplicationCustom) requireActivity().getApplication()).storage);
                             recyclerView.setAdapter(adapter);
 

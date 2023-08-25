@@ -105,6 +105,10 @@ public class SearchQuestionFragment extends Fragment {
                                 }
                             }
 
+                            if(adapter != null) {
+                                adapter.exoPlayer.stop();
+                                adapter.exoPlayer.release();
+                            }
                             adapter = new QuestionsAdapter(questions, getActivity(), mFirestore, applicationCustom.roomDb, applicationCustom.storage);
                             recyclerView.setAdapter(adapter);
                             framLa.setVisibility(View.GONE);

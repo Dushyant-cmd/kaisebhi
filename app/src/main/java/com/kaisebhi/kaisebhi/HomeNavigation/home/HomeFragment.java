@@ -147,7 +147,10 @@ public class HomeFragment extends Fragment {
                                         lastItem = d;
                                     }
                                 }
-
+                                if(adapter != null) {
+                                    adapter.exoPlayer.stop();
+                                    adapter.exoPlayer.release();
+                                }
                                 adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb, applicationCustom.storage);
                                 recyclerView.setAdapter(adapter);
                                 shimmerFrameLayout.stopShimmerAnimation();
@@ -192,7 +195,10 @@ public class HomeFragment extends Fragment {
                                     return;
                                 }
 
-
+                                if(adapter != null) {
+                                    adapter.exoPlayer.stop();
+                                    adapter.exoPlayer.release();
+                                }
                                 adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb, applicationCustom.storage);
                                 recyclerView.setAdapter(adapter);
                                 loadMoreProgress.setVisibility(View.GONE);

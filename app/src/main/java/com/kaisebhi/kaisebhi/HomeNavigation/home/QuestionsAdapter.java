@@ -58,7 +58,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
     public RoomDb roomDb;
     private String url = "";
     private ProgressDialog progressDialog;
-    private ExoPlayer exoPlayer;
+    public ExoPlayer exoPlayer;
 
     public QuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore firestore, RoomDb roomDb, FirebaseStorage storage) {
         this.nlist = nlist;
