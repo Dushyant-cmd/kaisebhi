@@ -1,219 +1,212 @@
-<androidx.cardview.widget.CardView
-    android:layout_margin="5dp"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/openQues"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="5dp"
+    app:cardBackgroundColor="#fff"
     app:cardCornerRadius="2.5dp"
     app:cardElevation="1dp"
-    app:contentPaddingTop="10dp"
     app:contentPaddingBottom="10dp"
-    android:id="@+id/openQues"
-    app:cardBackgroundColor="#fff"
     app:contentPaddingRight="5dp"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    app:contentPaddingTop="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp">
 
-            <LinearLayout
-                android:layout_marginLeft="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="40dp">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/userPro"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginVertical="7dp"
+                android:layout_marginRight="5dp"
+                android:paddingRight="10dp"
+                android:src="@drawable/profile" />
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:layout_marginRight="5dp"
-                    android:paddingRight="10dp"
-                    android:id="@+id/userPro"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_marginVertical="7dp"
-                    android:src="@drawable/profile"/>
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:id="@+id/quesTitle"
-                    android:fontFamily="@font/nunito_bolditalic"
-                    android:layout_marginTop="12dp"
-                    android:textSize="16dp"
-                    android:layout_height="wrap_content"
-                    android:text="What Happend in July revolution?"
-                    android:textColor="#222"/>
-
-
-            </LinearLayout>
-
-
-
-            <TextView
-                android:layout_marginLeft="10dp"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/quesTitle"
                 android:layout_width="wrap_content"
-                android:textSize="14dp"
-                android:fontFamily="@font/nunito_regular"
-                android:layout_marginTop="5dp"
-                android:id="@+id/quesDesc"
-                android:lineSpacingExtra="5dp"
-                android:layout_marginRight="10dp"
-                android:textColor="#717171"
                 android:layout_height="wrap_content"
-                android:text="You will receive am your subscription! subscription! You will receive an email to confim your subscription!"/>
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/nunito_bolditalic"
+                android:text="What Happend in July revolution?"
+                android:textColor="#222"
+                android:textSize="16dp" />
 
-
-            <LinearLayout
-                android:layout_marginTop="8dp"
-                android:layout_marginLeft="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/nunito_black"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Portal: " />
-
-                <TextView
-                    android:textSize="16sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/black"
-                    android:id="@+id/portalTV"
-                    android:text="Amazon" />
-
-            </LinearLayout>
-
-
-            <ImageView
-                android:layout_marginLeft="10dp"
-                android:layout_width="match_parent"
-                android:textSize="12dp"
-                android:padding="5dp"
-                android:layout_marginVertical="10dp"
-                android:id="@+id/quesImage"
-                android:visibility="gone"
-                android:background="@drawable/search_bg"
-                android:layout_marginRight="10dp"
-                android:textColor="#999"
-                android:layout_height="200dp"/>
-
-            <com.google.android.exoplayer2.ui.StyledPlayerView
-                android:id="@+id/exoPlayer"
-                app:show_timeout="0"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginVertical="5dp"
-                android:background="@android:color/transparent"
-                app:shutter_background_color="@android:color/transparent"
-                app:surface_type="texture_view" />
-
-            <TextView
-                android:text="By Garima Jain"
-                android:textStyle="italic|bold"
-                android:layout_width="match_parent"
-                android:gravity="end"
-                android:fontFamily="@font/nunito_extrabolditalic"
-                android:textSize="10dp"
-                android:id="@+id/username"
-                android:textColor="#555"
-                android:layout_marginTop="7dp"
-                android:layout_height="wrap_content"/>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="20dp"
-                android:weightSum="2"
-                android:orientation="horizontal">
-
-
-                <RelativeLayout
-                    android:layout_weight="1"
-                    android:layout_width="30dp"
-                    android:layout_height="wrap_content">
-
-
-                    <CheckBox
-                        android:id="@+id/like"
-                        android:button="@null"
-                        android:layout_marginTop="-1dp"
-                        android:background="@drawable/like_check_selecter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/remove_like"/>
-
-                    <TextView
-                        android:text=""
-                        android:textColor="#222"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginLeft="25dp"
-                        android:id="@+id/totalLike"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
-
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_marginLeft="55dp"
-                        android:id="@+id/answers"
-                        android:layout_marginTop="3dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_answer"/>
-
-                    <TextView
-                        android:text=""
-                        android:textColor="#222"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginLeft="85dp"
-                        android:id="@+id/totalAns"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
-
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_weight="1"
-                    android:layout_width="30dp"
-                    android:layout_gravity="right"
-                    android:layout_height="wrap_content"
-                    android:weightSum="2">
-
-
-                    <CheckBox
-                        android:layout_alignParentRight="true"
-                        android:layout_width="wrap_content"
-                        android:id="@+id/addFav"
-                        android:button="@null"
-                        android:background="@drawable/fav_check_selecter"
-                        android:layout_height="20dp"
-                        android:src="@drawable/gray_heart"/>
-
-
-                    <ImageView
-                        android:layout_alignParentRight="true"
-                        android:layout_width="wrap_content"
-                        android:layout_marginRight="50dp"
-                        android:layout_height="18dp"
-                        android:id="@+id/shareQuestion"
-                        android:src="@drawable/ic_share"/>
-
-
-                </RelativeLayout>
-
-            </LinearLayout>
 
         </LinearLayout>
 
 
+        <TextView
+            android:id="@+id/quesDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="10dp"
+            android:fontFamily="@font/nunito_regular"
+            android:lineSpacingExtra="5dp"
+            android:text="You will receive am your subscription! subscription! You will receive an email to confim your subscription!"
+            android:textColor="#717171"
+            android:textSize="14dp" />
 
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/nunito_black"
+                android:text="Portal: "
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/portalTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Amazon"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+
+        <ImageView
+            android:id="@+id/quesImage"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginVertical="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/search_bg"
+            android:padding="5dp"
+            android:textColor="#999"
+            android:textSize="12dp"
+            android:visibility="gone" />
+
+        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+            android:id="@+id/exoPlayer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="10dp"
+            app:show_timeout="0"
+            android:layout_marginVertical="5dp"
+            android:background="@android:color/transparent" />
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:fontFamily="@font/nunito_extrabolditalic"
+            android:gravity="end"
+            android:text="By Garima Jain"
+            android:textColor="#555"
+            android:textSize="10dp"
+            android:textStyle="italic|bold" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+
+            <RelativeLayout
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+
+                <CheckBox
+                    android:id="@+id/like"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-1dp"
+                    android:background="@drawable/like_check_selecter"
+                    android:button="@null"
+                    android:src="@drawable/remove_like" />
+
+                <TextView
+                    android:id="@+id/totalLike"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="25dp"
+                    android:layout_marginTop="2dp"
+                    android:text=""
+                    android:textColor="#222" />
+
+
+                <ImageView
+                    android:id="@+id/answers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="55dp"
+                    android:layout_marginTop="3dp"
+                    android:src="@drawable/ic_answer" />
+
+                <TextView
+                    android:id="@+id/totalAns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="85dp"
+                    android:layout_marginTop="2dp"
+                    android:text=""
+                    android:textColor="#222" />
+
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:weightSum="2">
+
+
+                <CheckBox
+                    android:id="@+id/addFav"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/fav_check_selecter"
+                    android:button="@null"
+                    android:src="@drawable/gray_heart" />
+
+
+                <ImageView
+                    android:id="@+id/shareQuestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="18dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="50dp"
+                    android:src="@drawable/ic_share" />
+
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 
 </androidx.cardview.widget.CardView>

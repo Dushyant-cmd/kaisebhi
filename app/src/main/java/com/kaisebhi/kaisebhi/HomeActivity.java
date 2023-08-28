@@ -35,16 +35,20 @@ public class HomeActivity extends AppCompatActivity {
     ImageView floating_add_button;
 
     SharedPrefManager sharedPrefManager;
+    private Fragment mineFrag = new MineQuestFragment();
+    private Fragment homeFrag = new HomeFragment();
+    private Fragment favFrag = new FavoriteFragment();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE,WindowManager.LayoutParams.FLAG_SECURE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         getDelegate().setLocalNightMode(
                 AppCompatDelegate.MODE_NIGHT_NO);
         setContentView(R.layout.activity_home);
 
-        sharedPrefManager =  new SharedPrefManager(getApplication());
+        sharedPrefManager = new SharedPrefManager(getApplication());
         floating_add_button = findViewById(R.id.floating_add_button);
         floating_add_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,13 +77,13 @@ public class HomeActivity extends AppCompatActivity {
                         changeFragment(new MenuFragment());
                         break;
                     case R.id.nav_star:
-                        changeFragment(new FavoriteFragment());
+                        changeFragment(favFrag);
                         break;
                     case R.id.nav_qna:
-                        changeFragment(new HomeFragment());
+                        changeFragment(homeFrag);
                         break;
                     case R.id.nav_min_ques:
-                        changeFragment(new MineQuestFragment());
+                        changeFragment(mineFrag);
                         break;
                     case R.id.nav_notify:
                         changeFragment(new Notifications());
@@ -99,13 +103,24 @@ public class HomeActivity extends AppCompatActivity {
                         changeFragment(new MenuFragment());
                         break;
                     case R.id.nav_star:
+                        if(favFrag != null)
+                            ((FavoriteFragment) favFrag).stopExo();
+                        favFrag = new FavoriteFragment();
                         changeFragment(new FavoriteFragment());
                         break;
                     case R.id.nav_qna:
-                        changeFragment(new HomeFragment());
+                        if (homeFrag != null) {
+                            ((HomeFragment) homeFrag).stopExo();
+                        }
+                        homeFrag = new HomeFragment();
+                        changeFragment(homeFrag);
                         break;
                     case R.id.nav_min_ques:
-                        changeFragment(new MineQuestFragment());
+                        if (mineFrag != null) {
+                            ((MineQuestFragment) mineFrag).stopExo();
+                        }
+                        mineFrag = new MineQuestFragment();
+                        changeFragment(mineFrag);
                         break;
                     case R.id.nav_notify:
                         changeFragment(new Notifications());
@@ -114,7 +129,7 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        if(!Utility.isNetworkAvailable(HomeActivity.this)) {
+        if (!Utility.isNetworkAvailable(HomeActivity.this)) {
             Utility.noNetworkDialog(HomeActivity.this);
         }
     }
@@ -127,8 +142,6 @@ public class HomeActivity extends AppCompatActivity {
         fragmentTransaction.commitAllowingStateLoss();
 
     }
-
-
 
 
 }

@@ -18,9 +18,25 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.ui.StyledPlayerView;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -43,7 +59,8 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
     ProgressDialog progressDialog;
     private FirebaseStorage storage;
     private String TAG = "MineQuestionsAdapter.java", url = "";
-    public ExoPlayer exoPlayer;
+    public SimpleExoPlayer exoPlayer;
+    private boolean isPlaying = false;
 
     public MineQuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore mFirestore, FirebaseStorage storage) {
         this.nlist = nlist;
@@ -63,14 +80,19 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
 
     @SuppressLint("ResourceType")
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         QuestionsModel model = nlist.get(position);
         holder.Title.setText(nlist.get(position).getTitle());
         holder.Desc.setText(nlist.get(position).getDesc());
         holder.portalTV.setText(model.getPortal());
-        //ExoPlayer instance creation.
-        setupAudio(holder.exoPlayer, model.getAudio());
+        //ExoPlayer setup and play when ready with controls and seekbar.
+        if(model.getAudio().isEmpty()) {
+            holder.exoPlayer.setVisibility(View.GONE);
+        } else {
+            setupAudio(holder.exoPlayer, model.getAudio());
+        }
 
+        Log.d(TAG, "fetchQuestions: exo obj: " + exoPlayer);
         final String Id = nlist.get(position).getID();
         if (!nlist.get(position).getImage().isEmpty()) {
             holder.questionimg.setVisibility(View.VISIBLE);
@@ -83,7 +105,6 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
         holder.shareBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
                 sendIntent.putExtra(Intent.EXTRA_TEXT,
@@ -96,11 +117,36 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
 
 
         holder.deleteQues.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
-
                 openProgress(true);
+                StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+                StorageReference audioRef = storageReference.child("audios/" + nlist.get(position).getAudioRef());
+                audioRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d(TAG, "onSuccess: audio success");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: " + e);
+                    }
+                });
+
+                StorageReference imageRef = storageReference.child("images/" + nlist.get(position)
+                        .getImageRef());
+                imageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d(TAG, "onSuccess: image success");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: " + e);
+                    }
+                });
 
                 mFirestore.collection("questions").document(nlist.get(position).getID()).delete()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -125,7 +171,6 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
         holder.editQues.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent i = new Intent(context, Add_Queastion.class);
                 i.putExtra("key", Id);
                 i.putExtra("title", nlist.get(position).getTitle());
@@ -135,7 +180,6 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
                 i.putExtra("portal", nlist.get(position).getPortal());
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
-
             }
 
         });
@@ -143,7 +187,6 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
         holder.openQues.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent i = new Intent(context, AnswersActivity.class);
                 i.putExtra("key", Id);
                 i.putExtra("title", nlist.get(position).getTitle());
@@ -163,14 +206,73 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
 
     }
 
-    private void setupAudio(StyledPlayerView playerView, String downloadUrl) {
+    private void setupAudio(SimpleExoPlayerView playerView, String downloadUrl) {
         //Create a media item which is audio file can be a URI or download url for dynamic sourced http based
         //rendering
-        exoPlayer = new ExoPlayer.Builder(context).build();
-        playerView.setPlayer(exoPlayer);
-        MediaItem mediaItem = MediaItem.fromUri(downloadUrl);
-        exoPlayer.setMediaItem(mediaItem);
-        exoPlayer.prepare();
+        //Create a media item which is audio file can be a URI or download url for dynamic sourced
+        //http based rendering
+        try {
+            //To major bandwidth.
+            BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+            //TrackSelector for default seekbar on controls of SimpleExoPlayerView
+            TrackSelector trackSelector = new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
+            //create instance of SimpleExoPlayer class
+            exoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector);
+            //DefaultHttpResourceFactory instance for creating any agent for http
+            DefaultHttpDataSourceFactory httpDataSourceFactory = new DefaultHttpDataSourceFactory("exoplayer_agent");
+            //Extractor factory to extract and convert the data means audio.
+            ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+            //MediaSource to add all the uri, httpDataSource, extractor etc.
+            MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(downloadUrl), httpDataSourceFactory, extractorsFactory, null, null);
+            playerView.setPlayer(exoPlayer);
+            exoPlayer.prepare(mediaSource);
+        } catch (Exception e) {
+            Log.d(TAG, "setupAudio: " + e);
+        }
+
+        exoPlayer.addListener(new ExoPlayer.EventListener() {
+            @Override
+            public void onTimelineChanged(Timeline timeline, Object manifest) {
+
+            }
+
+            @Override
+            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+            }
+
+            @Override
+            public void onLoadingChanged(boolean isLoading) {
+
+            }
+
+            @Override
+            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                if (playbackState == ExoPlayer.STATE_READY) {
+                    Log.d(TAG, "onPlayerStateChanged no ready: " + playWhenReady);
+                    if(isPlaying){
+                        exoPlayer.setPlayWhenReady(true);
+                    }
+                } else {
+                    Log.d(TAG, "onPlayerStateChanged no ready: " + playWhenReady);
+                }
+            }
+
+            @Override
+            public void onPlayerError(ExoPlaybackException error) {
+
+            }
+
+            @Override
+            public void onPositionDiscontinuity() {
+
+            }
+
+            @Override
+            public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+            }
+        });
     }
 
 
@@ -181,9 +283,8 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-
         ImageView pro, questionimg, shareBtn, answers, editQues, deleteQues;
-        StyledPlayerView exoPlayer;
+        SimpleExoPlayerView exoPlayer;
         TextView Title, Desc, portalTV;
         CardView openQues;
 

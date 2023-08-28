@@ -255,6 +255,9 @@ public class ProfileUpdate extends AppCompatActivity {
                                             public void onSuccess(Void unused) {
                                                 Utility.toast(ProfileUpdate.this, "Profile Updated Successfully");
                                                 sharedPrefManager.saveProfilePic(uri.toString());
+                                                sharedPrefManager.getsUser().setName(name);
+                                                sharedPrefManager.getsUser().setMobile(mob);
+                                                sharedPrefManager.getsUser().setLocation(address);
                                                 Check = 1;
                                                 btnText.setVisibility(View.VISIBLE);
                                                 btnProgress.setVisibility(View.INVISIBLE);

@@ -10,10 +10,11 @@ public class User {
     private String location;
     private int item;
     private boolean edel;
-    private String email;
+    private String email, referId, fcmToken;
     private long reward;
 
-    public User(String name,String mobile,String uid,String profile,String location,int item,boolean edel, String email, long reward)
+    public User(String name,String mobile,String uid,String profile,String location,int item,boolean edel, String email, long reward
+    , String referId, String fcmToken)
     {
         this.name = name;
         this.mobile = mobile;
@@ -24,6 +25,52 @@ public class User {
         this.edel = edel;
         this.email = email;
         this.reward = reward;
+        this.referId = referId;
+        this.fcmToken = fcmToken;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setItem(int item) {
+        this.item = item;
+    }
+
+    public void setEdel(boolean edel) {
+        this.edel = edel;
+    }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    public String getReferId() {
+        return referId;
+    }
+
+    public void setReferId(String referId) {
+        this.referId = referId;
     }
 
     public long getReward() {

@@ -208,6 +208,7 @@ public class Add_Queastion extends AppCompatActivity {
         recordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(TAG, "onClick bottom sheet");
                 if (isPermissionGranted) {
                     RecordBottomSheetDialog sheet = new RecordBottomSheetDialog();
                     sheet.show(getSupportFragmentManager(), "add sheet");
@@ -247,9 +248,15 @@ public class Add_Queastion extends AppCompatActivity {
     private void checkPerm() {
         if (ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(Add_Queastion.this, new String[]{Manifest.permission.RECORD_AUDIO
-                    , Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 101);
+            String[] permArr = new String[]{Manifest.permission.RECORD_AUDIO
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE
+                    , Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.CAMERA};
+
+            ActivityCompat.requestPermissions(Add_Queastion.this, permArr, 101);
         } else {
+            RecordBottomSheetDialog sheet = new RecordBottomSheetDialog();
+            sheet.show(getSupportFragmentManager(), "add sheet");
             isPermissionGranted = true;
         }
     }
@@ -311,7 +318,14 @@ public class Add_Queastion extends AppCompatActivity {
                 @Override
                 public void onFinish() {
                     try {
-                        Toast.makeText(getActivity().getApplicationContext(), "Recording Completed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity().getApplicationContext(), "Recorded", Toast.LENGTH_SHORT).show();
+                        cDT.cancel();
+                        mRecorder.stop();
+                        mRecorder.release();
+                        mRecorder = null;
+                        Add_Queastion add = (Add_Queastion) getActivity();
+                        add.status();
+                        dismiss();
                     } catch (Exception e) {
                         Log.d("BottomSheet.java", "onFinish: " + e);
                     }
@@ -514,7 +528,6 @@ public class Add_Queastion extends AppCompatActivity {
                                                         }
                                                     }
                                                 });
-
                                     }
                                 }
                             });
@@ -523,6 +536,71 @@ public class Add_Queastion extends AppCompatActivity {
                         }
                     }
                 });
+            } else {
+                mFirestore.collection("ids").document("questionId").get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    long updateId = task.getResult().getLong("id") + 1;
+                                    HashMap<String, Object> questionMap = new HashMap<>();
+                                    questionMap.put("title", title);
+                                    questionMap.put("desc", desc);
+                                    questionMap.put("likes", "0");
+                                    questionMap.put("qpic", "na");
+                                    questionMap.put("checkFav", false);
+                                    questionMap.put("checkLike", false);
+                                    questionMap.put("tanswers", "false");
+                                    questionMap.put("uname", sharedPrefManager.getsUser().getName());
+                                    questionMap.put("userId", sharedPrefManager.getsUser().getUid());
+                                    questionMap.put("id", updateId + "");
+                                    questionMap.put("qualityCheck", false);
+                                    questionMap.put("timestamp", System.currentTimeMillis());
+                                    questionMap.put("likedByUser", "");
+                                    questionMap.put("image", "");
+                                    questionMap.put("userPicUrl", sharedPrefManager.getProfilePic());
+                                    questionMap.put("imageRef", "");
+                                    questionMap.put("portal", selectedPortal);
+                                    questionMap.put("audio", audioDownloadUrl);
+                                    if (!audioDownloadUrl.isEmpty())
+                                        questionMap.put("audioRef", UUID);
+                                    else
+                                        questionMap.put("audioRef", "");
+                                    mFirestore.collection("questions").document(updateId + "").set(questionMap)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    HashMap<String, Object> map = new HashMap<>();
+                                                    map.put("id", updateId);
+                                                    mFirestore.collection("ids").document("questionId").update(map)
+                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void unused) {
+                                                                    Log.d(TAG, "onSuccess: success");
+                                                                    progressDialog.dismiss();
+                                                                    Utility.toast(Add_Queastion.this, "Question Waiting for Approve! ");
+                                                                    Intent cart = new Intent(getApplicationContext(), HomeActivity.class);
+                                                                    cart.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                                    cart.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                                    startActivity(cart);
+                                                                    finish();
+                                                                }
+                                                            }).addOnFailureListener(new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception e) {
+                                                                    Log.d(TAG, "onFailure: " + e);
+                                                                }
+                                                            });
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(Exception e) {
+                                                    Log.d(TAG, "onFailure: " + e);
+                                                }
+                                            });
+                                }
+                            }
+                        });
             }
         }
     }

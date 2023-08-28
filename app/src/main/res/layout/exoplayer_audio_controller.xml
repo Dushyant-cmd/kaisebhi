@@ -6,6 +6,7 @@
     android:layout_gravity="bottom"
     android:layoutDirection="ltr"
     android:orientation="vertical"
+    android:background="#939090"
     tools:targetApi="28">
 
     <LinearLayout
@@ -68,7 +69,7 @@
             android:textStyle="bold" />
 
         <View
-            android:id="@id/exo_progress_placeholder"
+            android:id="@+id/exo_progress_placeholder"
             android:layout_width="0dp"
             android:layout_height="26dp"
             android:layout_weight="1" />

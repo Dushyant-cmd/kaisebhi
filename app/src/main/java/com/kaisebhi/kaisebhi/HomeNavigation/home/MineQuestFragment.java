@@ -62,13 +62,11 @@ public class MineQuestFragment extends Fragment {
     }
 
 
-    public void fetchQuestions()
-    {
+    public void fetchQuestions() {
+        Log.d(TAG, "fetchQuestions: adapter: " + adapter);
         shimmerFrameLayout.startShimmerAnimation();
-
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
         Log.d(TAG, "fetchQuestions uId: " + SharedPrefManager.getInstance(getActivity()).getsUser().getUid());
-
         mFirestore.collection("questions").whereEqualTo("userId", SharedPrefManager.getInstance(getActivity()).getsUser().getUid())
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -86,13 +84,8 @@ public class MineQuestFragment extends Fragment {
                                 ));
                             }
 
-                            if(adapter != null) {
-                                adapter.exoPlayer.stop();
-                                adapter.exoPlayer.release();
-                            }
                             adapter = new MineQuestionsAdapter(questions,getActivity(), mFirestore, ((ApplicationCustom) requireActivity().getApplication()).storage);
                             recyclerView.setAdapter(adapter);
-
                             shimmerFrameLayout.stopShimmerAnimation();
                             shimmerFrameLayout.setVisibility(View.GONE);
                             Log.d(TAG, "onComplete: " + questions.size());
@@ -103,27 +96,17 @@ public class MineQuestFragment extends Fragment {
                         }
                     }
                 });
-
-//        Call<List<QuestionsModel>> call = main_interface.getallQuestions(sh.getsUser().getUid(),"minQues");
-//
-//        call.enqueue(new Callback<List<QuestionsModel>>() {
-//            @Override
-//            public void onResponse(Call<List<QuestionsModel>> call, Response<List<QuestionsModel>> response) {
-//
-//                questions = response.body();
-//                adapter = new MineQuestionsAdapter(questions,getActivity());
-//                recyclerView.setAdapter(adapter);
-//
-//                shimmerFrameLayout.stopShimmerAnimation();
-//                shimmerFrameLayout.setVisibility(View.GONE);
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<QuestionsModel>> call, Throwable t) {
-//
-//            }
-//        });
     }
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: resume ");
+    }
+    
+    public void stopExo() {
+        Log.d(TAG, "stopExo: exo");
+        adapter.exoPlayer.stop();
+        adapter.exoPlayer.release();
+    }
 }

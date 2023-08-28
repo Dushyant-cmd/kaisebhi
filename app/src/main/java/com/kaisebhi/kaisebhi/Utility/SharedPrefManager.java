@@ -40,7 +40,8 @@ public class SharedPrefManager {
     }
 
 
-    public void saveUser(String name, String mobile,String Uid,String profile, String email, String address, long reward)
+    public void saveUser(String name, String mobile,String Uid,String profile, String email, String address, long reward
+    , String referId, String fcmToken)
     {
         SharedPreferences sharedPreferences = ctx.getSharedPreferences(SHARED_PREF_NAME,Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -51,6 +52,8 @@ public class SharedPrefManager {
         editor.putString("email", email);
         editor.putString("address", address);
         editor.putLong("rewards", reward);
+        editor.putString("referId", referId);
+        editor.putString("fcmToken", fcmToken);
         editor.apply();
     }
 
@@ -75,7 +78,9 @@ public class SharedPrefManager {
                 sharedPreferences.getInt("item",0),
                 sharedPreferences.getBoolean("edelivery",false),
                 sharedPreferences.getString("email", "NA"),
-                sharedPreferences.getLong("rewards", 0)
+                sharedPreferences.getLong("rewards", 0),
+                sharedPreferences.getString("referId", ""),
+                sharedPreferences.getString("fcmToken", "")
         );
     }
 

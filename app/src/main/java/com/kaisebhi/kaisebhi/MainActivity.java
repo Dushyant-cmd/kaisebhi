@@ -27,13 +27,17 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 //import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore mFirestore;
     private String TAG = "MainActivity.java";
     private SharedPrefManager sharedPreferences;
+    private FirebaseMessaging fcm;
+    private String token = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +71,18 @@ public class MainActivity extends AppCompatActivity {
         relativeLayout = findViewById(R.id.emailBox);
         signProgress = findViewById(R.id.pgore);
         findViewById(R.id.root).isInEditMode();
+        fcm = ((ApplicationCustom) getApplication()).fcm;
 
-//        Token = FirebaseInstanceId.getInstance().getToken();
+        /**FirebaseInstanceId not working so call getToken and add listener when get token string. */
+        fcm.getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if(task.isSuccessful()) {
+                    token = task.getResult();
+                }
+            }
+        });
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken("316855122484-l6bun4vaf6ve6rt08fekbrjo5712qhqa.apps.googleusercontent.com")
                 .requestEmail()
@@ -84,11 +100,8 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.signEmail).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 relativeLayout.setVisibility(View.VISIBLE);
-
             }
-
         });
 
         findViewById(R.id.emailSignup).setOnClickListener(new View.OnClickListener() {
@@ -200,8 +213,25 @@ public class MainActivity extends AppCompatActivity {
                                                             .saveUser(d.getString("name"), d.getLong("mobile").toString(),
                                                             d.getLong("userId").toString(), d.getString("profile"),
                                                                     d.getString("email"), d.getString("address"),
-                                                                    d.getLong("rewards"));
-                                                    SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic(d.getString("picUrl"));
+                                                                    d.getLong("rewards"), d.getString("referId"),
+                                                                    d.getString("fcmToken") + "," + token);
+                                                    Map<String, Object> m = new HashMap<>();
+                                                    m.put("fcmToken", d.getString("fcmToken") + "," + token);
+                                                    mFirestore.collection("users")
+                                                            .document(d.getLong("userId") + "").update(m)
+                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void unused) {
+                                                                            Log.d(TAG, "onSuccess: fcm success");
+                                                                        }
+                                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception e) {
+                                                                    Log.d(TAG, "onFailure: fcm error" + e);
+                                                                }
+                                                            });
+                                                    SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic
+                                                            (d.getString("picUrl"));
                                                     sharedPreferences.setImageRef(d.getString("imageRef"));
                                                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -210,7 +240,9 @@ public class MainActivity extends AppCompatActivity {
                                                 } else {
                                                     //user does not exist.
                                                     Log.d(TAG, "onComplete: user not exist ");
-                                                    mFirebaseAuth.signInWithCredential(authCredential).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                                                    mFirebaseAuth.signInWithCredential(authCredential)
+                                                            .addOnCompleteListener(MainActivity.this,
+                                                                    new OnCompleteListener<AuthResult>() {
                                                         @Override
                                                         public void onComplete(@NonNull Task<AuthResult> googleTask) {
                                                             if (googleTask.isSuccessful()) {
@@ -227,24 +259,30 @@ public class MainActivity extends AppCompatActivity {
                                                                 String imageRef = UUID.randomUUID().toString();
                                                                 map.put("imageRef", imageRef);
                                                                 map.put("pass", "loginByGoogle");
+                                                                String referId = UUID.randomUUID().toString().substring(0, 6);
+                                                                map.put("referId", referId);
+                                                                map.put("fcmToken", token);
 
-                                                                mFirestore.collection("users").document(updatedUserId + "")
+                                                                mFirestore.collection("users")
+                                                                        .document(updatedUserId + "")
                                                                         .set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                             @Override
                                                                             public void onComplete(@NonNull Task<Void> task) {
                                                                                 if (task.isSuccessful()) {
                                                                                     HashMap<String, Object> updateMap = new HashMap<>();
                                                                                     updateMap.put("id", updatedUserId);
-                                                                                    mFirestore.collection("ids").document("userId")
-                                                                                                    .update(updateMap).addOnCompleteListener(
+                                                                                    mFirestore.collection("ids")
+                                                                                            .document("userId")
+                                                                                                    .update(updateMap)
+                                                                                            .addOnCompleteListener(
                                                                                                     new OnCompleteListener<Void>() {
                                                                                                         @Override
                                                                                                         public void onComplete(@NonNull Task<Void> task) {
                                                                                                             if(task.isSuccessful()) {
                                                                                                                 signProgress.setVisibility(View.VISIBLE);
                                                                                                                 SharedPrefManager.getInstance(getApplicationContext())
-                                                                                                                        .saveUser(name, 0 + "", updatedUserId + "", "inComplete", email, "",
-                                                                                                                                0);
+                                                                                                                        .saveUser(name, 0 + "", updatedUserId + "", "inComplete",
+                                                                                                                                email, "", 0, referId, token);
                                                                                                                 SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic("");
                                                                                                                 sharedPreferences.setImageRef(imageRef);
                                                                                                                 Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
@@ -271,7 +309,6 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                         }
                                     });
-
                         } catch (Exception e) {
                             Log.d(TAG, "SignUp: failure google" + e);
                         }
@@ -309,7 +346,8 @@ public class MainActivity extends AppCompatActivity {
                                                                     doc1.getLong("mobile").toString(),
                                                                     doc1.getLong("userId").toString(), doc1.getString("profile"),
                                                                     doc1.getString("email"), doc1.getString("address"),
-                                                                    doc1.getLong("rewards"));
+                                                                    doc1.getLong("rewards"), doc1.getString("referId"),
+                                                                    doc1.getString("fcmToken") + "," + token);
                                                             SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic(doc.getString("picUrl"));
                                                             sharedPreferences.setImageRef(doc1.getString("imageRef"));
                                                             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
@@ -345,7 +383,10 @@ public class MainActivity extends AppCompatActivity {
                                                     map.put("rewards", 0);
                                                     map.put("timestamp", System.currentTimeMillis());
                                                     String imageRef = UUID.randomUUID().toString();
+                                                    String referId = UUID.randomUUID().toString().substring(0, 6);
+                                                    map.put("referId", referId);
                                                     map.put("imageRef", imageRef);
+                                                    map.put("fcmToken", token);
 
                                                     mFirestore.collection("users").document(updatedUserId + "").set(map)
                                                             .addOnCompleteListener(task12 -> {
@@ -367,7 +408,8 @@ public class MainActivity extends AppCompatActivity {
                                                                     signProgress.setVisibility(View.GONE);
                                                                     SharedPrefManager.getInstance(getApplicationContext())
                                                                             .saveUser("Guest_" + updatedUserId, "0",
-                                                                            updatedUserId + "", "inComplete", email, "", 0);
+                                                                            updatedUserId + "", "inComplete", email, "", 0, referId,
+                                                                                    token);
                                                                     sharedPreferences.setImageRef(imageRef);
                                                                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                                                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

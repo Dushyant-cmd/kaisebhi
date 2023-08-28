@@ -85,9 +85,16 @@ dependencies {
 
     // Import the BoM for the Firebase platform firebase libraries.
     implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
-    implementation("com.google.firebase:firebase-storage")
+    implementation "com.google.firebase:firebase-storage"
+    implementation "com.google.firebase:firebase-messaging"
+
 
     // ExoPlayer
-    implementation 'com.google.android.exoplayer:exoplayer:2.18.0'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.18.0'
+    implementation 'com.google.android.exoplayer:exoplayer:r2.4.0'
+    implementation 'com.google.android.exoplayer:exoplayer-core:r2.4.0'
+    implementation 'com.google.android.exoplayer:exoplayer-dash:r2.4.0'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:r2.4.0'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:r2.4.0'
+    implementation 'com.google.android.exoplayer:exoplayer-smoothstreaming:r2.4.0'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:r2.4.0'
 }

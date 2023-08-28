@@ -80,7 +80,6 @@ public class HomeFragment extends Fragment {
                 Intent seac = new Intent(getContext(), ActivityForFrag.class);
                 seac.putExtra("Frag","searchQ");
                 getActivity().startActivity(seac);
-
             }
         });
 
@@ -177,6 +176,7 @@ public class HomeFragment extends Fragment {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             try {
+                                Log.d(TAG, "onComplete size: " + task.getResult().getDocuments().size());
                                 for (DocumentSnapshot d : task.getResult().getDocuments()) {
                                     questions.add(new QuestionsModel(
                                             d.getString("id"), d.getString("title"), d.getString("desc"),
@@ -187,18 +187,16 @@ public class HomeFragment extends Fragment {
                                             d.getString("portal"), d.getString("audio"), d.getString("audioRef")
                                     ));
                                 }
+
                                 if(!task.getResult().getDocuments().isEmpty()) {
                                     lastItem = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1);
-                                    lastItemTimestamp = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1).getLong("timestamp");
+                                    lastItemTimestamp = task.getResult().getDocuments().get(task.getResult().getDocuments().size() - 1)
+                                            .getLong("timestamp");
                                 } else {
                                     loadMoreProgress.setVisibility(View.GONE);
                                     return;
                                 }
 
-                                if(adapter != null) {
-                                    adapter.exoPlayer.stop();
-                                    adapter.exoPlayer.release();
-                                }
                                 adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb, applicationCustom.storage);
                                 recyclerView.setAdapter(adapter);
                                 loadMoreProgress.setVisibility(View.GONE);
@@ -213,6 +211,19 @@ public class HomeFragment extends Fragment {
         );
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause: ");
+//        if(adapter != null) {
+//            adapter.exoPlayer.stop();
+//            adapter.exoPlayer.release();
+//        }
+    }
 
-
+    public void stopExo() {
+        adapter.exoPlayer.stop();
+        adapter.exoPlayer.release();
+        Log.d(TAG, "stopExo: home exo");
+    }
 }

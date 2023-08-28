@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,10 +22,25 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.ui.StyledPlayerControlView;
-import com.google.android.exoplayer2.ui.StyledPlayerView;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -45,10 +61,9 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.ViewHolder> {
-
-
+    private boolean isPlaying = false;
     private List<QuestionsModel> nlist;
-//    private boolean isLiked = false;
+    //    private boolean isLiked = false;
     private Context context;
     private FirebaseFirestore mFirestore;
     private String TAG = "QuestionsAdapter.java", comeFrom = "", usersLikedBy = "";
@@ -58,7 +73,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
     public RoomDb roomDb;
     private String url = "";
     private ProgressDialog progressDialog;
-    public ExoPlayer exoPlayer;
+    public SimpleExoPlayer exoPlayer;
 
     public QuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore firestore, RoomDb roomDb, FirebaseStorage storage) {
         this.nlist = nlist;
@@ -101,7 +116,11 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         holder.Desc.setText(nlist.get(position).getDesc());
         holder.Author.setText("By " + nlist.get(position).getUname());
         holder.portalTV.setText(q.getPortal());
-        setupAudio(holder.exoPlayer, q.getAudio());
+        if(q.getAudio().isEmpty()) {
+            holder.exoPlayer.setVisibility(View.GONE);
+        } else {
+            setupAudio(holder.exoPlayer, q.getAudio());
+        }
 
         if (!nlist.get(position).getTansers().equals("0")) {
             holder.totalAns.setText(nlist.get(position).getTansers());
@@ -218,7 +237,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         holder.favBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progressDialog.show();
+                holder.favBtn.setEnabled(false);
                 if (isFavChecked) {
                     //not already favorite
                     HashMap<String, Object> questionMap = new HashMap<>();
@@ -242,13 +261,13 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                     mFirestore.collection("favorite").add(questionMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
-                            progressDialog.dismiss();
+                            holder.favBtn.setEnabled(true);
 //                            Log.d(TAG, "onSuccess: success" + documentReference);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            progressDialog.dismiss();
+                            holder.favBtn.setEnabled(true);
                             Log.d(TAG, "onFailure: " + e);
                         }
                     });
@@ -265,7 +284,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                                                 @Override
                                                 public void onSuccess(Void unused) {
                                                     try {
-                                                        progressDialog.dismiss();
+                                                        holder.favBtn.setEnabled(true);
                                                         if (comeFrom.matches("home")) {
 //                                                            Log.d(TAG, "onSuccess: success");
 //                                                            roomDb.getFavDao().deleteFav(q);
@@ -285,7 +304,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                                             }).addOnFailureListener(new OnFailureListener() {
                                                 @Override
                                                 public void onFailure(@NonNull Exception e) {
-                                                    progressDialog.dismiss();
+                                                    holder.favBtn.setEnabled(true);
                                                     Log.d(TAG, "onFailure: " + e);
                                                 }
                                             });
@@ -317,7 +336,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         holder.likeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progressDialog.show();
+                holder.likeBtn.setEnabled(false);
                 if (q.getCheckLike()) {
                     Log.d(TAG, "onCheckedChanged: checked");
                     HashMap<String, Object> map = new HashMap<>();
@@ -338,7 +357,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                                 @Override
                                 public void onSuccess(Void unused) {
                                     Log.d(TAG, "onSuccess: questions liked success");
-                                    progressDialog.dismiss();
+                                    holder.likeBtn.setEnabled(true);
                                     q.setLikes((Long.parseLong(q.getLikes()) - 1) + "");
                                     q.setLikedByUser(usersLikedBy);
                                     q.setCheckLike(false);
@@ -347,7 +366,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    progressDialog.dismiss();
+                                    holder.likeBtn.setEnabled(true);
                                     Log.d(TAG, "onFailure: exception " + e);
                                 }
                             });
@@ -385,7 +404,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
-                                    progressDialog.dismiss();
+                                    holder.likeBtn.setEnabled(true);
                                     Log.d(TAG, "onSuccess: liked increased success");
                                     q.setLikes(Long.parseLong(q.getLikes()) + 1 + "");
                                     q.setLikedByUser(usersLikedBy);
@@ -395,7 +414,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    progressDialog.dismiss();
+                                    holder.likeBtn.setEnabled(true);
                                     Log.d(TAG, "onFailure: exception " + e);
                                 }
                             });
@@ -436,20 +455,71 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
 
     }
 
-    private void setupAudio(StyledPlayerView playerView, String downloadUrl) {
+    private void setupAudio(SimpleExoPlayerView playerView, String downloadUrl) {
         //Create a media item which is audio file can be a URI or download url for dynamic sourced
         //http based rendering
-//        if(exoPlayer != null) {
-//            exoPlayer.stop();
-//            exoPlayer.release();
-//            exoPlayer = null;
-//        }
-        exoPlayer = new ExoPlayer.Builder(context).build();
-        playerView.setPlayer(exoPlayer);
-        MediaItem mediaItem = MediaItem.fromUri(downloadUrl);
-        exoPlayer.setMediaItem(mediaItem);
-        exoPlayer.prepare();
-//        exoPlayer.play();
+        try {
+            //To major bandwidth.
+            BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+            //TrackSelector for default seekbar on controls of SimpleExoPlayerView
+            TrackSelector trackSelector = new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
+            //create instance of SimpleExoPlayer class
+            exoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector);
+            //DefaultHttpResourceFactory instance for creating any agent for http
+            DefaultHttpDataSourceFactory httpDataSourceFactory = new DefaultHttpDataSourceFactory("exoplayer_agent");
+            //Extractor factory to extract and convert the data means audio.
+            ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+            //MediaSource to add all the uri, httpDataSource, extractor etc.
+            MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(downloadUrl), httpDataSourceFactory, extractorsFactory, null, null);
+            playerView.setPlayer(exoPlayer);
+            exoPlayer.prepare(mediaSource);
+        } catch (Exception e) {
+            Log.d(TAG, "setupAudio: " + e);
+        }
+
+        exoPlayer.addListener(new ExoPlayer.EventListener() {
+            @Override
+            public void onTimelineChanged(Timeline timeline, Object manifest) {
+
+            }
+
+            @Override
+            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+            }
+
+            @Override
+            public void onLoadingChanged(boolean isLoading) {
+
+            }
+
+            @Override
+            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                if (playbackState == ExoPlayer.STATE_READY) {
+                    Log.d(TAG, "onPlayerStateChanged no ready: " + playWhenReady);
+                    if (isPlaying) {
+                        exoPlayer.setPlayWhenReady(true);
+                    }
+                } else {
+                    Log.d(TAG, "onPlayerStateChanged no ready: " + playWhenReady);
+                }
+            }
+
+            @Override
+            public void onPlayerError(ExoPlaybackException error) {
+
+            }
+
+            @Override
+            public void onPositionDiscontinuity() {
+
+            }
+
+            @Override
+            public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+            }
+        });
     }
 
     @Override
@@ -465,7 +535,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         TextView Title, Desc, Author, totalAns, totalLike, portalTV;
         CheckBox favBtn, likeBtn;
         CardView openQues;
-        StyledPlayerView exoPlayer;
+        SimpleExoPlayerView exoPlayer;
 
 
         public ViewHolder(@NonNull View itemView) {
@@ -486,7 +556,6 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
             portalTV = itemView.findViewById(R.id.portalTV);
             exoPlayer = itemView.findViewById(R.id.exoPlayer);
         }
-
     }
 
     @Override

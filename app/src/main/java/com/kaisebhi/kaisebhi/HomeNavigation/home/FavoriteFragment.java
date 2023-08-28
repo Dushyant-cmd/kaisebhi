@@ -68,14 +68,10 @@ public class FavoriteFragment extends Fragment {
         return root;
     }
 
-    public void fetchQuestions()
-    {
+    public void fetchQuestions() {
         shimmerFrameLayout.startShimmerAnimation();
-
         SharedPrefManager sh = new SharedPrefManager(getActivity());
-
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
-
         mFirestore.collection("favorite").whereEqualTo("userId", SharedPrefManager.getInstance(getActivity()).getsUser().getUid()).get().addOnCompleteListener(
                 new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -106,7 +102,13 @@ public class FavoriteFragment extends Fragment {
                             Log.d(TAG, "onComplete: " + task.getException().getMessage());
                         }
                     }
-                }
-        );
+                });
+    }
+
+    /**Below method is to stp exoplayer if reselected same fragment. */
+    public void stopExo() {
+        adapter.exoPlayer.stop();
+        adapter.exoPlayer.release();
+        Log.d(TAG, "stopExo: home exo");
     }
 }
