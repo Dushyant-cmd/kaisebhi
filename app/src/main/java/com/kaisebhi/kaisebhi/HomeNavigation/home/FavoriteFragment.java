@@ -107,8 +107,10 @@ public class FavoriteFragment extends Fragment {
 
     /**Below method is to stp exoplayer if reselected same fragment. */
     public void stopExo() {
-        adapter.exoPlayer.stop();
-        adapter.exoPlayer.release();
-        Log.d(TAG, "stopExo: home exo");
+        if(adapter != null) {
+            adapter.exoPlayer.stop();
+            adapter.exoPlayer.release();
+            Log.d(TAG, "stopExo: home exo");
+        }
     }
 }

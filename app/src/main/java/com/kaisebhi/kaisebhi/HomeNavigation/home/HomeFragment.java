@@ -222,8 +222,10 @@ public class HomeFragment extends Fragment {
     }
 
     public void stopExo() {
-        adapter.exoPlayer.stop();
-        adapter.exoPlayer.release();
-        Log.d(TAG, "stopExo: home exo");
+        if(adapter != null) {
+            adapter.exoPlayer.stop();
+            adapter.exoPlayer.release();
+            Log.d(TAG, "stopExo: home exo");
+        }
     }
 }

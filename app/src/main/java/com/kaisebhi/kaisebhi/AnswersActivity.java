@@ -2,6 +2,7 @@ package com.kaisebhi.kaisebhi;
 
 import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +24,20 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.shimmer.ShimmerFrameLayout;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -78,6 +93,9 @@ public class AnswersActivity extends AppCompatActivity {
     String Qid;
     private String TAG = "AnswersActivity.java";
     private ActivityAnswerBinding binding;
+    private String audioUrl;
+    private SimpleExoPlayer exoPlayer;
+    private SimpleExoPlayerView simpleExoPlayerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +120,7 @@ public class AnswersActivity extends AppCompatActivity {
         Title = findViewById(R.id.quesTitle);
         Desc = findViewById(R.id.quesDesc);
         totalAns = findViewById(R.id.totalAns);
+        simpleExoPlayerView = findViewById(R.id.exoPlayer);
         mFirestore = ((ApplicationCustom) getApplication()).mFirestore;
         sharedPrefManager = SharedPrefManager.getInstance(AnswersActivity.this);
 
@@ -129,6 +148,7 @@ public class AnswersActivity extends AppCompatActivity {
             totalAns.setText(extras.getString("tans"));
             likeBtn.setChecked(extras.getBoolean("tlikes"));
             userId = extras.getString("userId");
+            audioUrl = extras.getString("audio");
 
             if (!extras.getString("qimg").matches("na")) {
                 questionimg.setVisibility(View.VISIBLE);
@@ -137,7 +157,7 @@ public class AnswersActivity extends AppCompatActivity {
 
             Glide.with(getApplicationContext()).load(extras.getString("userpic")).placeholder(R.drawable.profile).fitCenter().into(pro);
 
-            if(Utility.isNetworkAvailable(AnswersActivity.this)) {
+            if (Utility.isNetworkAvailable(AnswersActivity.this)) {
                 fetchAnsers();
             } else {
                 Utility.noNetworkDialog(AnswersActivity.this);
@@ -148,7 +168,7 @@ public class AnswersActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 binding.ansSwipeRefLay.setRefreshing(false);
-                if(Utility.isNetworkAvailable(AnswersActivity.this)) {
+                if (Utility.isNetworkAvailable(AnswersActivity.this)) {
                     fetchAnsers();
                 } else {
                     Utility.noNetworkDialog(AnswersActivity.this);
@@ -241,6 +261,23 @@ public class AnswersActivity extends AppCompatActivity {
             }
         });
 
+        if (!audioUrl.isEmpty())
+            setupAudio();
+    }
+
+    private void setupAudio() {
+        simpleExoPlayerView.setVisibility(View.VISIBLE);
+        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+        TrackSelector trackSelector = new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
+        DefaultHttpDataSourceFactory dataSource = new DefaultHttpDataSourceFactory("exoPlayer_agent");
+        ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+        MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(audioUrl), dataSource, extractorsFactory, null, null);
+        exoPlayer = ExoPlayerFactory.newSimpleInstance(AnswersActivity.this, trackSelector);
+        simpleExoPlayerView.setPlayer(exoPlayer);
+        exoPlayer.prepare(mediaSource);
+        //Below line means auto play when ready with media and its encoder and buffering before you
+        //play media.
+//        exoPlayer.setPlayWhenReady(true);
     }
 
     public void fetchAnsers() {
@@ -277,7 +314,7 @@ public class AnswersActivity extends AppCompatActivity {
                                 shimmerFrameLayout.stopShimmerAnimation();
                                 shimmerFrameLayout.setVisibility(View.GONE);
 
-                                for(AnswersModel ans: answers) {
+                                for (AnswersModel ans : answers) {
                                     mFirestore.collection("paidAnswers").whereEqualTo("ansDocId", ans.getAnswerDocId())
                                             .whereEqualTo("userId", sh.getsUser().getUid().toString()).get()
                                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -321,6 +358,14 @@ public class AnswersActivity extends AppCompatActivity {
                 });
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(exoPlayer != null) {
+            exoPlayer.stop();
+            exoPlayer.release();
+        }
+    }
 
     public void backtoActivity(View view) {
         super.onBackPressed();

@@ -48,6 +48,8 @@ import com.kaisebhi.kaisebhi.AnswersActivity;
 import com.kaisebhi.kaisebhi.HomeNavigation.AddQuestion.Add_Queastion;
 import com.kaisebhi.kaisebhi.R;
 
+import org.checkerframework.checker.units.qual.A;
+
 import java.util.List;
 
 public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdapter.ViewHolder> {
@@ -92,7 +94,6 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
             setupAudio(holder.exoPlayer, model.getAudio());
         }
 
-        Log.d(TAG, "fetchQuestions: exo obj: " + exoPlayer);
         final String Id = nlist.get(position).getID();
         if (!nlist.get(position).getImage().isEmpty()) {
             holder.questionimg.setVisibility(View.VISIBLE);
@@ -212,18 +213,14 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
         //Create a media item which is audio file can be a URI or download url for dynamic sourced
         //http based rendering
         try {
-            //To major bandwidth.
             BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-            //TrackSelector for default seekbar on controls of SimpleExoPlayerView
             TrackSelector trackSelector = new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
-            //create instance of SimpleExoPlayer class
-            exoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector);
-            //DefaultHttpResourceFactory instance for creating any agent for http
-            DefaultHttpDataSourceFactory httpDataSourceFactory = new DefaultHttpDataSourceFactory("exoplayer_agent");
-            //Extractor factory to extract and convert the data means audio.
+            DefaultHttpDataSourceFactory dataSource = new DefaultHttpDataSourceFactory("agent");
             ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+            exoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector);
+            Log.d(TAG, "setupAudio instance: " + exoPlayer);
             //MediaSource to add all the uri, httpDataSource, extractor etc.
-            MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(downloadUrl), httpDataSourceFactory, extractorsFactory, null, null);
+            MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(downloadUrl), dataSource, extractorsFactory, null, null);
             playerView.setPlayer(exoPlayer);
             exoPlayer.prepare(mediaSource);
         } catch (Exception e) {
@@ -249,7 +246,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                 if (playbackState == ExoPlayer.STATE_READY) {
-                    Log.d(TAG, "onPlayerStateChanged no ready: " + playWhenReady);
+                    Log.d(TAG, "onPlayerStateChanged ready: " + playWhenReady);
                     if(isPlaying){
                         exoPlayer.setPlayWhenReady(true);
                     }

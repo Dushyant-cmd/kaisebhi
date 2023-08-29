@@ -105,8 +105,10 @@ public class MineQuestFragment extends Fragment {
     }
     
     public void stopExo() {
-        Log.d(TAG, "stopExo: exo");
-        adapter.exoPlayer.stop();
-        adapter.exoPlayer.release();
+        if(adapter != null) {
+            adapter.exoPlayer.stop();
+            adapter.exoPlayer.release();
+            Log.d(TAG, "stopExo: home exo");
+        }
     }
 }
