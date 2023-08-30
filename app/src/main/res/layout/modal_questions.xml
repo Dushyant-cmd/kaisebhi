@@ -99,14 +99,23 @@
             android:textSize="12dp"
             android:visibility="gone" />
 
-        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-            android:id="@+id/exoPlayer"
+        <!--        <com.google.android.exoplayer2.ui.SimpleExoPlayerView-->
+        <!--            android:id="@+id/exoPlayer"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="match_parent"-->
+        <!--            android:layout_marginHorizontal="10dp"-->
+        <!--            app:show_timeout="0"-->
+        <!--            android:layout_marginVertical="5dp"-->
+        <!--            android:background="@android:color/transparent" />-->
+
+        <Button
+            android:id="@+id/playBtn"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#F8A991"
+            android:layout_marginVertical="10dp"
             android:layout_marginHorizontal="10dp"
-            app:show_timeout="0"
-            android:layout_marginVertical="5dp"
-            android:background="@android:color/transparent" />
+            android:text="Play Audio" />
 
         <TextView
             android:id="@+id/username"

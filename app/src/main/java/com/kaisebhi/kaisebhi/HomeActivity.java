@@ -77,12 +77,15 @@ public class HomeActivity extends AppCompatActivity {
                         changeFragment(new MenuFragment());
                         break;
                     case R.id.nav_star:
+                        favFrag = new FavoriteFragment();
                         changeFragment(favFrag);
                         break;
                     case R.id.nav_qna:
+                        homeFrag = new HomeFragment();
                         changeFragment(homeFrag);
                         break;
                     case R.id.nav_min_ques:
+                        mineFrag = new MineQuestFragment();
                         changeFragment(mineFrag);
                         break;
                     case R.id.nav_notify:
@@ -103,22 +106,22 @@ public class HomeActivity extends AppCompatActivity {
                         changeFragment(new MenuFragment());
                         break;
                     case R.id.nav_star:
-                        if(favFrag != null)
-                            ((FavoriteFragment) favFrag).stopExo();
-                        favFrag = new FavoriteFragment();
+//                        if(favFrag != null)
+//                            ((FavoriteFragment) favFrag).stopExo();
+//                        favFrag = new FavoriteFragment();
                         changeFragment(new FavoriteFragment());
                         break;
                     case R.id.nav_qna:
-                        if (homeFrag != null) {
-                            ((HomeFragment) homeFrag).stopExo();
-                        }
+//                        if (homeFrag != null) {
+//                            ((HomeFragment) homeFrag).stopExo();
+//                        }
                         homeFrag = new HomeFragment();
                         changeFragment(homeFrag);
                         break;
                     case R.id.nav_min_ques:
-                        if (mineFrag != null) {
-                            ((MineQuestFragment) mineFrag).stopExo();
-                        }
+//                        if (mineFrag != null) {
+//                            ((MineQuestFragment) mineFrag).stopExo();
+//                        }
                         mineFrag = new MineQuestFragment();
                         changeFragment(mineFrag);
                         break;

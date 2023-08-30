@@ -83,7 +83,7 @@ public class ProfileUpdate extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_update);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-        sharedPrefManager = new SharedPrefManager(this);
+        sharedPrefManager = SharedPrefManager.getInstance(ProfileUpdate.this);
         mFirestore = ((ApplicationCustom) getApplication()).mFirestore;
         firebaseStorage = ((ApplicationCustom) getApplication()).storage;
 
@@ -255,9 +255,10 @@ public class ProfileUpdate extends AppCompatActivity {
                                             public void onSuccess(Void unused) {
                                                 Utility.toast(ProfileUpdate.this, "Profile Updated Successfully");
                                                 sharedPrefManager.saveProfilePic(uri.toString());
-                                                sharedPrefManager.getsUser().setName(name);
-                                                sharedPrefManager.getsUser().setMobile(mob);
-                                                sharedPrefManager.getsUser().setLocation(address);
+                                                sharedPrefManager.saveUser(name, mob, sharedPrefManager.getsUser().getUid(),
+                                                        sharedPrefManager.getProfilePic(), sharedPrefManager.getsUser().getEmail(),
+                                                        address, sharedPrefManager.getsUser().getReward(), sharedPrefManager.getsUser().getReferId(),
+                                                        sharedPrefManager.getsUser().getFcmToken());
                                                 Check = 1;
                                                 btnText.setVisibility(View.VISIBLE);
                                                 btnProgress.setVisibility(View.INVISIBLE);
@@ -283,39 +284,10 @@ public class ProfileUpdate extends AppCompatActivity {
                     }
                 }
             });
-
-//            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().uploadProfile(fileToUpload, filename, name, mob, email, address, ID);
-//            call.enqueue(new Callback<DefaultResponse>() {
-//                @Override
-//                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-//                    DefaultResponse dr = response.body();
-//
-//                    if (response.code() == 201) {
-//                        String data = dr.getMessage();
-//                        Toast.makeText(getApplicationContext(), data, Toast.LENGTH_SHORT).show();
-////                            sharedPrefManager.saveUser(edName.getText().toString(), sharedPrefManager.getsUser().getMobile(), sharedPrefManager.getsUser().getUid(),"");
-//                    } else {
-//
-//                    }
-//                    Check = 1;
-//
-//                    btnText.setVisibility(View.VISIBLE);
-//                    btnProgress.setVisibility(View.INVISIBLE);
-//                }
-//
-//                @Override
-//                public void onFailure(Call<DefaultResponse> call, Throwable t) {
-//                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
-//
-//                }
-//
-//            });
         } else {
 
             btnText.setVisibility(View.INVISIBLE);
             btnProgress.setVisibility(View.VISIBLE);
-
-
             Map<String,Object> map = new HashMap<>();
             map.put("name", name);
             map.put("mobile", Long.parseLong(mob));
@@ -326,6 +298,10 @@ public class ProfileUpdate extends AppCompatActivity {
                         @Override
                         public void onSuccess(Void unused) {
                             Utility.toast(ProfileUpdate.this, "Profile Updated Successfully");
+                            sharedPrefManager.saveUser(name, mob, sharedPrefManager.getsUser().getUid(),
+                                    sharedPrefManager.getProfilePic(), sharedPrefManager.getsUser().getEmail(),
+                                    address, sharedPrefManager.getsUser().getReward(), sharedPrefManager.getsUser().getReferId(),
+                                    sharedPrefManager.getsUser().getFcmToken());
                             Check = 1;
                             btnText.setVisibility(View.VISIBLE);
                             btnProgress.setVisibility(View.INVISIBLE);
@@ -337,34 +313,7 @@ public class ProfileUpdate extends AppCompatActivity {
                             Log.d(TAG, "onFailure: " + e);
                         }
                     });
-
-//            Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().updatePro(name, mob, email, address, ID);
-//            call.enqueue(new Callback<DefaultResponse>() {
-//                @Override
-//                public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-//                    DefaultResponse dr = response.body();
-//
-//                    if (response.code() == 201) {
-//                        String data = dr.getMessage();
-//                        Toast.makeText(getApplicationContext(), data, Toast.LENGTH_SHORT).show();
-////                            sharedPrefManager.saveUser(edName.getText().toString(), sharedPrefManager.getsUser().getMobile(), sharedPrefManager.getsUser().getUid(),"");
-//
-//                    } else {
-//                        Toast.makeText(getApplicationContext(), "Some error occured!", Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                    btnText.setVisibility(View.VISIBLE);
-//                    btnProgress.setVisibility(View.INVISIBLE);
-//                }
-//
-//                @Override
-//                public void onFailure(Call<DefaultResponse> call, Throwable t) {
-//                }
-//
-//            });
         }
-
-
     }
 
 

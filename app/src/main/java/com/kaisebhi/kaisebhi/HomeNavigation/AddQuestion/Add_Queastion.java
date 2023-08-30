@@ -271,15 +271,15 @@ public class Add_Queastion extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * It will display a sheet without floating dialog instead display it with BottomSheetDialog and
+     * can handle lifecycle.
+     */
     public static class RecordBottomSheetDialog extends BottomSheetDialogFragment {
         private int i = 0, sec = 0;
         private CountDownTimer cDT;
         private MediaRecorder mRecorder;
-
-        /**
-         * It will display a sheet without floating dialog instead display it with BottomSheetDialog and
-         * can handle lifecycle.
-         */
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInsState) {
             View view = inflater.inflate(R.layout.record_bottom_sheet_dialog, container, false);

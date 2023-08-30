@@ -84,7 +84,9 @@ public class MineQuestFragment extends Fragment {
                                 ));
                             }
 
-                            adapter = new MineQuestionsAdapter(questions,getActivity(), mFirestore, ((ApplicationCustom) requireActivity().getApplication()).storage);
+                            adapter = new MineQuestionsAdapter(questions,getActivity(), mFirestore,
+                                    ((ApplicationCustom) requireActivity().getApplication()).storage,
+                                    getActivity().getSupportFragmentManager());
                             recyclerView.setAdapter(adapter);
                             shimmerFrameLayout.stopShimmerAnimation();
                             shimmerFrameLayout.setVisibility(View.GONE);
@@ -105,10 +107,10 @@ public class MineQuestFragment extends Fragment {
     }
     
     public void stopExo() {
-        if(adapter != null) {
-            adapter.exoPlayer.stop();
-            adapter.exoPlayer.release();
-            Log.d(TAG, "stopExo: home exo");
-        }
+//        if(adapter != null) {
+//            adapter.exoPlayer.stop();
+//            adapter.exoPlayer.release();
+//            Log.d(TAG, "stopExo: home exo");
+//        }
     }
 }

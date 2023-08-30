@@ -5,16 +5,19 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -41,12 +44,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.kaisebhi.kaisebhi.AnswersActivity;
 import com.kaisebhi.kaisebhi.HomeNavigation.AddQuestion.Add_Queastion;
 import com.kaisebhi.kaisebhi.R;
+import com.kaisebhi.kaisebhi.databinding.PlayerSheetLayoutBinding;
 
 import org.checkerframework.checker.units.qual.A;
 
@@ -56,19 +61,20 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
 
 
     private List<QuestionsModel> nlist;
-    private Context context;
+    private static Context context;
     private FirebaseFirestore mFirestore;
     ProgressDialog progressDialog;
     private FirebaseStorage storage;
     private String TAG = "MineQuestionsAdapter.java", url = "";
-    public SimpleExoPlayer exoPlayer;
-    private boolean isPlaying = false;
+    private FragmentManager fm;
 
-    public MineQuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore mFirestore, FirebaseStorage storage) {
+    public MineQuestionsAdapter(List<QuestionsModel> nlist, Context context, FirebaseFirestore mFirestore, FirebaseStorage storage,
+    FragmentManager fm) {
         this.nlist = nlist;
         this.context = context;
         this.mFirestore = mFirestore;
         this.storage = storage;
+        this.fm = fm;
     }
 
     @NonNull
@@ -88,11 +94,17 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
         holder.Desc.setText(nlist.get(position).getDesc());
         holder.portalTV.setText(model.getPortal());
         //ExoPlayer setup and play when ready with controls and seekbar.
-        if(model.getAudio().isEmpty()) {
-            holder.exoPlayer.setVisibility(View.GONE);
-        } else {
-            setupAudio(holder.exoPlayer, model.getAudio());
-        }
+        if(!model.getAudio().isEmpty()) {
+            holder.playAudioBtn.setVisibility(View.VISIBLE);
+            holder.playAudioBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PlayerBottomSheet playerBottomSheet = new PlayerBottomSheet(model.getAudio());
+                    playerBottomSheet.show(fm, "PlayerView");
+                }
+            });
+        } else
+            holder.playAudioBtn.setVisibility(View.GONE);
 
         final String Id = nlist.get(position).getID();
         if (!nlist.get(position).getImage().isEmpty()) {
@@ -198,80 +210,64 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
                 i.putExtra("tans", nlist.get(position).getTansers());
                 i.putExtra("tlikes", nlist.get(position).getCheckLike());
                 i.putExtra("userId", nlist.get(position).getUserId());
+                i.putExtra("audio", nlist.get(position).getAudio());
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }
-
         });
-
-
     }
 
-    private void setupAudio(SimpleExoPlayerView playerView, String downloadUrl) {
-        //Create a media item which is audio file can be a URI or download url for dynamic sourced http based
-        //rendering
-        //Create a media item which is audio file can be a URI or download url for dynamic sourced
-        //http based rendering
-        try {
-            BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-            TrackSelector trackSelector = new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
-            DefaultHttpDataSourceFactory dataSource = new DefaultHttpDataSourceFactory("agent");
-            ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-            exoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector);
-            Log.d(TAG, "setupAudio instance: " + exoPlayer);
-            //MediaSource to add all the uri, httpDataSource, extractor etc.
-            MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(downloadUrl), dataSource, extractorsFactory, null, null);
-            playerView.setPlayer(exoPlayer);
-            exoPlayer.prepare(mediaSource);
-        } catch (Exception e) {
-            Log.d(TAG, "setupAudio: " + e);
+    /**Below class is BottomSheetDialogFragment to display a sheet to play audio. */
+    public static class PlayerBottomSheet extends BottomSheetDialogFragment {
+        private String downloadUrl;
+        private SimpleExoPlayer exoPlayer;
+        private PlayerSheetLayoutBinding binding;
+        private String TAG = "PlayerBottomSheet.java";
+
+        public PlayerBottomSheet(String url) {
+            this.downloadUrl = url;
         }
 
-        exoPlayer.addListener(new ExoPlayer.EventListener() {
-            @Override
-            public void onTimelineChanged(Timeline timeline, Object manifest) {
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
+            View view = inflater.inflate(R.layout.player_sheet_layout, container, false);
+            setupAudio(view.findViewById(R.id.exoPlayer), downloadUrl);
+            return view;
+        }
 
+        /**Below method is to play audio media using ExoPlayer library with its default controller
+         * @param playerView xml view on which all the control or media related view will be displayed
+         * @param downloadUrl it is a http protocol url to play dynamic media over internet.*/
+        private void setupAudio(SimpleExoPlayerView playerView, String downloadUrl) {
+            //Create a media item which is audio file can be a URI or download url for dynamic sourced http based
+            //rendering
+            //Create a media item which is audio file can be a URI or download url for dynamic sourced
+            //http based rendering
+            try {
+                BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+                TrackSelector trackSelector = new DefaultTrackSelector(new AdaptiveTrackSelection.Factory(bandwidthMeter));
+                DefaultHttpDataSourceFactory dataSource = new DefaultHttpDataSourceFactory("agent");
+                ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+                exoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector);
+                Log.d(TAG, "setupAudio instance: " + exoPlayer);
+                //MediaSource to add all the uri, httpDataSource, extractor etc.
+                MediaSource mediaSource = new ExtractorMediaSource(Uri.parse(downloadUrl), dataSource,
+                        extractorsFactory, null, null);
+                playerView.setPlayer(exoPlayer);
+                exoPlayer.prepare(mediaSource);
+                exoPlayer.setPlayWhenReady(true);
+            } catch (Exception e) {
+                Log.d(TAG, "setupAudio: " + e);
             }
-
-            @Override
-            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-
-            }
-
-            @Override
-            public void onLoadingChanged(boolean isLoading) {
-
-            }
-
-            @Override
-            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                if (playbackState == ExoPlayer.STATE_READY) {
-                    Log.d(TAG, "onPlayerStateChanged ready: " + playWhenReady);
-                    if(isPlaying){
-                        exoPlayer.setPlayWhenReady(true);
-                    }
-                } else {
-                    Log.d(TAG, "onPlayerStateChanged no ready: " + playWhenReady);
-                }
-            }
-
-            @Override
-            public void onPlayerError(ExoPlaybackException error) {
-
-            }
-
-            @Override
-            public void onPositionDiscontinuity() {
-
-            }
-
-            @Override
-            public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-
-            }
-        });
+        }
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            exoPlayer.stop();
+            exoPlayer.release();
+            Log.d(TAG, "onDestroy: sheet destroyed");
+        }
     }
-
 
     @Override
     public int getItemCount() {
@@ -281,7 +277,8 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView pro, questionimg, shareBtn, answers, editQues, deleteQues;
-        SimpleExoPlayerView exoPlayer;
+        Button playAudioBtn;
+//        SimpleExoPlayerView exoPlayer;
         TextView Title, Desc, portalTV;
         CardView openQues;
 
@@ -298,7 +295,8 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
             editQues = itemView.findViewById(R.id.edit_question);
             deleteQues = itemView.findViewById(R.id.delete_ques);
             portalTV = itemView.findViewById(R.id.portalTV);
-            exoPlayer = itemView.findViewById(R.id.exoPlayer);
+            playAudioBtn = itemView.findViewById(R.id.playBtn);
+//            exoPlayer = itemView.findViewById(R.id.exoPlayer);
 
         }
 

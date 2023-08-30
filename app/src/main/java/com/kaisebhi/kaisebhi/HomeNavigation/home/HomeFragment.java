@@ -150,7 +150,7 @@ public class HomeFragment extends Fragment {
                                     adapter.exoPlayer.stop();
                                     adapter.exoPlayer.release();
                                 }
-                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb, applicationCustom.storage);
+                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb, applicationCustom.storage, getActivity().getSupportFragmentManager());
                                 recyclerView.setAdapter(adapter);
                                 shimmerFrameLayout.stopShimmerAnimation();
                                 shimmerFrameLayout.setVisibility(View.GONE);
@@ -197,7 +197,7 @@ public class HomeFragment extends Fragment {
                                     return;
                                 }
 
-                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb, applicationCustom.storage);
+                                adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb, applicationCustom.storage, getActivity().getSupportFragmentManager());
                                 recyclerView.setAdapter(adapter);
                                 loadMoreProgress.setVisibility(View.GONE);
                             } catch (Exception e) {

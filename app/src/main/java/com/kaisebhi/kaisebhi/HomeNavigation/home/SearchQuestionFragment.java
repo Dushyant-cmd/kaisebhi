@@ -109,7 +109,7 @@ public class SearchQuestionFragment extends Fragment {
                                 adapter.exoPlayer.stop();
                                 adapter.exoPlayer.release();
                             }
-                            adapter = new QuestionsAdapter(questions, getActivity(), mFirestore, applicationCustom.roomDb, applicationCustom.storage);
+                            adapter = new QuestionsAdapter(questions, getActivity(), mFirestore, applicationCustom.roomDb, applicationCustom.storage, getActivity().getSupportFragmentManager());
                             recyclerView.setAdapter(adapter);
                             framLa.setVisibility(View.GONE);
                             shimmerFrameLayout.stopShimmerAnimation();

@@ -94,7 +94,7 @@ public class FavoriteFragment extends Fragment {
                                 adapter.exoPlayer.release();
                             }
                             
-                            adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, roomDb, storage);
+                            adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, roomDb, storage, getActivity().getSupportFragmentManager());
                             recyclerView.setAdapter(adapter);
                             shimmerFrameLayout.stopShimmerAnimation();
                             shimmerFrameLayout.setVisibility(View.GONE);
