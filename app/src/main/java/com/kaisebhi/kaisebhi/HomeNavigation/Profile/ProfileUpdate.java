@@ -225,7 +225,6 @@ public class ProfileUpdate extends AppCompatActivity {
 
             btnProgress.setVisibility(View.VISIBLE);
             btnText.setVisibility(View.INVISIBLE);
-
             StorageReference storageReference = firebaseStorage.getReference();
             StorageReference imageRef;
             if(sharedPrefManager.getImageRef().isEmpty()) {

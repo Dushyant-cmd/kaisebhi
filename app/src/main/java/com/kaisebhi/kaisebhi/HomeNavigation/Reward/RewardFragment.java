@@ -1,6 +1,7 @@
 package com.kaisebhi.kaisebhi.HomeNavigation.Reward;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +25,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -64,6 +67,7 @@ public class RewardFragment extends Fragment {
     private TextView bal;
     private FirebaseFirestore mFirestore;
     private String TAG = "RewardFragment.java";
+    private String downloadLink = "https://play.google.com/store/apps/details?id=com.traidev.kaisebhi";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -189,6 +193,27 @@ public class RewardFragment extends Fragment {
         fetchHistory(sharedPrefManager.getsUser().getUid());
 
 
+        root.findViewById(R.id.referBtn).setOnClickListener(view -> {
+            ((ApplicationCustom) getActivity().getApplication()).mFirestore.collection("appData")
+                    .document("links").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            downloadLink = documentSnapshot.getString("appDownloadLink");
+                            Intent i = new Intent(Intent.ACTION_SEND);
+                            i.setType("text/plain");
+                            i.putExtra(Intent.EXTRA_TEXT, "Download The KaiseBhi & Earn money. Use my referral code : " +
+                                    sharedPrefManager.getsUser().getReferId() + " | Download Now: "
+                                    + downloadLink);
+                            getActivity().startActivity(i);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: " + e);
+                            Toast.makeText(getActivity(), "No connection", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        });
         return root;
     }
 

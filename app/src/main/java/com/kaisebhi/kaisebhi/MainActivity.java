@@ -38,7 +38,9 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -72,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         relativeLayout = findViewById(R.id.emailBox);
         signProgress = findViewById(R.id.pgore);
+        signProgress.setEnabled(false);
         findViewById(R.id.root).isInEditMode();
         fcm = ((ApplicationCustom) getApplication()).fcm;
 
@@ -114,9 +117,10 @@ public class MainActivity extends AppCompatActivity {
                 EditText pass = findViewById(R.id.passInput);
                 
 
-                if (em.getText().toString().isEmpty() || pass.getText().toString().isEmpty()) {
+                if (em.getText().toString().isEmpty() || pass.getText().toString().isEmpty() || pass.getText().toString().length() < 6) {
                     em.setError("Add Email Address!");
                     pass.setError("Add 6 characters Password!");
+                    signProgress.setVisibility(View.GONE);
                 } else {
                     //Regex expression of Java for email id validation
                     String formatExp = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$";
@@ -287,10 +291,7 @@ public class MainActivity extends AppCompatActivity {
                                                                                                                                 email, "", 0, referId, token);
                                                                                                                 SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic("");
                                                                                                                 sharedPreferences.setImageRef(imageRef);
-                                                                                                                Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-                                                                                                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                                                                                startActivity(intent);
-                                                                                                                finish();
+                                                                                                                displayReferralDialog();
                                                                                                             } else {
                                                                                                                 Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                                                                                             }
@@ -352,7 +353,6 @@ public class MainActivity extends AppCompatActivity {
                                                                     doc1.getString("fcmToken") + "," + token);
                                                             SharedPrefManager.getInstance(getApplicationContext()).saveProfilePic(doc.getString("picUrl"));
                                                             sharedPreferences.setImageRef(doc1.getString("imageRef"));
-                                                            displayReferralDialog();
                                                             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                                             startActivity(intent);
@@ -415,10 +415,6 @@ public class MainActivity extends AppCompatActivity {
                                                                                     token);
                                                                     sharedPreferences.setImageRef(imageRef);
                                                                     displayReferralDialog();
-                                                                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-                                                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                                    startActivity(intent);
-                                                                    finish();
                                                                 } else {
                                                                     signProgress.setVisibility(View.GONE);
                                                                     Toast.makeText(MainActivity.this, task12.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -440,32 +436,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayReferralDialog() {
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(MainActivity.this);
-        View v = LayoutInflater.from(MainActivity.this).inflate(R.layout.referral_layout, null);
-        EditText referralET = v.findViewById(R.id.referralET);
-        v.findViewById(R.id.cancelBtn).setOnClickListener(view -> {
-            //cancel button
-            bottomSheetDialog.dismiss();
-        });
+        try {
+            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(MainActivity.this);
+            View v = LayoutInflater.from(MainActivity.this).inflate(R.layout.referral_layout, null);
+            EditText referralET = v.findViewById(R.id.referralET);
+            v.findViewById(R.id.cancelBtn).setOnClickListener(view -> {
+                //cancel button
+                bottomSheetDialog.dismiss();
+                Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+            });
 
-        v.findViewById(R.id.applyBtn).setOnClickListener(view -> {
-            //apply button
-            if(!referralET.getText().toString().isEmpty()) {
-                mFirestore.collection("users").whereEqualTo("referId", referralET.getText().toString())
-                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if(task.isSuccessful()) {
-                                    if(!task.getResult().getDocuments().isEmpty()) {
-                                        long totalReward = sharedPreferences.getsUser().getReward() + 5;
-                                        HashMap<String, Object> map = new HashMap<>();
-                                        map.put("rewards", totalReward);
-                                        mFirestore.collection("users").document(sharedPreferences.getsUser().getUid())
-                                                .update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if(task.isSuccessful()) {
-                                                            sharedPreferences.setReward(totalReward);
+            v.findViewById(R.id.applyBtn).setOnClickListener(view -> {
+                //apply button
+                if(!referralET.getText().toString().isEmpty()) {
+                    mFirestore.collection("users").whereEqualTo("referId", referralET.getText().toString())
+                            .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if(task.isSuccessful()) {
+                                        List<DocumentSnapshot> list = task.getResult().getDocuments();
+                                        if(!list.isEmpty()) {
+                                            long totalReward = list.get(0).getLong("rewards") + 5;
+                                            HashMap<String, Object> map = new HashMap<>();
+                                            map.put("rewards", totalReward);
+                                            mFirestore.collection("users").document(list.get(0).getLong("userId").toString())
+                                                    .update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if(task.isSuccessful()) {
+                                                                sharedPreferences.setReward(totalReward);
 //
 //                                                            sharedPreferences.saveUser(sharedPreferences.getsUser().getName(),
 //                                                                    sharedPreferences.getsUser().getMobile(), sharedPreferences.getsUser().getUid(),
@@ -473,21 +475,29 @@ public class MainActivity extends AppCompatActivity {
 //                                                                    sharedPreferences.getsUser().getLocation(), sharedPreferences.getsUser().getReward(),
 //                                                                    sharedPreferences.getsUser().getReferId(), sharedPreferences.getsUser().getFcmToken()
 //                                                                    );
-                                                        } else {
-                                                            Log.d(TAG, "onComplete: " + task.getException());
+                                                            } else {
+                                                                Log.d(TAG, "onComplete: " + task.getException());
+                                                            }
                                                         }
-                                                    }
-                                                });
-                                    } else {
-                                        Toast.makeText(MainActivity.this, "Referral ID is not valid", Toast.LENGTH_SHORT).show();
-                                    }
-                                } else
-                                    Log.d(TAG, "onComplete: " + task.getException());
-                            }
-                        });
-            }
-        });
-        bottomSheetDialog.setContentView(v);
-        bottomSheetDialog.show();
+                                                    });
+                                        } else {
+                                            Toast.makeText(MainActivity.this, "Referral ID is not valid", Toast.LENGTH_SHORT).show();
+                                        }
+                                    } else
+                                        Log.d(TAG, "onComplete: " + task.getException());
+                                }
+                            });
+
+                    Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+            bottomSheetDialog.setContentView(v);
+            bottomSheetDialog.show();
+        } catch (Exception e) {
+            Log.d(TAG, "displayReferralDialog: " + e);
+        }
     }
 }

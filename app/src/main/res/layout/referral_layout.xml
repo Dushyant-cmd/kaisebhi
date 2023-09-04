@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:padding="8dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -43,8 +44,7 @@
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Cancel"
-            android:backgroundTint="@color/pastelOrange"/>
+            android:text="Cancel"/>
 
 
         <Button
@@ -52,9 +52,9 @@
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Apply Referral Code"
-            android:layout_marginEnd="4dp"
-            android:backgroundTint="@color/pastelOrange"/>
+            android:text="Submit"
+            android:backgroundTint="@color/pastelOrange"
+            android:layout_marginEnd="4dp"/>
 
     </LinearLayout>
 

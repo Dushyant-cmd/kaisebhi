@@ -100,7 +100,8 @@ public class SearchQuestionFragment extends Fragment {
                                             d.getBoolean("checkFav"), d.getString("likes"), d.getBoolean("checkLike"),
                                             d.getString("tanswers"), d.getString("likedByUser"), d.getString("image"),
                                             d.getString("userId"), d.getString("userPicUrl"), d.getString("imageRef"),
-                                            d.getString("portal"), d.getString("audio"), d.getString("audioRef")
+                                            d.getString("portal"), d.getString("audio"), d.getString("audioRef"),
+                                            d.getBoolean("qualityCheck")
                                     ));
                                 }
                             }

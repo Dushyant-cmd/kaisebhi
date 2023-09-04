@@ -4,8 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,6 +98,16 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
         holder.Title.setText(nlist.get(position).getTitle());
         holder.Desc.setText(nlist.get(position).getDesc());
         holder.portalTV.setText(model.getPortal());
+
+        if(model.isQualityCheck()) {
+            SpannableString spannableString = new SpannableString("Status: QC Pass");
+            spannableString.setSpan(new StyleSpan(Typeface.BOLD), 1, 7, SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
+            holder.quesStatus.setText(spannableString.toString());
+        } else {
+            SpannableString span = new SpannableString("Status: QC Pending");
+            span.setSpan(new StyleSpan(Typeface.BOLD), 1, 7, SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
+            holder.quesStatus.setText(span.toString());
+        }
         //ExoPlayer setup and play when ready with controls and seekbar.
         if(!model.getAudio().isEmpty()) {
             holder.playAudioBtn.setVisibility(View.VISIBLE);
@@ -279,7 +294,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
         ImageView pro, questionimg, shareBtn, answers, editQues, deleteQues;
         Button playAudioBtn;
 //        SimpleExoPlayerView exoPlayer;
-        TextView Title, Desc, portalTV;
+        TextView Title, Desc, portalTV, quesStatus;
         CardView openQues;
 
 
@@ -296,6 +311,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
             deleteQues = itemView.findViewById(R.id.delete_ques);
             portalTV = itemView.findViewById(R.id.portalTV);
             playAudioBtn = itemView.findViewById(R.id.playBtn);
+            quesStatus = itemView.findViewById(R.id.quesStatus);
 //            exoPlayer = itemView.findViewById(R.id.exoPlayer);
 
         }
