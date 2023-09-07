@@ -5,16 +5,18 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
+        android:name=".Utility.ApplicationCustom"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -22,19 +24,27 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:name=".Utility.ApplicationCustom"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
+        <service
+            android:name=".services.MyFirebaseMessagingService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
         <activity
-            android:name="com.kaisebhi.kaisebhi.ViewPic"
+            android:name=".ViewPic"
             android:exported="false" />
         <activity
-            android:name="com.kaisebhi.kaisebhi.MainActivity"
+            android:name=".MainActivity"
             android:exported="false"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.kaisebhi.kaisebhi.Extras.SplashActivity"
+            android:name=".Extras.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
             <intent-filter>
@@ -49,45 +59,44 @@
             android:screenOrientation="portrait"
             android:theme="@style/Base.Theme.AppCompat" />
         <activity
-            android:name="com.kaisebhi.kaisebhi.ActivityForFrag"
+            android:name=".ActivityForFrag"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/MyTheme"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name="com.kaisebhi.kaisebhi.HomeNavigation.Profile.ProfileUpdate"
+            android:name=".HomeNavigation.Profile.ProfileUpdate"
             android:exported="false"
             android:theme="@style/MyTheme" />
         <activity
-            android:name="com.kaisebhi.kaisebhi.AnswersActivity"
+            android:name=".AnswersActivity"
             android:exported="false"
             android:theme="@style/MyTheme" />
         <activity
-            android:name="com.kaisebhi.kaisebhi.HomeNavigation.AddQuestion.Add_Queastion"
+            android:name=".HomeNavigation.AddQuestion.Add_Queastion"
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/MyTheme"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name="com.kaisebhi.kaisebhi.Utility.PaymentActivity"
+            android:name=".Utility.PaymentActivity"
             android:exported="false"
             android:theme="@style/MyTheme" />
         <activity
-            android:name="com.kaisebhi.kaisebhi.HomeActivity"
+            android:name=".HomeActivity"
             android:exported="false"
             android:theme="@style/Theme.Design.NoActionBar" />
-
-        <!--Below is Broadcast receiver for razorpay mandatory for lower level of
-         Razorpay-->
+        <!--
+Below is Broadcast receiver for razorpay mandatory for lower level of
+         Razorpay
+        -->
         <receiver
             android:name="com.razorpay.RzpTokenReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="rzp.device_token.share" />
             </intent-filter>
-        </receiver>
-
-        <!--To avoid merger manifest error of exported keyword not specified. -->
+        </receiver> <!-- To avoid merger manifest error of exported keyword not specified. -->
         <activity
             android:name="com.razorpay.CheckoutActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
@@ -95,6 +104,7 @@
             android:theme="@style/CheckoutTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <data
                     android:host="rzp.io"
                     android:scheme="io.rzp" />

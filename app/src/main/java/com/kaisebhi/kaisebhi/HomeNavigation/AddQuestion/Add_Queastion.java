@@ -50,6 +50,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -76,6 +78,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -233,6 +236,7 @@ public class Add_Queastion extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                sendNotification(sharedPrefManager.getsUser().getFcmToken(), "asdf", "sddsf");
                 InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
                 if (pCheck == null) {
                     findViewById(R.id.uploadQues).setClickable(false);
@@ -805,7 +809,6 @@ public class Add_Queastion extends AppCompatActivity {
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-
                 postUri = result.getUri();
                 selectQues.setImageURI(postUri);
                 pCheck = "Profile";
@@ -816,5 +819,21 @@ public class Add_Queastion extends AppCompatActivity {
         }
     }
 
+    /**Below method will send Notification will can received by onMessageReceived of app. */
+    private void sendNotification(String fcmToken, String title, String description) {
+        fcmToken = "cz7l3wA3S3S-xwChsKWqH3:APA91bHrtSJvVEwjp3stP8atHC9CQfcFxh4Vere2Ow-JQe55VLWq5-" +
+                "6HacjqDKHgSnkqbNmQKZfIsugVEsQp2t0i15D2JQoErfYIvTNW_swpopqyLR4jJOcGCNVXYHxFHmdgI9_" +
+                "ZWCTj";
+        RemoteMessage.Builder builder = new RemoteMessage.Builder(fcmToken);
+
+        Map<String, String> data = new HashMap<>();
+        data.put("title", "akldfs");
+        data.put("message", "this is message");
+
+        builder.setData(data);
+        builder.setMessageId("1");
+
+        FirebaseMessaging.getInstance().send(builder.build());
+    }
 
 }

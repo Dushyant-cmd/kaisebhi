@@ -103,10 +103,12 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
             SpannableString spannableString = new SpannableString("Status: QC Pass");
             spannableString.setSpan(new StyleSpan(Typeface.BOLD), 1, 7, SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
             holder.quesStatus.setText(spannableString.toString());
+            holder.quesStatus.setVisibility(View.GONE);
         } else {
             SpannableString span = new SpannableString("Status: QC Pending");
             span.setSpan(new StyleSpan(Typeface.BOLD), 1, 7, SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
             holder.quesStatus.setText(span.toString());
+            holder.quesStatus.setVisibility(View.VISIBLE);
         }
         //ExoPlayer setup and play when ready with controls and seekbar.
         if(!model.getAudio().isEmpty()) {
