@@ -14,12 +14,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.kaisebhi.kaisebhi.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NotifyAdapter extends RecyclerView.Adapter<NotifyAdapter.ViewHolder>{
 
 
-    private List<NotifyViewModel> nlist;
+    private List<NotifyViewModel> nlist = new ArrayList<>();
     private Context context;
 
     public NotifyAdapter(List<NotifyViewModel> nlist, Context context)

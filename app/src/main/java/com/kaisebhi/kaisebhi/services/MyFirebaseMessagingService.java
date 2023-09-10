@@ -3,9 +3,11 @@ package com.kaisebhi.kaisebhi.services;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.ImageDecoder;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -15,15 +17,17 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.kaisebhi.kaisebhi.HomeActivity;
 import com.kaisebhi.kaisebhi.R;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private String TAG = "FirebaseService.java";
 
-    /**Below method will be called by android when it receives notification.
+    /**Below method will be called by android when it receives notification in NotificationManager.
      * RemoteMessage class instance contains in data payload*/
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+        Log.d(TAG, "onMessageReceived: " + remoteMessage.getNotification());
         showNotification();
     }
 
@@ -39,11 +43,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 notificationManager.createNotificationChannel(channel);
             }
 
+            Intent i = new Intent(MyFirebaseMessagingService.this, HomeActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            PendingIntent pendingIntent = PendingIntent.getActivity(MyFirebaseMessagingService.this,
+                    101, i, PendingIntent.FLAG_IMMUTABLE |
+                            PendingIntent.FLAG_UPDATE_CURRENT );
             NotificationCompat.Builder notification = new NotificationCompat.Builder(this, channelId);
             notification.setContentTitle("title");
             notification.setContentText("body text");
             notification.setPriority(Notification.PRIORITY_DEFAULT);
             notification.setSmallIcon(R.drawable.icon);
+            notification.setContentIntent(pendingIntent);
 
             NotificationManagerCompat compat = NotificationManagerCompat.from(this);
             compat.notify(59, notification.build());
@@ -53,7 +63,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     /**Below method will be called by Firebase to android then android call this method
-     * with new Firebase cloud messaging token. */
+     * with new Firebase cloud messaging token.
+     * @param token it is fcm token*/
     @Override
     public void onNewToken(String token) {
         Log.d(TAG, "onNewToken: " + token);

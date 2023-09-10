@@ -122,7 +122,7 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(null);
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
 
-        mFirestore.collection("questions").whereEqualTo("qualityCheck", true).orderBy("timestamp", Query.Direction.DESCENDING)
+        mFirestore.collection("questions").whereEqualTo("qualityCheck", "pass").orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(2).get().addOnCompleteListener(
                 new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -140,7 +140,7 @@ public class HomeFragment extends Fragment {
                                             d.getString("tanswers"), d.getString("likedByUser"), d.getString("image"),
                                             d.getString("userId"), d.getString("userPicUrl"), d.getString("imageRef"),
                                             d.getString("portal"), d.getString("audio"), d.getString("audioRef"),
-                                            d.getBoolean("qualityCheck")
+                                            d.getString("qualityCheck")
                                     ));
                                     if(i == list.size() - 1) {
                                         lastItemTimestamp = d.getLong("timestamp");
@@ -170,7 +170,7 @@ public class HomeFragment extends Fragment {
 
     public void fetchMore() {
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
-        mFirestore.collection("questions").whereEqualTo("qualityCheck", true)
+        mFirestore.collection("questions").whereEqualTo("qualityCheck", "pass")
                 .orderBy("timestamp", Query.Direction.DESCENDING).startAfter(lastItem).limit(2).get().addOnCompleteListener(    
                 new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -186,7 +186,7 @@ public class HomeFragment extends Fragment {
                                             d.getString("tanswers"), d.getString("likedByUser"), d.getString("image"),
                                             d.getString("userId"), d.getString("userPicUrl"), d.getString("imageRef"),
                                             d.getString("portal"), d.getString("audio"), d.getString("audioRef"),
-                                            d.getBoolean("qualityCheck")
+                                            d.getString("qualityCheck")
                                     ));
                                 }
 

@@ -47,7 +47,7 @@ public class QuestionsModel {
 
     private String image, imageRef, userId, userPicUrl, portal, audio, audioRef;
     private String quesImgPath;
-    private boolean qualityCheck;
+    private String qualityCheck;
 
     public QuestionsModel() {
         //mandatory by room db to have empty constructor of entity class
@@ -56,7 +56,7 @@ public class QuestionsModel {
     public QuestionsModel(String ID, String title, String desc, String qpic, String uname, String upro,
                           Boolean checkFav, String likes, Boolean checkLike, String tansers,
                           String likedByUser, String image, String userId, String userPicUrl, String qImgPath
-    , String portal, String audio, String audioRef, boolean qualityCheck) {
+    , String portal, String audio, String audioRef, String qualityCheck) {
         this.ID = ID;
         Title = title;
         this.desc = desc;
@@ -78,11 +78,11 @@ public class QuestionsModel {
         this.qualityCheck = qualityCheck;
     }
 
-    public boolean isQualityCheck() {
+    public String getQualityCheck() {
         return qualityCheck;
     }
 
-    public void setQualityCheck(boolean qualityCheck) {
+    public void setQualityCheck(String qualityCheck) {
         this.qualityCheck = qualityCheck;
     }
 

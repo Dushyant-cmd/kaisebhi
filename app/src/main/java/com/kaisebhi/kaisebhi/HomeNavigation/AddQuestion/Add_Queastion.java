@@ -48,6 +48,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.common.net.MediaType;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -61,6 +62,7 @@ import com.kaisebhi.kaisebhi.HomeActivity;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
 import com.kaisebhi.kaisebhi.Utility.DefaultResponse;
+import com.kaisebhi.kaisebhi.Utility.Main_Interface;
 import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 import com.kaisebhi.kaisebhi.Utility.Utility;
@@ -68,6 +70,8 @@ import com.kaisebhi.kaisebhi.room.PortalsEntity;
 import com.kaisebhi.kaisebhi.room.RoomDb;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -83,8 +87,12 @@ import java.util.Random;
 import java.util.UUID;
 
 import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Add_Queastion extends AppCompatActivity {
 
@@ -485,7 +493,7 @@ public class Add_Queastion extends AppCompatActivity {
                                                             questionMap.put("uname", sharedPrefManager.getsUser().getName());
                                                             questionMap.put("userId", sharedPrefManager.getsUser().getUid());
                                                             questionMap.put("id", updateId + "");
-                                                            questionMap.put("qualityCheck", false);
+                                                            questionMap.put("qualityCheck", "pending");
                                                             questionMap.put("timestamp", System.currentTimeMillis());
                                                             questionMap.put("likedByUser", "");
                                                             questionMap.put("image", "");
@@ -558,7 +566,7 @@ public class Add_Queastion extends AppCompatActivity {
                                     questionMap.put("uname", sharedPrefManager.getsUser().getName());
                                     questionMap.put("userId", sharedPrefManager.getsUser().getUid());
                                     questionMap.put("id", updateId + "");
-                                    questionMap.put("qualityCheck", false);
+                                    questionMap.put("qualityCheck", "pending");
                                     questionMap.put("timestamp", System.currentTimeMillis());
                                     questionMap.put("likedByUser", "");
                                     questionMap.put("image", "");
@@ -732,7 +740,7 @@ public class Add_Queastion extends AppCompatActivity {
                                                         questionMap.put("uname", sharedPrefManager.getsUser().getName());
                                                         questionMap.put("userId", sharedPrefManager.getsUser().getUid());
                                                         questionMap.put("id", updateId + "");
-                                                        questionMap.put("qualityCheck", false);
+                                                        questionMap.put("qualityCheck", "pending");
                                                         questionMap.put("timestamp", System.currentTimeMillis());
                                                         questionMap.put("likedByUser", "");
                                                         questionMap.put("image", downloadImgTask.getResult().toString());
@@ -824,16 +832,31 @@ public class Add_Queastion extends AppCompatActivity {
         fcmToken = "cz7l3wA3S3S-xwChsKWqH3:APA91bHrtSJvVEwjp3stP8atHC9CQfcFxh4Vere2Ow-JQe55VLWq5-" +
                 "6HacjqDKHgSnkqbNmQKZfIsugVEsQp2t0i15D2JQoErfYIvTNW_swpopqyLR4jJOcGCNVXYHxFHmdgI9_" +
                 "ZWCTj";
-        RemoteMessage.Builder builder = new RemoteMessage.Builder(fcmToken);
-
-        Map<String, String> data = new HashMap<>();
-        data.put("title", "akldfs");
-        data.put("message", "this is message");
-
-        builder.setData(data);
-        builder.setMessageId("1");
-
-        FirebaseMessaging.getInstance().send(builder.build());
+        try {
+            JSONObject rootJs = new JSONObject();
+            JSONObject notificationJs = new JSONObject();
+            OkHttpClient client = new OkHttpClient();
+            MediaType mediaType = MediaType.parse("application/json");
+            rootJs.put("to", fcmToken);
+            notificationJs.put("title", "hello");
+            notificationJs.put("body", "dalsjfs");
+            rootJs.put("notification", notificationJs);
+//            RetrofitClient.getApiClient().create(Main_Interface.class)
+//                    .sendFCMNotification(rootJs.toString())
+//                    .enqueue(new Callback<ResponseBody>() {
+//                        @Override
+//                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+//                            Log.d(TAG, "onResponse fcm: " + response);
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+//                            Log.d(TAG, "onFailure fcm: " + t);
+//                        }
+//                    });
+        } catch (Exception e) {
+            Log.d(TAG, "sendNotification error: " + e);
+        }
     }
 
 }

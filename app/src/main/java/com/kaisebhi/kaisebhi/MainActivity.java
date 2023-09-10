@@ -448,6 +448,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             });
+            bottomSheetDialog.setCancelable(false);
 
             v.findViewById(R.id.applyBtn).setOnClickListener(view -> {
                 //apply button

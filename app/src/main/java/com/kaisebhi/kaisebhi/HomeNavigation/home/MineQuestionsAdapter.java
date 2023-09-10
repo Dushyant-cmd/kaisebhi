@@ -99,11 +99,16 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
         holder.Desc.setText(nlist.get(position).getDesc());
         holder.portalTV.setText(model.getPortal());
 
-        if(model.isQualityCheck()) {
+        if(model.getQualityCheck().matches("pass")) {
             SpannableString spannableString = new SpannableString("Status: QC Pass");
             spannableString.setSpan(new StyleSpan(Typeface.BOLD), 1, 7, SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
             holder.quesStatus.setText(spannableString.toString());
             holder.quesStatus.setVisibility(View.GONE);
+        } else if(model.getQualityCheck().matches("fail")){
+            SpannableString span = new SpannableString("Status: QC Fail");
+            span.setSpan(new StyleSpan(Typeface.BOLD), 1, 7, SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
+            holder.quesStatus.setText(span.toString());
+            holder.quesStatus.setVisibility(View.VISIBLE);
         } else {
             SpannableString span = new SpannableString("Status: QC Pending");
             span.setSpan(new StyleSpan(Typeface.BOLD), 1, 7, SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
@@ -223,7 +228,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
                 i.putExtra("user", nlist.get(position).getUname());
                 i.putExtra("userpic", nlist.get(position).getUpro());
                 i.putExtra("desc", nlist.get(position).getDesc());
-                i.putExtra("qimg", url);
+                i.putExtra("qimg", nlist.get(position).getImage());
                 i.putExtra("tans", nlist.get(position).getTansers());
                 i.putExtra("tlikes", nlist.get(position).getCheckLike());
                 i.putExtra("userId", nlist.get(position).getUserId());

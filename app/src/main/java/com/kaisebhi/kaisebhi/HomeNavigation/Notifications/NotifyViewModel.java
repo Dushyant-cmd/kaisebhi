@@ -19,6 +19,13 @@ public class NotifyViewModel {
 
     private String Status;
 
+    public NotifyViewModel(String ID, String title, String msg, String thumbnil, String status) {
+        this.ID = ID;
+        Title = title;
+        Msg = msg;
+        Thumbnil = thumbnil;
+        Status = status;
+    }
 
     public String getID() {
         return ID;
