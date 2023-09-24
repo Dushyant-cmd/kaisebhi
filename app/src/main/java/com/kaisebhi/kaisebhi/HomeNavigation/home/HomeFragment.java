@@ -40,6 +40,7 @@ import retrofit2.Response;
 public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
+    private boolean isPaginated = false;
     private LinearLayoutManager layoutManager;
     private List<QuestionsModel> questions;
     private QuestionsAdapter adapter;
@@ -102,9 +103,12 @@ public class HomeFragment extends Fragment {
             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
 
                 if(scrollY == v.getChildAt(0).getMeasuredHeight()-v.getMeasuredHeight()){
-                    currentPage+=1;
-                    loadMoreProgress.setVisibility(View.VISIBLE);
-                    fetchMore();
+                    if(!isPaginated) {
+                        isPaginated = true;
+                        currentPage+=1;
+                        loadMoreProgress.setVisibility(View.VISIBLE);
+                        fetchMore();
+                    }
                 }
 
             }
@@ -147,10 +151,10 @@ public class HomeFragment extends Fragment {
                                         lastItem = d;
                                     }
                                 }
-                                if(adapter != null) {
-                                    adapter.exoPlayer.stop();
-                                    adapter.exoPlayer.release();
-                                }
+//                                if(adapter != null) {
+//                                    adapter.exoPlayer.stop();
+//                                    adapter.exoPlayer.release();
+//                                }
                                 adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb, applicationCustom.storage, getActivity().getSupportFragmentManager());
                                 recyclerView.setAdapter(adapter);
                                 shimmerFrameLayout.stopShimmerAnimation();
@@ -198,14 +202,15 @@ public class HomeFragment extends Fragment {
                                     loadMoreProgress.setVisibility(View.GONE);
                                     return;
                                 }
-
                                 adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, "home", ((ApplicationCustom) getActivity().getApplication()).roomDb, applicationCustom.storage, getActivity().getSupportFragmentManager());
                                 recyclerView.setAdapter(adapter);
                                 loadMoreProgress.setVisibility(View.GONE);
                             } catch (Exception e) {
                                 Log.d(TAG, "onComplete: catch: " + e);
                             }
+                            isPaginated = false;
                         } else {
+                            isPaginated = false;
                             Log.d(TAG, "onComplete: " + task.getException().getMessage());
                         }
                     }
@@ -224,10 +229,10 @@ public class HomeFragment extends Fragment {
     }
 
     public void stopExo() {
-        if(adapter != null) {
-            adapter.exoPlayer.stop();
-            adapter.exoPlayer.release();
-            Log.d(TAG, "stopExo: home exo");
-        }
+//        if(adapter != null) {
+//            adapter.exoPlayer.stop();
+//            adapter.exoPlayer.release();
+//            Log.d(TAG, "stopExo: home exo");
+//        }
     }
 }

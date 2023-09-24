@@ -93,7 +93,7 @@ public class SearchQuestionFragment extends Fragment {
                         if (task.isSuccessful()) {
                             questions.clear();
                             for (DocumentSnapshot d : task.getResult().getDocuments()) {
-                                if(d.getString("title").contains(search)) {
+                                if(d.getString("title").toLowerCase().contains(search)) {
                                     questions.add(new QuestionsModel(
                                             d.getString("id"), d.getString("title"), d.getString("desc"),
                                             d.getString("qpic"), d.getString("uname"), d.getString("upro"),
@@ -106,10 +106,10 @@ public class SearchQuestionFragment extends Fragment {
                                 }
                             }
 
-                            if(adapter != null) {
-                                adapter.exoPlayer.stop();
-                                adapter.exoPlayer.release();
-                            }
+//                            if(adapter != null) {
+//                                adapter.exoPlayer.stop();
+//                                adapter.exoPlayer.release();
+//                            }
                             adapter = new QuestionsAdapter(questions, getActivity(), mFirestore, applicationCustom.roomDb, applicationCustom.storage, getActivity().getSupportFragmentManager());
                             recyclerView.setAdapter(adapter);
                             framLa.setVisibility(View.GONE);

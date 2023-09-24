@@ -198,7 +198,7 @@ public class ProfileUpdate extends AppCompatActivity {
             return;
         }
 
-        if(Long.parseLong(mob.substring(0, 1)) < 6) {
+        if(Long.parseLong(mob.substring(0, 1)) < 6 || mob.contains("000000")) {
             edMobile.setError("Add valid mobile number");
             return;
         }

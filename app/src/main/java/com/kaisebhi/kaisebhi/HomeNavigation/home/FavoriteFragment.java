@@ -90,10 +90,10 @@ public class FavoriteFragment extends Fragment {
                                 questions.add(model);
                             }
 
-                            if(adapter != null) {
-                                adapter.exoPlayer.stop();
-                                adapter.exoPlayer.release();
-                            }
+//                            if(adapter != null) {
+//                                adapter.exoPlayer.stop();
+//                                adapter.exoPlayer.release();
+//                            }
                             
                             adapter = new QuestionsAdapter(questions,getActivity(), mFirestore, roomDb, storage, getActivity().getSupportFragmentManager());
                             recyclerView.setAdapter(adapter);
@@ -108,10 +108,10 @@ public class FavoriteFragment extends Fragment {
 
     /**Below method is to stp exoplayer if reselected same fragment. */
     public void stopExo() {
-        if(adapter != null) {
-            adapter.exoPlayer.stop();
-            adapter.exoPlayer.release();
-            Log.d(TAG, "stopExo: home exo");
-        }
+//        if(adapter != null) {
+//            adapter.exoPlayer.stop();
+//            adapter.exoPlayer.release();
+//            Log.d(TAG, "stopExo: home exo");
+//        }
     }
 }

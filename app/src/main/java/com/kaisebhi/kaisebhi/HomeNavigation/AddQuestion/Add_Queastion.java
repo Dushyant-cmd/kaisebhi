@@ -6,6 +6,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -17,6 +18,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -107,11 +110,15 @@ public class Add_Queastion extends AppCompatActivity {
     ProgressDialog progressDialog;
     ImageView selectQues;
     String Qid = "", selectedPortal = "";
+    String fileName; //Obtained by intent
+    Uri audiouri;
+    ParcelFileDescriptor file;
+
     private Spinner spinner;
     private RoomDb roomDb;
     private TextInputLayout portalIL;
     private Button recordBtn;
-    private static File mFile;
+    private File mFile;
     private boolean isPermissionGranted = false;
 
     @Override
@@ -201,8 +208,8 @@ public class Add_Queastion extends AppCompatActivity {
             quesDesc.setText(extras.getString("desc"));
             portal = extras.getString("portal");
 
-            for(int i=0; i<roomDb.getPortalDao().getPortals().portals.length; i++) {
-                if(roomDb.getPortalDao().getPortals().portals[i].equals(portal)) {
+            for (int i = 0; i < roomDb.getPortalDao().getPortals().portals.length; i++) {
+                if (roomDb.getPortalDao().getPortals().portals[i].equals(portal)) {
                     spinner.setSelection(i);
                 }
             }
@@ -221,8 +228,9 @@ public class Add_Queastion extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d(TAG, "onClick bottom sheet");
                 if (isPermissionGranted) {
-                    RecordBottomSheetDialog sheet = new RecordBottomSheetDialog();
-                    sheet.show(getSupportFragmentManager(), "add sheet");
+//                    RecordBottomSheetDialog sheet = new RecordBottomSheetDialog();
+//                    sheet.show(getSupportFragmentManager(), "add sheet");
+                    bottomSheet(getLayoutInflater(), findViewById(R.id.root), new Bundle());
                 } else {
                     checkPerm();
                 }
@@ -244,8 +252,8 @@ public class Add_Queastion extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                sendNotification(sharedPrefManager.getsUser().getFcmToken(), "asdf", "sddsf");
-                InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+//                sendNotification(sharedPrefManager.getsUser().getFcmToken(), "asdf", "sddsf");
+//                InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
                 if (pCheck == null) {
                     findViewById(R.id.uploadQues).setClickable(false);
                     uploadQues();
@@ -267,8 +275,9 @@ public class Add_Queastion extends AppCompatActivity {
 
             ActivityCompat.requestPermissions(Add_Queastion.this, permArr, 101);
         } else {
-            RecordBottomSheetDialog sheet = new RecordBottomSheetDialog();
-            sheet.show(getSupportFragmentManager(), "add sheet");
+//            RecordBottomSheetDialog sheet = new RecordBottomSheetDialog();
+//            sheet.show(getSupportFragmentManager(), "add sheet");
+            bottomSheet(getLayoutInflater(), findViewById(R.id.root), new Bundle());
             isPermissionGranted = true;
         }
     }
@@ -288,121 +297,146 @@ public class Add_Queastion extends AppCompatActivity {
      * It will display a sheet without floating dialog instead display it with BottomSheetDialog and
      * can handle lifecycle.
      */
-    public static class RecordBottomSheetDialog extends BottomSheetDialogFragment {
-        private int i = 0, sec = 0;
-        private CountDownTimer cDT;
-        private MediaRecorder mRecorder;
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInsState) {
-            View view = inflater.inflate(R.layout.record_bottom_sheet_dialog, container, false);
-            TextView secs = view.findViewById(R.id.secsTV);
-            ProgressBar progressBar = view.findViewById(R.id.secCirPB);
-            Button startBtn = view.findViewById(R.id.startBtn);
-            Button stopBtn = view.findViewById(R.id.stopBtn);
-            getActivity().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            cDT = new CountDownTimer(100000, 1000) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                    if (i == 60) {
-                        progressBar.setProgress(i);
-                        i++;
-                        sec = 0;
-                        secs.setText("01 : 0" + sec);
-                        return;
-                    }
+//    public static class RecordBottomSheetDialog extends BottomSheetDialogFragment {
+    private int i = 0, sec = 0;
+    private CountDownTimer cDT;
+    private MediaRecorder mRecorder;
 
-                    if (i >= 60) {
-                        if (sec < 10)
-                            secs.setText("01 : 0" + sec);
-                        else
-                            secs.setText("01 : " + sec);
-                    } else {
-                        if (sec < 10)
-                            secs.setText("00 : 0" + sec);
-                        else
-                            secs.setText("00 : " + sec);
-                    }
+    //            @Override
+    public void bottomSheet(LayoutInflater inflater, ViewGroup container, Bundle saveInsState) {
+        BottomSheetDialog sheet = new BottomSheetDialog(this);
+        sheet.setCancelable(false);
+        View view = inflater.inflate(R.layout.record_bottom_sheet_dialog, container, false);
+        sheet.setContentView(view);
+        TextView secs = view.findViewById(R.id.secsTV);
+        ProgressBar progressBar = view.findViewById(R.id.secCirPB);
+        Button startBtn = view.findViewById(R.id.startBtn);
+        Button stopBtn = view.findViewById(R.id.stopBtn);
+        sheet.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        cDT = new CountDownTimer(100000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                if (i == 60) {
                     progressBar.setProgress(i);
                     i++;
-                    sec++;
+                    sec = 0;
+                    secs.setText("01 : 0" + sec);
+                    return;
                 }
 
-                @Override
-                public void onFinish() {
-                    try {
-                        Toast.makeText(getActivity().getApplicationContext(), "Recorded", Toast.LENGTH_SHORT).show();
-                        cDT.cancel();
-                        mRecorder.stop();
-                        mRecorder.release();
-                        mRecorder = null;
-                        Add_Queastion add = (Add_Queastion) getActivity();
-                        add.status();
-                        dismiss();
-                    } catch (Exception e) {
-                        Log.d("BottomSheet.java", "onFinish: " + e);
+                if (i >= 60) {
+                    if (sec < 10)
+                        secs.setText("01 : 0" + sec);
+                    else
+                        secs.setText("01 : " + sec);
+                } else {
+                    if (sec < 10)
+                        secs.setText("00 : 0" + sec);
+                    else
+                        secs.setText("00 : " + sec);
+                }
+                progressBar.setProgress(i);
+                i++;
+                sec++;
+            }
+
+            @Override
+            public void onFinish() {
+                try {
+                    Toast.makeText(getApplicationContext(), "Recorded", Toast.LENGTH_SHORT).show();
+                    cDT.cancel();
+                    mRecorder.stop();
+                    mRecorder.release();
+                    mRecorder = null;
+                    status();
+                    sheet.dismiss();
+                } catch (Exception e) {
+                    Log.d("BottomSheet.java", "onFinish: " + e);
+                }
+            }
+        };
+
+        startBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("BottomSheet.java", "onClick: clicked");
+                try {
+//                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
+                    cDT.start();
+                    startBtn.setVisibility(View.GONE);
+                    stopBtn.setVisibility(View.VISIBLE);
+
+                    mRecorder = new MediaRecorder();
+                    mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                    mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                    mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                    /**Below line will create directory in user external storage. */
+//                        File rootDir = new File(Environment.getExternalStorageDirectory(), "Kaisebhi");
+//                        if (!rootDir.exists())
+//                            rootDir.mkdir();
+//                        mFile = File.createTempFile("question_recording", ".3gp", rootDir);
+                    String path = String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+                    File dir = new File(path);
+                    if (!dir.exists())
+                        dir.mkdirs();
+                    String myFile = path + "/filename" + ".mp4";
+                    mFile = new File(myFile);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        mRecorder.setOutputFile(mFile);
                     }
+                    mRecorder.prepare();
+                    mRecorder.start();
+//                    } else {
+//                        cDT.start();
+//                        startBtn.setVisibility(View.GONE);
+//                        stopBtn.setVisibility(View.VISIBLE);
+//                        startRecording();
+//                    }
+                } catch (Exception e) {
+                    Log.d("BottomSheet.java", "onCatch: " + e);
                 }
-            };
+            }
+        });
 
-            startBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d("BottomSheet.java", "onClick: clicked");
-                    try {
-                        cDT.start();
-                        startBtn.setVisibility(View.GONE);
-                        stopBtn.setVisibility(View.VISIBLE);
-
-                        mRecorder = new MediaRecorder();
-                        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-                        /**Below line will create directory in user external storage. */
-                        File rootDir = new File(Environment.getExternalStorageDirectory(), "Kaisebhi");
-                        if (!rootDir.exists())
-                            rootDir.mkdir();
-                        mFile = File.createTempFile("question_recording", ".3gp", rootDir);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            mRecorder.setOutputFile(mFile);
-                        }
-                        mRecorder.prepare();
-                        mRecorder.start();
-                    } catch (Exception e) {
-                        Log.d("BottomSheet.java", "onCatch: " + e);
-                    }
+        stopBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    Toast.makeText(getApplicationContext(), "Recorded", Toast.LENGTH_SHORT).show();
+                    cDT.cancel();
+                    mRecorder.stop();
+                    mRecorder.release();
+                    mRecorder = null;
+                    sheet.dismiss();
+                    status();
+//                        dismiss();
+                } catch (Exception e) {
+                    Log.d("BottomSheet.java", "onClick: " + e);
                 }
-            });
+            }
+        });
+        sheet.show();
+    }
 
-            stopBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        Toast.makeText(getActivity().getApplicationContext(), "Recorded", Toast.LENGTH_SHORT).show();
-                        cDT.cancel();
-                        mRecorder.stop();
-                        mRecorder.release();
-                        mRecorder = null;
-                        Add_Queastion add = (Add_Queastion) getActivity();
-                        add.status();
-                        dismiss();
-                    } catch (Exception e) {
-                        Log.d("BottomSheet.java", "onClick: " + e);
-                    }
-                }
-            });
-            return view;
-        }
+    private void startRecording() throws IOException {
+        ContentValues values = new ContentValues(4);
+        values.put(MediaStore.Audio.Media.TITLE, fileName);
+        values.put(MediaStore.Audio.Media.DATE_ADDED, (int) (System.currentTimeMillis() / 1000));
+        values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/mp3");
+        values.put(MediaStore.Audio.Media.RELATIVE_PATH, "Music/Recordings/");
 
-//        @Override
-//        public void onPause() {
-//            super.onPause();
-//            cDT.cancel();
-//        }
-
-        @Override
-        public void dismiss() {
-            super.dismiss();
-            cDT.cancel();
+        audiouri = getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
+        file = getContentResolver().openFileDescriptor(audiouri, "w");
+        Log.d(TAG, "startRecording: " + audiouri);
+        if (file != null) {
+            mRecorder = new MediaRecorder();
+            mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            mRecorder.setOutputFile(file.getFileDescriptor());
+            mRecorder.setAudioChannels(1);
+            mRecorder.prepare();
+            mRecorder.start();
         }
     }
 
@@ -440,7 +474,7 @@ public class Add_Queastion extends AppCompatActivity {
             HashMap<String, Object> map = new HashMap<>();
             map.put("title", title);
             map.put("desc", desc);
-            if(!spinner.getSelectedItem().toString().matches(portal))
+            if (!spinner.getSelectedItem().toString().matches(portal))
                 map.put("portal", spinner.getSelectedItem().toString());
             mFirestore.collection("questions").document(Qid).update(map)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -655,7 +689,7 @@ public class Add_Queastion extends AppCompatActivity {
                                     map.put("title", title);
                                     map.put("desc", desc);
                                     map.put("image", uri);
-                                    if(spinner.getSelectedItem().toString().matches(portal))
+                                    if (spinner.getSelectedItem().toString().matches(portal))
                                         map.put("portal", spinner.getSelectedItem().toString());
                                     mFirestore.collection("questions").document(Qid).update(map)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -824,38 +858,6 @@ public class Add_Queastion extends AppCompatActivity {
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
             }
-        }
-    }
-
-    /**Below method will send Notification will can received by onMessageReceived of app. */
-    private void sendNotification(String fcmToken, String title, String description) {
-        fcmToken = "cz7l3wA3S3S-xwChsKWqH3:APA91bHrtSJvVEwjp3stP8atHC9CQfcFxh4Vere2Ow-JQe55VLWq5-" +
-                "6HacjqDKHgSnkqbNmQKZfIsugVEsQp2t0i15D2JQoErfYIvTNW_swpopqyLR4jJOcGCNVXYHxFHmdgI9_" +
-                "ZWCTj";
-        try {
-            JSONObject rootJs = new JSONObject();
-            JSONObject notificationJs = new JSONObject();
-            OkHttpClient client = new OkHttpClient();
-            MediaType mediaType = MediaType.parse("application/json");
-            rootJs.put("to", fcmToken);
-            notificationJs.put("title", "hello");
-            notificationJs.put("body", "dalsjfs");
-            rootJs.put("notification", notificationJs);
-//            RetrofitClient.getApiClient().create(Main_Interface.class)
-//                    .sendFCMNotification(rootJs.toString())
-//                    .enqueue(new Callback<ResponseBody>() {
-//                        @Override
-//                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-//                            Log.d(TAG, "onResponse fcm: " + response);
-//                        }
-//
-//                        @Override
-//                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-//                            Log.d(TAG, "onFailure fcm: " + t);
-//                        }
-//                    });
-        } catch (Exception e) {
-            Log.d(TAG, "sendNotification error: " + e);
         }
     }
 
