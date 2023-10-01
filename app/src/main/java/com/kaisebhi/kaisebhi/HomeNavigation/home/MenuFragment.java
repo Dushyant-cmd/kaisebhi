@@ -166,7 +166,9 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         //set what would happen when positive button is clicked
                         SharedPrefManager.getInstance(getActivity()).logoutUser();
-                        startActivity(new Intent(getActivity(), MainActivity.class));
+                        Intent intent = new Intent(getActivity(), MainActivity.class);
+                        startActivity(intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
+                        requireActivity().finish();
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
