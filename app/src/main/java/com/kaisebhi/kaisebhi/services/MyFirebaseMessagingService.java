@@ -22,19 +22,38 @@ import com.kaisebhi.kaisebhi.R;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private String TAG = "FirebaseService.java";
+    private boolean isForeground = false;
 
-    /**Below method will be called by android when it receives notification in NotificationManager.
-     * RemoteMessage class instance contains in data payload*/
+    /**
+     * Below method will be called by android when it receives notification in NotificationManager.
+     * RemoteMessage class instance contains in data payload
+     */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.d(TAG, "onMessageReceived: " + remoteMessage.getNotification());
-        showNotification();
+        isForeground = true;
+        if (remoteMessage.getNotification() != null) {
+            showNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
+        } else {
+            showNotification("Someone answered on your question.", "click here");
+        }
     }
 
-    private void showNotification() {
+    @Override
+    public void handleIntent(Intent intent) {
+        if (!isForeground && intent != null)
+            Log.d(TAG, "handleIntent: " + isForeground);
+        showNotification("", "");
+    }
+
+    private void showNotification(String title, String body) {
         try {
+            if (title.isEmpty())
+                title = "You have a new question";
+            else if (body.isEmpty())
+                body = "click here";
             String channelId = getPackageName();
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationChannel channel = new NotificationChannel(channelId, "notification",
                         NotificationManager.IMPORTANCE_DEFAULT);
                 channel.setDescription("description notification");
@@ -47,24 +66,28 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             PendingIntent pendingIntent = PendingIntent.getActivity(MyFirebaseMessagingService.this,
                     101, i, PendingIntent.FLAG_IMMUTABLE |
-                            PendingIntent.FLAG_UPDATE_CURRENT );
+                            PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder notification = new NotificationCompat.Builder(this, channelId);
-            notification.setContentTitle("title");
-            notification.setContentText("body text");
-            notification.setPriority(Notification.PRIORITY_DEFAULT);
+            notification.setContentTitle(title);
+            notification.setContentText(body);
+            notification.setPriority(Notification.PRIORITY_HIGH);
             notification.setSmallIcon(R.drawable.icon);
             notification.setContentIntent(pendingIntent);
 
             NotificationManagerCompat compat = NotificationManagerCompat.from(this);
             compat.notify(59, notification.build());
+            isForeground = false;
         } catch (Exception e) {
             Log.d(TAG, "showNotification: " + e);
         }
     }
 
-    /**Below method will be called by Firebase to android then android call this method
+    /**
+     * Below method will be called by Firebase to android then android call this method
      * with new Firebase cloud messaging token.
-     * @param token it is fcm token*/
+     *
+     * @param token it is fcm token
+     */
     @Override
     public void onNewToken(String token) {
         Log.d(TAG, "onNewToken: " + token);

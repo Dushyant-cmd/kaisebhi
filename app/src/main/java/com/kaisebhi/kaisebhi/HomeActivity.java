@@ -1,14 +1,21 @@
 package com.kaisebhi.kaisebhi;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.FirebaseDatabase;
 import com.kaisebhi.kaisebhi.HomeNavigation.AddQuestion.Add_Queastion;
 import com.kaisebhi.kaisebhi.HomeNavigation.Notifications.Notifications;
 import com.kaisebhi.kaisebhi.HomeNavigation.home.FavoriteFragment;
@@ -20,6 +27,8 @@ import com.kaisebhi.kaisebhi.Utility.Utility;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -28,6 +37,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class HomeActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
+    private String TAG = "HomeActivity.java";
     private FrameLayout MainFrame;
 
     BottomNavigationView bottomNavigation;
@@ -48,7 +58,20 @@ public class HomeActivity extends AppCompatActivity {
                 AppCompatDelegate.MODE_NIGHT_NO);
         setContentView(R.layout.activity_home);
 
+        checkPerm();
         sharedPrefManager = new SharedPrefManager(getApplication());
+
+        FirebaseDatabase realDb = FirebaseDatabase.getInstance();
+        realDb.getReference("fcmNotifications").get().addOnCompleteListener(
+                new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if(task.isSuccessful()) {
+                            Log.d(TAG, "onComplete: " + task.getResult());
+                        }
+                    }
+                }
+        );
         floating_add_button = findViewById(R.id.floating_add_button);
         floating_add_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,9 +111,9 @@ public class HomeActivity extends AppCompatActivity {
                         mineFrag = new MineQuestFragment();
                         changeFragment(mineFrag);
                         break;
-                    case R.id.nav_notify:
-                        changeFragment(new Notifications());
-                        break;
+//                    case R.id.nav_notify:
+//                        changeFragment(new Notifications());
+//                        break;
                     default:
                         break;
                 }
@@ -125,8 +148,10 @@ public class HomeActivity extends AppCompatActivity {
                         mineFrag = new MineQuestFragment();
                         changeFragment(mineFrag);
                         break;
-                    case R.id.nav_notify:
-                        changeFragment(new Notifications());
+//                    case R.id.nav_notify:
+//                        changeFragment(new Notifications());
+//                        break;
+                    default:
                         break;
                 }
             }
@@ -138,6 +163,18 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    private void checkPerm() {
+        if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_DENIED) {
+            String[] permArr = new String[]{Manifest.permission.RECORD_AUDIO
+                    , Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE
+                    , Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.CAMERA};
+
+            ActivityCompat.requestPermissions(HomeActivity.this, permArr, 101);
+        }
+
+    }
     private void changeFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(MainFrame.getId(), fragment);
