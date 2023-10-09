@@ -162,7 +162,7 @@ public class Add_Queastion extends AppCompatActivity {
                                             System.currentTimeMillis()
                                     );
                                     roomDb.getPortalDao().insertPortals(portalsEntity1);
-                                    spinner.setAdapter(new ArrayAdapter<String>(Add_Queastion.this,
+                                    spinner.setAdapter(new ArrayAdapter<>(Add_Queastion.this,
                                             android.R.layout.simple_dropdown_item_1line,
                                             roomDb.getPortalDao().getPortals().portals));
                                     Log.d(TAG, "onComplete: protals " + task.getResult());

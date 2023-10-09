@@ -1,7 +1,5 @@
 package com.kaisebhi.kaisebhi;
 
-import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,7 +22,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.shimmer.ShimmerFrameLayout;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -42,18 +39,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.AggregateSource;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.gson.annotations.SerializedName;
 import com.kaisebhi.kaisebhi.HomeNavigation.home.AnswersAdapter;
 import com.kaisebhi.kaisebhi.HomeNavigation.home.AnswersModel;
 import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
-import com.kaisebhi.kaisebhi.Utility.DefaultResponse;
-import com.kaisebhi.kaisebhi.Utility.Main_Interface;
-import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 import com.kaisebhi.kaisebhi.Utility.Utility;
 import com.kaisebhi.kaisebhi.databinding.ActivityAnswerBinding;
@@ -65,9 +57,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class AnswersActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -308,13 +297,10 @@ public class AnswersActivity extends AppCompatActivity {
                                     answers.add(ans);
                                 }
                                 Log.d(TAG, "onComplete: answer list: " + answers.size());
-                                adapter = new AnswersAdapter(answers, getApplicationContext());
-                                adapter.qUserId = userId;
-                                recyclerView.setAdapter(adapter);
-                                shimmerFrameLayout.stopShimmerAnimation();
-                                shimmerFrameLayout.setVisibility(View.GONE);
 
-                                for (AnswersModel ans : answers) {
+                                for (int i = 0; i < answers.size(); i++) {
+                                    AnswersModel ans = answers.get(i);
+                                    int j = i;
                                     mFirestore.collection("paidAnswers").whereEqualTo("ansDocId", ans.getAnswerDocId())
                                             .whereEqualTo("userId", sh.getsUser().getUid().toString()).get()
                                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -344,9 +330,23 @@ public class AnswersActivity extends AppCompatActivity {
                                                         Log.d(TAG, "onFailure: " + task.getException());
                                                     }
 
-                                                    adapter.notifyDataSetChanged();
+                                                    if (j == answers.size() - 1) {
+                                                        adapter = new AnswersAdapter(answers, getApplicationContext());
+                                                        adapter.qUserId = userId;
+                                                        recyclerView.setAdapter(adapter);
+                                                        shimmerFrameLayout.stopShimmerAnimation();
+                                                        shimmerFrameLayout.setVisibility(View.GONE);
+                                                    }
+//                                                        adapter.notifyDataSetChanged();
                                                 }
                                             });
+                                }
+                                if(answers.isEmpty()) {
+                                    adapter = new AnswersAdapter(answers, getApplicationContext());
+                                    adapter.qUserId = userId;
+                                    recyclerView.setAdapter(adapter);
+                                    shimmerFrameLayout.stopShimmerAnimation();
+                                    shimmerFrameLayout.setVisibility(View.GONE);
                                 }
                             } catch (Exception e) {
                                 Log.d(TAG, "onComplete: catch " + e);
@@ -361,7 +361,7 @@ public class AnswersActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        if(exoPlayer != null) {
+        if (exoPlayer != null) {
             exoPlayer.stop();
             exoPlayer.release();
         }

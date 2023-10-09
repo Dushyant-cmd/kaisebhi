@@ -32,7 +32,7 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
@@ -42,10 +42,12 @@
         <activity
             android:name=".MainActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Extras.SplashActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -67,10 +69,12 @@
         <activity
             android:name=".HomeNavigation.Profile.ProfileUpdate"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/MyTheme" />
         <activity
             android:name=".AnswersActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/MyTheme" />
         <activity
             android:name=".HomeNavigation.AddQuestion.Add_Queastion"
@@ -81,10 +85,12 @@
         <activity
             android:name=".Utility.PaymentActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/MyTheme" />
         <activity
             android:name=".HomeActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Design.NoActionBar" />
         <!--
 Below is Broadcast receiver for razorpay mandatory for lower level of
@@ -101,6 +107,7 @@ Below is Broadcast receiver for razorpay mandatory for lower level of
             android:name="com.razorpay.CheckoutActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/CheckoutTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

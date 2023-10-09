@@ -1,5 +1,7 @@
 package com.kaisebhi.kaisebhi;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPrefManager sharedPreferences;
     private FirebaseMessaging fcm;
     private String token = "";
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirestore = FirebaseFirestore.getInstance();
         sharedPreferences = SharedPrefManager.getInstance(getApplicationContext());
+        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Please wait...");
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -120,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
                 if (em.getText().toString().isEmpty() || pass.getText().toString().isEmpty() || pass.getText().toString().length() < 6) {
                     em.setError("Add Email Address!");
                     pass.setError("Add 6 characters Password!");
+                    progressDialog.dismiss();
                     signProgress.setVisibility(View.GONE);
                 } else {
                     //Regex expression of Java for email id validation
@@ -195,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void SignUp(final AuthCredential authCredential, GoogleSignInAccount googleSignInAccount) {
         signProgress.setVisibility(View.VISIBLE);
+        progressDialog.show();
         String name = googleSignInAccount.getDisplayName();
         String email = googleSignInAccount.getEmail();
         Toast.makeText(MainActivity.this, name + ", " + email, Toast.LENGTH_SHORT).show();
@@ -215,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
                                                     DocumentSnapshot d = task.getResult().getDocuments().get(0);
                                                     Log.d(TAG, "onComplete: user exist " + d.toString());
                                                     signProgress.setVisibility(View.GONE);
+                                                    progressDialog.dismiss();
                                                     SharedPrefManager.getInstance(getApplicationContext())
                                                             .saveUser(d.getString("name"), d.getLong("mobile").toString(),
                                                             d.getLong("userId").toString(), d.getString("profile"),
@@ -286,6 +296,7 @@ public class MainActivity extends AppCompatActivity {
                                                                                                         public void onComplete(@NonNull Task<Void> task) {
                                                                                                             if(task.isSuccessful()) {
                                                                                                                 signProgress.setVisibility(View.VISIBLE);
+                                                                                                                progressDialog.show();
                                                                                                                 SharedPrefManager.getInstance(getApplicationContext())
                                                                                                                         .saveUser(name, 0 + "", updatedUserId + "", "inComplete",
                                                                                                                                 email, "", 0, referId, token);
@@ -327,6 +338,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void loginEmail(final String email, final String pass) {
         signProgress.setVisibility(View.VISIBLE);
+        progressDialog.show();
         mFirestore.collection("ids").document("userId").get().addOnCompleteListener(
                 task -> {
                     //get current id of users
@@ -345,6 +357,7 @@ public class MainActivity extends AppCompatActivity {
                                                     if (task1.isSuccessful()) {
                                                             DocumentSnapshot doc1 = task.getResult().getDocuments().get(0);
                                                             signProgress.setVisibility(View.GONE);
+                                                            progressDialog.dismiss();
                                                             SharedPrefManager.getInstance(getApplicationContext()).saveUser(doc1.getString("name"),
                                                                     doc1.getLong("mobile").toString(),
                                                                     doc1.getLong("userId").toString(), doc1.getString("profile"),
@@ -363,6 +376,7 @@ public class MainActivity extends AppCompatActivity {
 //                                                        }
                                                     } else {
                                                         signProgress.setVisibility(View.GONE);
+                                                        progressDialog.dismiss();
                                                         Toast.makeText(MainActivity.this, task1.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                                     }
                                                 } catch (Exception e) {
@@ -409,6 +423,7 @@ public class MainActivity extends AppCompatActivity {
                                                                                 }
                                                                             });
                                                                     signProgress.setVisibility(View.GONE);
+                                                                    progressDialog.dismiss();
                                                                     SharedPrefManager.getInstance(getApplicationContext())
                                                                             .saveUser("Guest_" + updatedUserId, "0",
                                                                             updatedUserId + "", "inComplete", email, "", 0, referId,
@@ -417,12 +432,14 @@ public class MainActivity extends AppCompatActivity {
                                                                     displayReferralDialog();
                                                                 } else {
                                                                     signProgress.setVisibility(View.GONE);
+                                                                    progressDialog.dismiss();
                                                                     Toast.makeText(MainActivity.this, task12.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                                                 }
                                                             });
 
                                                 } catch (Exception e) {
                                                     signProgress.setVisibility(View.GONE);
+                                                    progressDialog.dismiss();
                                                     Toast.makeText(getApplicationContext(), "Invalid Credentials. Please try Again!", Toast.LENGTH_LONG).show();
                                                     Log.d(TAG, "onSuccess: " + e);
                                                 }

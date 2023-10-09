@@ -17,6 +17,7 @@
         android:layout_centerInParent="true"
         android:background="#81FFFFFF"
         android:clickable="false"
+        android:focusableInTouchMode="false"
         android:elevation="4dp"
         android:visibility="gone">
 
