@@ -477,7 +477,7 @@ public class MainActivity extends AppCompatActivity {
                                     if(task.isSuccessful()) {
                                         List<DocumentSnapshot> list = task.getResult().getDocuments();
                                         if(!list.isEmpty()) {
-                                            long totalReward = list.get(0).getLong("rewards") + 5;
+                                            long totalReward = list.get(0).getLong("rewards") + 10;
                                             HashMap<String, Object> map = new HashMap<>();
                                             map.put("rewards", totalReward);
                                             mFirestore.collection("users").document(list.get(0).getLong("userId").toString())
