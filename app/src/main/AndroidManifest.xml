@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.kaisebhi.kaisebhi">
 
     <uses-feature
@@ -15,6 +16,21 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.CAMERA" />
 
+
+    <queries>
+        <!-- List of apps which you want to support for Intent pay -->
+        <package android:name="com.google.android.apps.nbu.paisa.user" />
+        <package android:name="com.phonepe.app"/>
+        <package android:name="net.one97.paytm"/>
+        <package android:name="in.org.npci.upiapp"/>
+        <package android:name="in.amazon.mShop.android.shopping"/>
+        <package android:name="com.freecharge.android"/>
+
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+        </intent>
+    </queries>
+
     <application
         android:name=".Utility.ApplicationCustom"
         android:allowBackup="true"
@@ -23,6 +39,7 @@
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
+        tools:replace="android:allowBackup"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
@@ -92,22 +109,20 @@
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Design.NoActionBar" />
-        <!--
-Below is Broadcast receiver for razorpay mandatory for lower level of
-         Razorpay
-        -->
+
         <receiver
             android:name="com.razorpay.RzpTokenReceiver"
-            android:exported="false">
+            android:exported="false"
+            tools:replace="android:exported">
             <intent-filter>
                 <action android:name="rzp.device_token.share" />
             </intent-filter>
-        </receiver> <!-- To avoid merger manifest error of exported keyword not specified. -->
+        </receiver>
+
         <activity
             android:name="com.razorpay.CheckoutActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
             android:exported="true"
-            android:screenOrientation="portrait"
             android:theme="@style/CheckoutTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -121,6 +136,7 @@ Below is Broadcast receiver for razorpay mandatory for lower level of
         <meta-data
             android:name="com.razorpay.Apikey"
             android:value="@string/razorpay_key_id" />
+
     </application>
 
 </manifest>

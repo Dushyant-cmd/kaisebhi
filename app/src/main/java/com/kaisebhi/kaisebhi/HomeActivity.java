@@ -61,25 +61,24 @@ public class HomeActivity extends AppCompatActivity {
         checkPerm();
         sharedPrefManager = new SharedPrefManager(getApplication());
 
-        FirebaseDatabase realDb = FirebaseDatabase.getInstance();
-        realDb.getReference("fcmNotifications").get().addOnCompleteListener(
-                new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if(task.isSuccessful()) {
-                            Log.d(TAG, "onComplete: " + task.getResult());
-                        }
-                    }
-                }
-        );
+//        FirebaseDatabase realDb = FirebaseDatabase.getInstance();
+//        realDb.getReference("fcmNotifications").get().addOnCompleteListener(
+//                new OnCompleteListener<DataSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+//                        if(task.isSuccessful()) {
+//                            Log.d(TAG, "onComplete: " + task.getResult());
+//                        }
+//                    }
+//                }
+//        );
+
         floating_add_button = findViewById(R.id.floating_add_button);
         floating_add_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent cart = new Intent(getApplicationContext(), Add_Queastion.class);
                 startActivity(cart);
-
             }
         });
 
@@ -111,9 +110,9 @@ public class HomeActivity extends AppCompatActivity {
                         mineFrag = new MineQuestFragment();
                         changeFragment(mineFrag);
                         break;
-//                    case R.id.nav_notify:
-//                        changeFragment(new Notifications());
-//                        break;
+                    case R.id.nav_notify:
+                        changeFragment(new Notifications());
+                        break;
                     default:
                         break;
                 }
@@ -148,9 +147,9 @@ public class HomeActivity extends AppCompatActivity {
                         mineFrag = new MineQuestFragment();
                         changeFragment(mineFrag);
                         break;
-//                    case R.id.nav_notify:
-//                        changeFragment(new Notifications());
-//                        break;
+                    case R.id.nav_notify:
+                        changeFragment(new Notifications());
+                        break;
                     default:
                         break;
                 }

@@ -4,9 +4,11 @@ import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -20,6 +22,7 @@ import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -266,19 +269,49 @@ public class Add_Queastion extends AppCompatActivity {
     }
 
     private void checkPerm() {
-        if (ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.RECORD_AUDIO)
-                == PackageManager.PERMISSION_DENIED) {
-            String[] permArr = new String[]{Manifest.permission.RECORD_AUDIO
-                    , Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE
-                    , Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_AUDIO,
-                    Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.CAMERA};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.RECORD_AUDIO)
+                    == PackageManager.PERMISSION_DENIED
+                    || ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.READ_MEDIA_IMAGES)
+                    == PackageManager.PERMISSION_DENIED
+                    || ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.READ_MEDIA_IMAGES)
+                    == PackageManager.PERMISSION_DENIED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_DENIED) {
+                String[] permArr = new String[]{
+                        Manifest.permission.RECORD_AUDIO
+                        , Manifest.permission.READ_MEDIA_IMAGES
+                        , Manifest.permission.READ_MEDIA_AUDIO
+                        , Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        , Manifest.permission.CAMERA
+                        , Manifest.permission.POST_NOTIFICATIONS
+                };
 
-            ActivityCompat.requestPermissions(Add_Queastion.this, permArr, 101);
+                ActivityCompat.requestPermissions(Add_Queastion.this, permArr, 101);
+            } else {
+                bottomSheet(getLayoutInflater(), findViewById(R.id.root), new Bundle());
+                isPermissionGranted = true;
+            }
         } else {
+            if (ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.RECORD_AUDIO)
+                    == PackageManager.PERMISSION_DENIED
+                    || ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_DENIED
+                    || ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.READ_MEDIA_AUDIO)
+                    == PackageManager.PERMISSION_DENIED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_DENIED) {
+                String[] permArr = new String[]{Manifest.permission.RECORD_AUDIO
+                        , Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.CAMERA};
+
+                ActivityCompat.requestPermissions(Add_Queastion.this, permArr, 101);
+            } else {
 //            RecordBottomSheetDialog sheet = new RecordBottomSheetDialog();
 //            sheet.show(getSupportFragmentManager(), "add sheet");
-            bottomSheet(getLayoutInflater(), findViewById(R.id.root), new Bundle());
-            isPermissionGranted = true;
+                bottomSheet(getLayoutInflater(), findViewById(R.id.root), new Bundle());
+                isPermissionGranted = true;
+            }
         }
     }
 
@@ -286,8 +319,31 @@ public class Add_Queastion extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 101) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                isPermissionGranted = true;
+            for(int i=0; i<grantResults.length; i++) {
+                if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    isPermissionGranted = true;
+                } else if(grantResults[i] == PackageManager.PERMISSION_DENIED){
+                    isPermissionGranted = false;
+                    break;
+                }
+            }
+
+            if(!isPermissionGranted) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                        .setMessage("Please allow all permissions to continue")
+                        .setTitle("Permission denied")
+                        .setCancelable(false)
+                        .setIcon(R.drawable.appicon)
+                        .setPositiveButton("Allow Permissions", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                intent.setData(Uri.fromParts("package", getPackageName(), null));
+                                startActivity(intent);
+                                dialogInterface.dismiss();
+                            }
+                        });
+                builder.show();
             }
         }
     }
@@ -305,7 +361,7 @@ public class Add_Queastion extends AppCompatActivity {
     //            @Override
     public void bottomSheet(LayoutInflater inflater, ViewGroup container, Bundle saveInsState) {
         BottomSheetDialog sheet = new BottomSheetDialog(this);
-        sheet.setCancelable(false);
+        sheet.setCancelable(true);
         View view = inflater.inflate(R.layout.record_bottom_sheet_dialog, container, false);
         sheet.setContentView(view);
         TextView secs = view.findViewById(R.id.secsTV);
@@ -375,11 +431,11 @@ public class Add_Queastion extends AppCompatActivity {
 //                        if (!rootDir.exists())
 //                            rootDir.mkdir();
 //                        mFile = File.createTempFile("question_recording", ".3gp", rootDir);
-                    String path = String.valueOf(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+                    String path = String.valueOf(getExternalFilesDir(Environment.DIRECTORY_DCIM));
                     File dir = new File(path);
                     if (!dir.exists())
                         dir.mkdirs();
-                    String myFile = path + "/filename" + ".mp4";
+                    String myFile = path + "/filename" + System.currentTimeMillis() + ".mp4";
                     mFile = new File(myFile);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         mRecorder.setOutputFile(mFile);

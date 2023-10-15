@@ -1,5 +1,6 @@
 package com.kaisebhi.kaisebhi.Utility;
 
+import com.google.gson.JsonObject;
 import com.kaisebhi.kaisebhi.HomeNavigation.Notifications.NotifyViewModel;
 import com.kaisebhi.kaisebhi.HomeNavigation.Reward.ModelWalletHistory;
 import com.kaisebhi.kaisebhi.HomeNavigation.home.AnswersModel;
@@ -18,6 +19,7 @@ import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -209,7 +211,12 @@ public interface Main_Interface {
 
     /** Below method is to send notification from one app to another using fcm
      * legacy http rest api */
-    @POST("fcm/send")
-    @Headers({"Content-Type:application/json", "Authorization:key=AAAAScYJejQ:APA91bH3HE2ih8ap_NAjGaSh53iFwp9KgDkEXgZWOw1r0-WKOcWdk9OxAWmN-koEsEbHE63bDlSMTulLOemLPuD5GsUb45fhWqxqN5Q14J5niaStUKV4c8qZDCDleGklAYbbGPrPmeFR"})
-    Call<ResponseBody> sendFCMNotification(@Body String notificationJson);
+//    @POST("fcm/send")
+//    @Headers({"Content-Type:application/json", "Authorization:key=AAAAScYJejQ:APA91bH3HE2ih8ap_NAjGaSh53iFwp9KgDkEXgZWOw1r0-WKOcWdk9OxAWmN-koEsEbHE63bDlSMTulLOemLPuD5GsUb45fhWqxqN5Q14J5niaStUKV4c8qZDCDleGklAYbbGPrPmeFR"})
+//    Call<ResponseBody> sendFCMNotification(@Body String notificationJson);
+
+    /**get order id and signature */
+    @POST("v1/orders")
+    @Headers({"Content-Type:application/json"})
+    Call<JsonObject> getOrderId(@Body String details);
 }

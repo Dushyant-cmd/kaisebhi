@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
-
+repositories {
+    mavenCentral()
+}
 android {
     compileSdkVersion 33
     buildToolsVersion '33.0.1'
@@ -30,14 +32,12 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     //fragment navigation
     implementation 'androidx.navigation:navigation-fragment:2.3.1'
@@ -56,6 +56,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'com.squareup.retrofit2:converter-scalars:2.5.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
+
 
     //image crop, circleImageView.
     implementation 'de.hdodenhof:circleimageview:3.0.0'
@@ -76,7 +78,9 @@ dependencies {
 
     //Material Design.
     implementation 'com.google.android.material:material:1.2.1'
-    implementation 'com.razorpay:checkout:1.5.16'
+
+    //razorpay
+    implementation 'com.razorpay:checkout:1.6.33'
 
     //room
     def room_version = "2.5.2"

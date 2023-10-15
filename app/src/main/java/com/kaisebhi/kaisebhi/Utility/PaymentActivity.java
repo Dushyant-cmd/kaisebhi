@@ -22,8 +22,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import com.razorpay.Checkout;
+import com.razorpay.CheckoutActivity;
 import com.razorpay.PaymentData;
 import com.razorpay.PaymentResultWithDataListener;
 import com.kaisebhi.kaisebhi.ActivityForFrag;
@@ -31,18 +33,25 @@ import com.kaisebhi.kaisebhi.HomeActivity;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Date;
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PaymentActivity extends AppCompatActivity implements PaymentResultWithDataListener {
 
@@ -69,6 +78,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
         setContentView(R.layout.activity_order_succesfull);
 
 //        TextView header = findViewById(R.id.textHeader);
+//        Checkout.preload(getApplicationContext());
 
         sharedPrefManager = new SharedPrefManager(getApplication());
         progressDialog = new ProgressDialog(this);
@@ -118,10 +128,52 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
                 qid = b.getString("qid");
                 answerDocId = b.getString("ansId");
                 isSelfAns = b.getBoolean("isSelfAns");
+
+                //for order id
+//                JSONObject json = new JSONObject();
+//                try {
+//                    json.put("amount", (amount * 100));
+//                    json.put("currency", "INR");
+//                    json.put("receipt", "Receipt no. 1");
+//                } catch (JSONException e) {
+//                    throw new RuntimeException(e);
+//                }
+//
+//                HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+//                interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+//
+//                OkHttpClient client = new OkHttpClient.Builder()
+//                        .addInterceptor(interceptor)
+//                        .connectTimeout(100, TimeUnit.SECONDS)
+//                        .readTimeout(100, TimeUnit.SECONDS)
+//                        .callTimeout(100, TimeUnit.SECONDS)
+//                        .build();
+//
+//                Retrofit retrofit = new Retrofit.Builder()
+//                        .baseUrl("https://api.razorpay.com/")
+//                        .addConverterFactory(GsonConverterFactory.create())
+//                        .client(client)
+//                        .build();
+
+//                retrofit.create(Main_Interface.class).getOrderId(String.valueOf(json))
+//                                .enqueue(new Callback<JsonObject>() {
+//                                    @Override
+//                                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+//                                        if(response.isSuccessful()) {
+//                                            Log.d(TAG, "onResponse: " + response.body());
+////                                            startPayment(amount);
+//                                        }
+//                                    }
+//
+//                                    @Override
+//                                    public void onFailure(Call<JsonObject> call, Throwable t) {
+//                                        Log.d(TAG, "onFailure: " + t);
+//                                    }
+//                                });
                 startPayment(amount);
             }
         }
-        Log.d(TAG, "onCreate: " + answerDocId);
+//        Log.d(TAG, "onCreate: " + answerDocId);
 
     }
 
@@ -141,9 +193,10 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             options.put("image", "https://s3.amazonaws.com/rzp-mobile/images/rzp.png");
             options.put("currency", "INR");
             options.put("amount", (am * 100));
+            options.put("payment_capture", "1");
             options.put("theme", new JSONObject("{color: '#1278dd'}"));
 
-            Log.d(TAG, "startPayment: payment json: " + options);
+//            Log.d(TAG, "startPayment: payment json: " + options);
             JSONObject preFill = new JSONObject();
             options.put("prefill", preFill);
 
@@ -301,6 +354,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
         check.setText("Your Payment has Unsuccessful! \n");
         gif.setImageResource(R.drawable.cross);
         MyOrders.setText("Try Again!");
+        Log.d(TAG, "onPaymentError: " + paymentData.getData().toString());
 
     }
 

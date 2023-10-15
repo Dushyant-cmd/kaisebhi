@@ -19,7 +19,8 @@
         android:clickable="false"
         android:focusableInTouchMode="false"
         android:elevation="4dp"
-        android:visibility="gone">
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <ProgressBar
             android:layout_width="match_parent"

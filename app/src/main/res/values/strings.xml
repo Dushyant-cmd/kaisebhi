@@ -12,7 +12,6 @@
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
 
-    <string name="razorpay_key_id">rzp_test_m0KKmi2BecIGrI</string>
-    <string name="razorpay_secret_key">NUIUA5qFe2MlWBRg3hBfMEGn</string>
+    <string name="razorpay_key_id">rzp_live_ZKcnEEr6QTeuTh</string>
     <string name="home_second">Home Second</string>
 </resources>
