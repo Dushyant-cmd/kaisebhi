@@ -78,7 +78,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
         setContentView(R.layout.activity_order_succesfull);
 
 //        TextView header = findViewById(R.id.textHeader);
-//        Checkout.preload(getApplicationContext());
+        Checkout.preload(getApplicationContext());
 
         sharedPrefManager = new SharedPrefManager(getApplication());
         progressDialog = new ProgressDialog(this);
@@ -128,52 +128,9 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
                 qid = b.getString("qid");
                 answerDocId = b.getString("ansId");
                 isSelfAns = b.getBoolean("isSelfAns");
-
-                //for order id
-//                JSONObject json = new JSONObject();
-//                try {
-//                    json.put("amount", (amount * 100));
-//                    json.put("currency", "INR");
-//                    json.put("receipt", "Receipt no. 1");
-//                } catch (JSONException e) {
-//                    throw new RuntimeException(e);
-//                }
-//
-//                HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-//                interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-//
-//                OkHttpClient client = new OkHttpClient.Builder()
-//                        .addInterceptor(interceptor)
-//                        .connectTimeout(100, TimeUnit.SECONDS)
-//                        .readTimeout(100, TimeUnit.SECONDS)
-//                        .callTimeout(100, TimeUnit.SECONDS)
-//                        .build();
-//
-//                Retrofit retrofit = new Retrofit.Builder()
-//                        .baseUrl("https://api.razorpay.com/")
-//                        .addConverterFactory(GsonConverterFactory.create())
-//                        .client(client)
-//                        .build();
-
-//                retrofit.create(Main_Interface.class).getOrderId(String.valueOf(json))
-//                                .enqueue(new Callback<JsonObject>() {
-//                                    @Override
-//                                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-//                                        if(response.isSuccessful()) {
-//                                            Log.d(TAG, "onResponse: " + response.body());
-////                                            startPayment(amount);
-//                                        }
-//                                    }
-//
-//                                    @Override
-//                                    public void onFailure(Call<JsonObject> call, Throwable t) {
-//                                        Log.d(TAG, "onFailure: " + t);
-//                                    }
-//                                });
                 startPayment(amount);
             }
         }
-//        Log.d(TAG, "onCreate: " + answerDocId);
 
     }
 
@@ -196,7 +153,6 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             options.put("payment_capture", "1");
             options.put("theme", new JSONObject("{color: '#1278dd'}"));
 
-//            Log.d(TAG, "startPayment: payment json: " + options);
             JSONObject preFill = new JSONObject();
             options.put("prefill", preFill);
 

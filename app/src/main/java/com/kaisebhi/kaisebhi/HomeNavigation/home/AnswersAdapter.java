@@ -124,23 +124,9 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
                                     }
                                 }
                             });
-//                    Call<DefaultResponse> call =  RetrofitClient.getInstance().getApi().reportAbuse(Id,uid);
-//                    call.enqueue(new Callback<DefaultResponse>() {
-//                        @Override
-//                        public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-//                            DefaultResponse dr = response.body();
-//                            holder.Report.setText("Thanks!");
-//                            Toast.makeText(context,"Reported Abuse to this Answer!",Toast.LENGTH_SHORT).show();
-//                        }
-//                        @Override
-//                        public void onFailure(Call<DefaultResponse> call, Throwable t) {
-//                        }
-//                    });
                 }
             });
         }
-
-//        holder.likeBtn.setChecked(nlist.get(position).getCheckLike());
 
         if (nlist.get(position).getCheckOwnQuestion()) {
             holder.hideAns.setVisibility(View.VISIBLE);
@@ -149,6 +135,7 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
         if (dataObj.getUserId().matches(uid)) {
             holder.Report.setVisibility(View.GONE);
         }
+
         if (nlist.get(position).checkHideAnswer()) {
 
             if (!nlist.get(position).isSelfAnswer()) {
@@ -164,14 +151,15 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
                 holder.ansHideBox.setVisibility(View.GONE);
             }
         }
-        //CONDITION USER OWN ANSWER & ALL HIDE
 
+        //CONDITION USER OWN ANSWER & ALL HIDE
         if (nlist.get(position).isCheckPaid()) {
             holder.Report.setClickable(false);
             holder.Report.setText("Answer Paid by You!");
             holder.ansHideBox.setVisibility(View.GONE);
             //holder.payBtnHideAns.setText("Already paid!");
         }
+
         //ANSWER LIKE AND HIDE ANSWER BY QUESTION OWNER
         holder.likeBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
