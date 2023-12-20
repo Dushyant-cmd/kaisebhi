@@ -442,12 +442,6 @@ public class Add_Queastion extends AppCompatActivity {
                     }
                     mRecorder.prepare();
                     mRecorder.start();
-//                    } else {
-//                        cDT.start();
-//                        startBtn.setVisibility(View.GONE);
-//                        stopBtn.setVisibility(View.VISIBLE);
-//                        startRecording();
-//                    }
                 } catch (Exception e) {
                     Log.d("BottomSheet.java", "onCatch: " + e);
                 }

@@ -129,52 +129,9 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
                 answerDocId = b.getString("ansId");
                 isSelfAns = b.getBoolean("isSelfAns");
 
-                //for order id
-//                JSONObject json = new JSONObject();
-//                try {
-//                    json.put("amount", (amount * 100));
-//                    json.put("currency", "INR");
-//                    json.put("receipt", "Receipt no. 1");
-//                } catch (JSONException e) {
-//                    throw new RuntimeException(e);
-//                }
-//
-//                HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-//                interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-//
-//                OkHttpClient client = new OkHttpClient.Builder()
-//                        .addInterceptor(interceptor)
-//                        .connectTimeout(100, TimeUnit.SECONDS)
-//                        .readTimeout(100, TimeUnit.SECONDS)
-//                        .callTimeout(100, TimeUnit.SECONDS)
-//                        .build();
-//
-//                Retrofit retrofit = new Retrofit.Builder()
-//                        .baseUrl("https://api.razorpay.com/")
-//                        .addConverterFactory(GsonConverterFactory.create())
-//                        .client(client)
-//                        .build();
-
-//                retrofit.create(Main_Interface.class).getOrderId(String.valueOf(json))
-//                                .enqueue(new Callback<JsonObject>() {
-//                                    @Override
-//                                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-//                                        if(response.isSuccessful()) {
-//                                            Log.d(TAG, "onResponse: " + response.body());
-////                                            startPayment(amount);
-//                                        }
-//                                    }
-//
-//                                    @Override
-//                                    public void onFailure(Call<JsonObject> call, Throwable t) {
-//                                        Log.d(TAG, "onFailure: " + t);
-//                                    }
-//                                });
                 startPayment(amount);
             }
         }
-//        Log.d(TAG, "onCreate: " + answerDocId);
-
     }
 
     public void startPayment(double am) {
@@ -193,10 +150,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             options.put("image", "https://s3.amazonaws.com/rzp-mobile/images/rzp.png");
             options.put("currency", "INR");
             options.put("amount", (am * 100));
-            options.put("payment_capture", "1");
-            options.put("theme", new JSONObject("{color: '#1278dd'}"));
-
-//            Log.d(TAG, "startPayment: payment json: " + options);
+            options.put("theme", new JSONObject("{ color: '#1278dd'}"));
             JSONObject preFill = new JSONObject();
             options.put("prefill", preFill);
 
