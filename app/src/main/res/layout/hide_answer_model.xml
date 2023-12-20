@@ -56,7 +56,7 @@
                     android:src="@drawable/e1"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"/>
-d
+
                 <TextView
                     android:visibility="gone"
                     android:textColor="#333"
@@ -77,10 +77,13 @@ d
                 android:id="@+id/em2"
                 android:layout_margin="10dp"
                 android:layout_height="wrap_content">
+
                 <ImageView
                     android:src="@drawable/e2"
+                    android:layout_gravity="center"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"/>
+
                 <TextView
                     android:visibility="gone"
                     android:textColor="#333"
@@ -116,8 +119,6 @@ d
                     android:layout_height="wrap_content"/>
             </LinearLayout>
 
-
-
             <LinearLayout
                 android:layout_weight="1"
                 android:orientation="vertical"
@@ -144,9 +145,6 @@ d
 
             </LinearLayout>
 
-
-
-
             <LinearLayout
                 android:layout_weight="1"
                 android:id="@+id/em5"
@@ -170,9 +168,6 @@ d
                     android:layout_height="wrap_content"/>
             </LinearLayout>
 
-
-
-
         </LinearLayout>
 
 
@@ -185,8 +180,6 @@ d
             android:fontFamily="@font/nunito_bolditalic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-
-
 
             <Button
                 android:layout_width="match_parent"
@@ -202,8 +195,6 @@ d
                 android:textAlignment="center"
                 android:textColor="#fff"
                 android:layout_height="35dp"/>
-
-
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
