@@ -16,15 +16,15 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.CAMERA" />
 
-
     <queries>
+
         <!-- List of apps which you want to support for Intent pay -->
         <package android:name="com.google.android.apps.nbu.paisa.user" />
-        <package android:name="com.phonepe.app"/>
-        <package android:name="net.one97.paytm"/>
-        <package android:name="in.org.npci.upiapp"/>
-        <package android:name="in.amazon.mShop.android.shopping"/>
-        <package android:name="com.freecharge.android"/>
+        <package android:name="com.phonepe.app" />
+        <package android:name="net.one97.paytm" />
+        <package android:name="in.org.npci.upiapp" />
+        <package android:name="in.amazon.mShop.android.shopping" />
+        <package android:name="com.freecharge.android" />
 
         <intent>
             <action android:name="android.intent.action.SEND" />
@@ -39,10 +39,13 @@
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
-        tools:replace="android:allowBackup"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:replace="android:allowBackup">
+        <activity
+            android:name=".HomeNavigation.terms.TermsAndPolicyActivity"
+            android:exported="false" />
 
         <service
             android:name=".services.MyFirebaseMessagingService"
@@ -136,7 +139,6 @@
         <meta-data
             android:name="com.razorpay.Apikey"
             android:value="@string/razorpay_key_id" />
-
     </application>
 
 </manifest>

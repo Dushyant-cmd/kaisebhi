@@ -27,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.kaisebhi.kaisebhi.ActivityForFrag;
 import com.kaisebhi.kaisebhi.HomeNavigation.Profile.ProfileUpdate;
 import com.kaisebhi.kaisebhi.HomeNavigation.Reward.RewardFragment;
+import com.kaisebhi.kaisebhi.HomeNavigation.terms.TermsAndPolicyActivity;
 import com.kaisebhi.kaisebhi.MainActivity;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
@@ -139,13 +140,13 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                 changeFragment(new MineAnsFragment());
                 break;
             case R.id.termNav:
-                Uri uri = Uri.parse("https://kaisebhi.com/terms-conditions/"); // missing 'http://' will cause crashed
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(intent);
-                break;
+//                Uri uri = Uri.parse("https://kaisebhi.com/terms-conditions/"); // missing 'http://' will cause crashed
+//                Intent intent = new Intent(requireActivity(), TermsAndPolicyActivity.class);
+//                startActivity(intent);
+//                break;
             case R.id.SugNav:
-                Uri uris = Uri.parse("https://kaisebhi.com/suggestions/"); // missing 'http://' will cause crashed
-                Intent intents = new Intent(Intent.ACTION_VIEW, uris);
+//                Uri uris = Uri.parse("https://kaisebhi.com/suggestions/"); // missing 'http://' will cause crashed
+                Intent intents = new Intent(requireActivity(), TermsAndPolicyActivity.class);
                 startActivity(intents);
                 break;
             case R.id.logNav:
