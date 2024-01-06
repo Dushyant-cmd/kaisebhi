@@ -254,9 +254,7 @@ public class Add_Queastion extends AppCompatActivity {
         uploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-//                sendNotification(sharedPrefManager.getsUser().getFcmToken(), "asdf", "sddsf");
-//                InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                uploadBtn.setEnabled(false);
                 if (pCheck == null) {
                     findViewById(R.id.uploadQues).setClickable(false);
                     uploadQues();
@@ -542,6 +540,7 @@ public class Add_Queastion extends AppCompatActivity {
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            uploadBtn.setEnabled(true);
                             Log.d(TAG, "onFailure: " + e);
                         }
                     });
@@ -611,6 +610,7 @@ public class Add_Queastion extends AppCompatActivity {
                                                                                     }).addOnFailureListener(new OnFailureListener() {
                                                                                         @Override
                                                                                         public void onFailure(@NonNull Exception e) {
+                                                                                            uploadBtn.setEnabled(true);
                                                                                             Log.d(TAG, "onFailure: " + e);
                                                                                         }
                                                                                     });
@@ -618,16 +618,20 @@ public class Add_Queastion extends AppCompatActivity {
                                                                     }).addOnFailureListener(new OnFailureListener() {
                                                                         @Override
                                                                         public void onFailure(Exception e) {
+                                                                            uploadBtn.setEnabled(true);
                                                                             Log.d(TAG, "onFailure: " + e);
                                                                         }
                                                                     });
-                                                        }
+                                                        } else
+                                                            uploadBtn.setEnabled(true);
                                                     }
                                                 });
-                                    }
+                                    } else
+                                        uploadBtn.setEnabled(true);
                                 }
                             });
                         } else {
+                            uploadBtn.setEnabled(true);
                             Log.d(TAG, "onError: audio " + task.getException());
                         }
                     }
@@ -684,6 +688,7 @@ public class Add_Queastion extends AppCompatActivity {
                                                             }).addOnFailureListener(new OnFailureListener() {
                                                                 @Override
                                                                 public void onFailure(@NonNull Exception e) {
+                                                                    uploadBtn.setEnabled(true);
                                                                     Log.d(TAG, "onFailure: " + e);
                                                                 }
                                                             });
@@ -691,10 +696,12 @@ public class Add_Queastion extends AppCompatActivity {
                                             }).addOnFailureListener(new OnFailureListener() {
                                                 @Override
                                                 public void onFailure(Exception e) {
+                                                    uploadBtn.setEnabled(true);
                                                     Log.d(TAG, "onFailure: " + e);
                                                 }
                                             });
-                                }
+                                } else
+                                    uploadBtn.setEnabled(true);
                             }
                         });
             }
@@ -760,11 +767,13 @@ public class Add_Queastion extends AppCompatActivity {
                                             }).addOnFailureListener(new OnFailureListener() {
                                                 @Override
                                                 public void onFailure(@NonNull Exception e) {
+                                                    uploadBtn.setEnabled(true);
                                                     Log.d(TAG, "onFailure: " + e);
                                                     progressDialog.dismiss();
                                                 }
                                             });
-                                }
+                                } else
+                                    uploadBtn.setEnabled(true);
                             }
                         });
                     }
@@ -858,6 +867,7 @@ public class Add_Queastion extends AppCompatActivity {
                                                                                 }).addOnFailureListener(new OnFailureListener() {
                                                                                     @Override
                                                                                     public void onFailure(@NonNull Exception e) {
+                                                                                        uploadBtn.setEnabled(true);
                                                                                         Log.d(TAG, "onFailure: " + e);
                                                                                     }
                                                                                 });
@@ -865,19 +875,23 @@ public class Add_Queastion extends AppCompatActivity {
                                                                 }).addOnFailureListener(new OnFailureListener() {
                                                                     @Override
                                                                     public void onFailure(Exception e) {
+                                                                        uploadBtn.setEnabled(true);
                                                                         Log.d(TAG, "onFailure: " + e);
                                                                     }
                                                                 });
-                                                    }
+                                                    } else
+                                                        uploadBtn.setEnabled(true);
                                                 }
                                             });
-                                }
+                                } else
+                                    uploadBtn.setEnabled(true);
                             }
                         });
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        uploadBtn.setEnabled(true);
                         Log.d(TAG, "onFailure: " + e);
                         progressDialog.dismiss();
                         Toast.makeText(Add_Queastion.this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -890,6 +904,7 @@ public class Add_Queastion extends AppCompatActivity {
                 });
             }
         } catch (Exception e) {
+            uploadBtn.setEnabled(true);
             Log.d(TAG, "uploadQuesImage: " + e);
         }
     }

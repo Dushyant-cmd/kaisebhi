@@ -22,36 +22,21 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.gson.JsonObject;
-import com.google.gson.annotations.SerializedName;
-import com.razorpay.Checkout;
-import com.razorpay.CheckoutActivity;
-import com.razorpay.PaymentData;
-import com.razorpay.PaymentResultWithDataListener;
 import com.kaisebhi.kaisebhi.ActivityForFrag;
 import com.kaisebhi.kaisebhi.HomeActivity;
 import com.kaisebhi.kaisebhi.R;
-import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
+import com.razorpay.Checkout;
+import com.razorpay.PaymentData;
+import com.razorpay.PaymentResultWithDataListener;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Date;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PaymentActivity extends AppCompatActivity implements PaymentResultWithDataListener {
 
@@ -63,7 +48,6 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
     Bundle b;
     String qid = null;
     String Amount = null;
-
     String orderId = null;
     String userid = "";
     private String TAG = "PaymentActivity.java", answerDocId, ques, qDesc, ans, author, qImg;
@@ -173,7 +157,6 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
                 startPayment(amount);
             }
         }
-//        Log.d(TAG, "onCreate: " + answerDocId);
 
     }
 
