@@ -61,7 +61,8 @@ dependencies {
 
     //image crop, circleImageView.
     implementation 'de.hdodenhof:circleimageview:3.0.0'
-    implementation 'com.theartofdev.edmodo:android-image-cropper:2.7.0'
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+//    implementation 'com.vanniktech:android-image-cropper:4.3.3'
 
     //Google Login
     implementation 'com.google.android.gms:play-services-auth:18.1.0'

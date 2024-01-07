@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
@@ -25,10 +26,6 @@ import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MineQuestFragment extends Fragment {
 
@@ -67,7 +64,9 @@ public class MineQuestFragment extends Fragment {
         shimmerFrameLayout.startShimmerAnimation();
         main_interface = RetrofitClient.getApiClient().create(Main_Interface.class);
         Log.d(TAG, "fetchQuestions uId: " + SharedPrefManager.getInstance(getActivity()).getsUser().getUid());
-        mFirestore.collection("questions").whereEqualTo("userId", SharedPrefManager.getInstance(getActivity()).getsUser().getUid())
+        mFirestore.collection("questions")
+                .whereEqualTo("userId", SharedPrefManager.getInstance(getActivity()).getsUser().getUid())
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -105,13 +104,5 @@ public class MineQuestFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: resume ");
-    }
-    
-    public void stopExo() {
-//        if(adapter != null) {
-//            adapter.exoPlayer.stop();
-//            adapter.exoPlayer.release();
-//            Log.d(TAG, "stopExo: home exo");
-//        }
     }
 }

@@ -178,8 +178,6 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             options.put("amount", (am * 100));
             options.put("payment_capture", "1");
             options.put("theme", new JSONObject("{color: '#1278dd'}"));
-
-//            Log.d(TAG, "startPayment: payment json: " + options);
             JSONObject preFill = new JSONObject();
             options.put("prefill", preFill);
 
@@ -208,6 +206,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
         dialog.setCancelable(false);
 
         Map<String, Object> map = new HashMap<>();
+        //answer is paid to see by user.
         if (b.getString("payType").equals("show")) {
             map.clear();
             map.put("ansDocId", answerDocId);
@@ -223,63 +222,57 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             mFirestore.collection("paidAnswers").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(DocumentReference documentReference) {
-                    mFirestore.collection("users").document(userid)
-                            .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        Map<String, Object> rewardMap = new HashMap<>();
-                                        Log.d(TAG, "onSuccess: " + task.getResult().getLong("rewards") + ", "
-                                                + amount);
-                                        rewardMap.put("rewards", task.getResult().getLong("rewards") + amount);
-                                        Log.d(TAG, "onSuccess: map rewards: " + rewardMap);
-                                        mFirestore.collection("users").document(userid).update(rewardMap)
-                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                            Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
-                                                            seac.putExtra("Frag", "showAns");
-                                                            seac.putExtra("tabType", "show");
-                                                            startActivity(seac);
-                                                            dialog.dismiss();
-                                                            Log.d(TAG, "onComplete: of show" + task.getResult());
-                                                        } else {
-                                                            Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
-                                                            seac.putExtra("Frag", "showAns");
-                                                            seac.putExtra("tabType", "show");
-                                                            startActivity(seac);
-                                                            dialog.dismiss();
-                                                            Log.d(TAG, "onFailure of show: " + task.getException());
-                                                        }
-                                                    }
-                                                });
-
-                                        HashMap<String, Object> rewardHisMap = new HashMap<>();
-                                        SimpleDateFormat spf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss", Locale.getDefault());
-                                        rewardHisMap.put("date", spf.format(new Date(System.currentTimeMillis())));
-                                        rewardHisMap.put("timestamp", System.currentTimeMillis());
-                                        rewardHisMap.put("amount", amount);
-                                        rewardHisMap.put("type", "show");
-                                        rewardHisMap.put("remark", "");
-                                        rewardHisMap.put("userId", userid);
-                                        mFirestore.collection("rewardHistory").add(rewardHisMap)
-                                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                    @Override
-                                                    public void onSuccess(DocumentReference documentReference) {
-                                                        Log.d(TAG, "onSuccess: success");
-                                                    }
-                                                }).addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Log.d(TAG, "onFailure: " + e);
-                                                    }
-                                                });
-                                    } else {
-                                        Log.d(TAG, "onComplete: " + task.getException());
+                    mFirestore.collection("users").document(userid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                Map<String, Object> rewardMap = new HashMap<>();
+                                rewardMap.put("rewards", task.getResult().getLong("rewards") + amount);
+                                mFirestore.collection("users").document(userid).update(rewardMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
+                                            seac.putExtra("Frag", "showAns");
+                                            seac.putExtra("tabType", "show");
+                                            startActivity(seac);
+                                            dialog.dismiss();
+                                            Log.d(TAG, "onComplete: of show" + task.getResult());
+                                        } else {
+                                            Intent seac = new Intent(PaymentActivity.this, ActivityForFrag.class);
+                                            seac.putExtra("Frag", "showAns");
+                                            seac.putExtra("tabType", "show");
+                                            startActivity(seac);
+                                            dialog.dismiss();
+                                            Log.d(TAG, "onFailure of show: " + task.getException());
+                                        }
                                     }
-                                }
-                            });
+                                });
+
+                                HashMap<String, Object> rewardHisMap = new HashMap<>();
+                                SimpleDateFormat spf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss", Locale.getDefault());
+                                rewardHisMap.put("date", spf.format(new Date(System.currentTimeMillis())));
+                                rewardHisMap.put("timestamp", System.currentTimeMillis());
+                                rewardHisMap.put("amount", amount);
+                                rewardHisMap.put("type", "show");
+                                rewardHisMap.put("remark", "");
+                                rewardHisMap.put("userId", userid);
+                                mFirestore.collection("rewardHistory").add(rewardHisMap).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                    @Override
+                                    public void onSuccess(DocumentReference documentReference) {
+                                        Log.d(TAG, "onSuccess: success");
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.d(TAG, "onFailure: " + e);
+                                    }
+                                });
+                            } else {
+                                Log.d(TAG, "onComplete: " + task.getException());
+                            }
+                        }
+                    });
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -295,35 +288,33 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             map.put("paidAmount", amount.toString());
             if (isSelfAns) {
                 map.put("selfHideAnswer", true);
-                mFirestore.collection("answers").document(answerDocId).update(map)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(getApplicationContext(), "Answer Hide Successfully!", Toast.LENGTH_LONG).show();
-                                    dialog.dismiss();
-                                    onBackPressed();
-                                } else {
-                                    dialog.dismiss();
-                                    onBackPressed();
-                                }
-                            }
-                        });
+                mFirestore.collection("answers").document(answerDocId).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(getApplicationContext(), "Answer Hide Successfully!", Toast.LENGTH_LONG).show();
+                            dialog.dismiss();
+                            finish();
+                        } else {
+                            dialog.dismiss();
+                            finish();
+                        }
+                    }
+                });
             } else {
-                mFirestore.collection("answers").document(answerDocId).update(map)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(getApplicationContext(), "Answer Hide Successfully!", Toast.LENGTH_LONG).show();
-                                    dialog.dismiss();
-                                    onBackPressed();
-                                } else {
-                                    dialog.dismiss();
-                                    onBackPressed();
-                                }
-                            }
-                        });
+                mFirestore.collection("answers").document(answerDocId).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(getApplicationContext(), "Answer Hide Successfully!", Toast.LENGTH_LONG).show();
+                            dialog.dismiss();
+                            finish();
+                        } else {
+                            dialog.dismiss();
+                            finish();
+                        }
+                    }
+                });
             }
         }
 
@@ -338,13 +329,11 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
         gif.setImageResource(R.drawable.cross);
         MyOrders.setText("Try Again!");
         Log.d(TAG, "onPaymentError: " + paymentData.getData().toString());
-
     }
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(getApplicationContext(), HomeActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
+        startActivity(new Intent(getApplicationContext(), HomeActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
         finish();
     }
 }

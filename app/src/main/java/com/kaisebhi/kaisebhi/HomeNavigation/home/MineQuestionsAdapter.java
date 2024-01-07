@@ -8,14 +8,11 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,29 +23,21 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -57,8 +46,6 @@ import com.kaisebhi.kaisebhi.AnswersActivity;
 import com.kaisebhi.kaisebhi.HomeNavigation.AddQuestion.Add_Queastion;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.databinding.PlayerSheetLayoutBinding;
-
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.List;
 
@@ -299,7 +286,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView pro, questionimg, shareBtn, answers, editQues, deleteQues;
-        Button playAudioBtn;
+        TextView playAudioBtn;
 //        SimpleExoPlayerView exoPlayer;
         TextView Title, Desc, portalTV, quesStatus;
         CardView openQues;
@@ -334,6 +321,5 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
         progressDialog.setMessage("Question Deleting processing.");
         progressDialog.show();
     }
-
 
 }

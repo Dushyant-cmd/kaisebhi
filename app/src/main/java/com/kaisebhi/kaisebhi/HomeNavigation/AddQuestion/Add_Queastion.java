@@ -1,11 +1,7 @@
 package com.kaisebhi.kaisebhi.HomeNavigation.AddQuestion;
 
-import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
-
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -13,7 +9,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
@@ -28,7 +23,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -44,7 +38,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.room.Room;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -52,24 +45,16 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.common.net.MediaType;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.kaisebhi.kaisebhi.Extras.SplashActivity;
 import com.kaisebhi.kaisebhi.HomeActivity;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
-import com.kaisebhi.kaisebhi.Utility.DefaultResponse;
-import com.kaisebhi.kaisebhi.Utility.Main_Interface;
-import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 import com.kaisebhi.kaisebhi.Utility.Utility;
 import com.kaisebhi.kaisebhi.room.PortalsEntity;
@@ -77,33 +62,20 @@ import com.kaisebhi.kaisebhi.room.RoomDb;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
-
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class Add_Queastion extends AppCompatActivity {
 
     private Button addDelivery;
     private EditText quesTitle, quesDesc, otherPortalEditText;
+    String audioDownloadUrl = "";
     private Uri postUri = null;
     private SharedPrefManager sharedPrefManager;
     private FirebaseFirestore mFirestore;
@@ -123,6 +95,10 @@ public class Add_Queastion extends AppCompatActivity {
     private Button recordBtn;
     private File mFile;
     private boolean isPermissionGranted = false;
+
+    private int i = 0, sec = 0;
+    private CountDownTimer cDT;
+    private MediaRecorder mRecorder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,7 +162,7 @@ public class Add_Queastion extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedPortal = spinner.getSelectedItem().toString();
                 Log.d(TAG, "onItemSelected: " + selectedPortal);
-                if (selectedPortal.matches("other")) {
+                if (selectedPortal.equalsIgnoreCase("other")) {
                     portalIL.setVisibility(View.VISIBLE);
                     selectedPortal = "";
                 } else {
@@ -231,8 +207,6 @@ public class Add_Queastion extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d(TAG, "onClick bottom sheet");
                 if (isPermissionGranted) {
-//                    RecordBottomSheetDialog sheet = new RecordBottomSheetDialog();
-//                    sheet.show(getSupportFragmentManager(), "add sheet");
                     bottomSheet(getLayoutInflater(), findViewById(R.id.root), new Bundle());
                 } else {
                     checkPerm();
@@ -242,11 +216,14 @@ public class Add_Queastion extends AppCompatActivity {
         selectQues.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CropImage.activity()
-                        .setGuidelines(CropImageView.Guidelines.ON)
-                        .setAspectRatio(1, 1)
-                        .setMinCropResultSize(512, 512)
-                        .start(Add_Queastion.this);
+                if(isPermissionGranted)
+                    CropImage.activity()
+                            .setGuidelines(CropImageView.Guidelines.ON)
+                            .setAspectRatio(1, 1)
+                            .setMinCropResultSize(512, 512)
+                            .start(Add_Queastion.this);
+                else
+                    checkPerm();
             }
         });
 
@@ -256,10 +233,8 @@ public class Add_Queastion extends AppCompatActivity {
             public void onClick(View v) {
                 uploadBtn.setEnabled(false);
                 if (pCheck == null) {
-                    findViewById(R.id.uploadQues).setClickable(false);
                     uploadQues();
                 } else {
-                    findViewById(R.id.uploadQues).setClickable(false);
                     uploadQuesImage();
                 }
             }
@@ -272,7 +247,7 @@ public class Add_Queastion extends AppCompatActivity {
                     == PackageManager.PERMISSION_DENIED
                     || ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.READ_MEDIA_IMAGES)
                     == PackageManager.PERMISSION_DENIED
-                    || ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.READ_MEDIA_IMAGES)
+                    || ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.READ_MEDIA_AUDIO)
                     == PackageManager.PERMISSION_DENIED
                     || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                     == PackageManager.PERMISSION_DENIED) {
@@ -280,9 +255,7 @@ public class Add_Queastion extends AppCompatActivity {
                         Manifest.permission.RECORD_AUDIO
                         , Manifest.permission.READ_MEDIA_IMAGES
                         , Manifest.permission.READ_MEDIA_AUDIO
-                        , Manifest.permission.WRITE_EXTERNAL_STORAGE
                         , Manifest.permission.CAMERA
-                        , Manifest.permission.POST_NOTIFICATIONS
                 };
 
                 ActivityCompat.requestPermissions(Add_Queastion.this, permArr, 101);
@@ -295,18 +268,17 @@ public class Add_Queastion extends AppCompatActivity {
                     == PackageManager.PERMISSION_DENIED
                     || ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_DENIED
-                    || ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.READ_MEDIA_AUDIO)
+                    || ContextCompat.checkSelfPermission(Add_Queastion.this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_DENIED
                     || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                     == PackageManager.PERMISSION_DENIED) {
                 String[] permArr = new String[]{Manifest.permission.RECORD_AUDIO
-                        , Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,
+                        , Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
                         Manifest.permission.CAMERA};
 
                 ActivityCompat.requestPermissions(Add_Queastion.this, permArr, 101);
             } else {
-//            RecordBottomSheetDialog sheet = new RecordBottomSheetDialog();
-//            sheet.show(getSupportFragmentManager(), "add sheet");
                 bottomSheet(getLayoutInflater(), findViewById(R.id.root), new Bundle());
                 isPermissionGranted = true;
             }
@@ -317,16 +289,16 @@ public class Add_Queastion extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 101) {
-            for(int i=0; i<grantResults.length; i++) {
-                if(grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+            for (int i = 0; i < grantResults.length; i++) {
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                     isPermissionGranted = true;
-                } else if(grantResults[i] == PackageManager.PERMISSION_DENIED){
+                } else if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
                     isPermissionGranted = false;
                     break;
                 }
             }
 
-            if(!isPermissionGranted) {
+            if (!isPermissionGranted) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this)
                         .setMessage("Please allow all permissions to continue")
                         .setTitle("Permission denied")
@@ -346,17 +318,6 @@ public class Add_Queastion extends AppCompatActivity {
         }
     }
 
-
-    /**
-     * It will display a sheet without floating dialog instead display it with BottomSheetDialog and
-     * can handle lifecycle.
-     */
-//    public static class RecordBottomSheetDialog extends BottomSheetDialogFragment {
-    private int i = 0, sec = 0;
-    private CountDownTimer cDT;
-    private MediaRecorder mRecorder;
-
-    //            @Override
     public void bottomSheet(LayoutInflater inflater, ViewGroup container, Bundle saveInsState) {
         BottomSheetDialog sheet = new BottomSheetDialog(this);
         sheet.setCancelable(true);
@@ -415,7 +376,6 @@ public class Add_Queastion extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("BottomSheet.java", "onClick: clicked");
                 try {
-//                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
                     cDT.start();
                     startBtn.setVisibility(View.GONE);
                     stopBtn.setVisibility(View.VISIBLE);
@@ -424,11 +384,6 @@ public class Add_Queastion extends AppCompatActivity {
                     mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                     mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
                     mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-                    /**Below line will create directory in user external storage. */
-//                        File rootDir = new File(Environment.getExternalStorageDirectory(), "Kaisebhi");
-//                        if (!rootDir.exists())
-//                            rootDir.mkdir();
-//                        mFile = File.createTempFile("question_recording", ".3gp", rootDir);
                     String path = String.valueOf(getExternalFilesDir(Environment.DIRECTORY_DCIM));
                     File dir = new File(path);
                     if (!dir.exists())
@@ -457,7 +412,6 @@ public class Add_Queastion extends AppCompatActivity {
                     mRecorder = null;
                     sheet.dismiss();
                     status();
-//                        dismiss();
                 } catch (Exception e) {
                     Log.d("BottomSheet.java", "onClick: " + e);
                 }
@@ -493,37 +447,42 @@ public class Add_Queastion extends AppCompatActivity {
         recordBtn.setEnabled(false);
     }
 
-    String audioDownloadUrl = "";
-
     private void uploadQues() {
         String title = quesTitle.getText().toString();
         String desc = quesDesc.getText().toString();
 
         if (title.isEmpty()) {
             Toast.makeText(getApplicationContext(), "Add Question !", Toast.LENGTH_SHORT).show();
-            uploadBtn.setClickable(true);
+            uploadBtn.setEnabled(true);
             return;
         }
 
-        if (spinner.getSelectedItem().toString().matches("Please Select a Portal")) {
+        if (desc.isEmpty()) {
+            Toast.makeText(this, "Please enter description", Toast.LENGTH_SHORT).show();
+            uploadBtn.setEnabled(true);
+            return;
+        }
+
+        selectedPortal = spinner.getSelectedItem().toString();
+        if (selectedPortal.equalsIgnoreCase("Please Select a Portal")) {
             Toast.makeText(getApplicationContext(), "Select Portal !", Toast.LENGTH_SHORT).show();
-            uploadBtn.setClickable(true);
+            uploadBtn.setEnabled(true);
             return;
-        } else if (spinner.getSelectedItem().toString().matches("other") && otherPortalEditText.getText().toString().isEmpty()) {
+        } else if (selectedPortal.equalsIgnoreCase("other") && otherPortalEditText.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Add Portal !", Toast.LENGTH_SHORT).show();
-            uploadBtn.setClickable(true);
+            uploadBtn.setEnabled(true);
             return;
-        } else {
+        } else if (selectedPortal.equalsIgnoreCase("other")) {
             selectedPortal = otherPortalEditText.getText().toString();
         }
 
         progressDialog.show();
-        if (uploadBtn.getText().toString().matches("Update Question")) {
+        if (uploadBtn.getText().toString().equalsIgnoreCase("Update Question")) {
             HashMap<String, Object> map = new HashMap<>();
             map.put("title", title);
             map.put("desc", desc);
-            if (!spinner.getSelectedItem().toString().matches(portal))
-                map.put("portal", spinner.getSelectedItem().toString());
+            if (!spinner.getSelectedItem().toString().equalsIgnoreCase(portal))
+                map.put("portal", selectedPortal);
             mFirestore.collection("questions").document(Qid).update(map)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -715,12 +674,27 @@ public class Add_Queastion extends AppCompatActivity {
 
         if (title.isEmpty()) {
             Toast.makeText(getApplicationContext(), "Add Question !", Toast.LENGTH_SHORT).show();
+            uploadBtn.setEnabled(true);
             return;
         }
 
-        if (spinner.getSelectedItem().toString().matches("Please Select a Portal")) {
-            Toast.makeText(getApplicationContext(), "Select Portal !", Toast.LENGTH_SHORT).show();
+        if (desc.isEmpty()) {
+            Toast.makeText(this, "Please enter description", Toast.LENGTH_SHORT).show();
+            uploadBtn.setEnabled(true);
             return;
+        }
+
+        selectedPortal = spinner.getSelectedItem().toString();
+        if (selectedPortal.equalsIgnoreCase("Please Select a Portal")) {
+            Toast.makeText(getApplicationContext(), "Select Portal !", Toast.LENGTH_SHORT).show();
+            uploadBtn.setEnabled(true);
+            return;
+        } else if (selectedPortal.equalsIgnoreCase("other") && otherPortalEditText.getText().toString().isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Add Portal !", Toast.LENGTH_SHORT).show();
+            uploadBtn.setEnabled(true);
+            return;
+        } else if (selectedPortal.equalsIgnoreCase("other")) {
+            selectedPortal = otherPortalEditText.getText().toString();
         }
 
         progressDialog.show();
@@ -747,7 +721,7 @@ public class Add_Queastion extends AppCompatActivity {
                                     map.put("desc", desc);
                                     map.put("image", uri);
                                     if (spinner.getSelectedItem().toString().matches(portal))
-                                        map.put("portal", spinner.getSelectedItem().toString());
+                                        map.put("portal", selectedPortal);
                                     mFirestore.collection("questions").document(Qid).update(map)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
@@ -839,7 +813,7 @@ public class Add_Queastion extends AppCompatActivity {
                                                         questionMap.put("image", downloadImgTask.getResult().toString());
                                                         questionMap.put("userPicUrl", sharedPrefManager.getProfilePic());
                                                         questionMap.put("imageRef", imagePath);
-                                                        questionMap.put("portal", spinner.getSelectedItem().toString());
+                                                        questionMap.put("portal", selectedPortal);
                                                         questionMap.put("audio", audioDownloadUrl);
                                                         if (!audioDownloadUrl.isEmpty())
                                                             questionMap.put("audioRef", UUID);

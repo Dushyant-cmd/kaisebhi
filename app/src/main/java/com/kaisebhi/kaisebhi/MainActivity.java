@@ -1,16 +1,15 @@
 package com.kaisebhi.kaisebhi;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -32,16 +31,14 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-//import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
+import com.kaisebhi.kaisebhi.Utility.Utility;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPrefManager sharedPreferences;
     private FirebaseMessaging fcm;
     private String token = "";
-    private ProgressDialog progressDialog;
+    private AlertDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,9 +70,8 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirestore = FirebaseFirestore.getInstance();
         sharedPreferences = SharedPrefManager.getInstance(getApplicationContext());
-        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog = Utility.createAlertDialog(MainActivity.this);
         progressDialog.setCancelable(false);
-        progressDialog.setMessage("Please wait...");
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -457,6 +453,7 @@ public class MainActivity extends AppCompatActivity {
             BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(MainActivity.this);
             View v = LayoutInflater.from(MainActivity.this).inflate(R.layout.referral_layout, null);
             EditText referralET = v.findViewById(R.id.referralET);
+            bottomSheetDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             v.findViewById(R.id.cancelBtn).setOnClickListener(view -> {
                 //cancel button
                 bottomSheetDialog.dismiss();
@@ -486,13 +483,6 @@ public class MainActivity extends AppCompatActivity {
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             if(task.isSuccessful()) {
                                                                 sharedPreferences.setReward(totalReward);
-//
-//                                                            sharedPreferences.saveUser(sharedPreferences.getsUser().getName(),
-//                                                                    sharedPreferences.getsUser().getMobile(), sharedPreferences.getsUser().getUid(),
-//                                                                    sharedPreferences.getProfilePic(), sharedPreferences.getsUser().getEmail(),
-//                                                                    sharedPreferences.getsUser().getLocation(), sharedPreferences.getsUser().getReward(),
-//                                                                    sharedPreferences.getsUser().getReferId(), sharedPreferences.getsUser().getFcmToken()
-//                                                                    );
                                                             } else {
                                                                 Log.d(TAG, "onComplete: " + task.getException());
                                                             }

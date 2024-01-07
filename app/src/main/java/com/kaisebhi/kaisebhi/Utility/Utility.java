@@ -2,16 +2,19 @@ package com.kaisebhi.kaisebhi.Utility;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Toast;
 
-import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
+import com.kaisebhi.kaisebhi.R;
 
 public class Utility {
     private static String TAG = "Utility.java";
@@ -66,5 +69,18 @@ public class Utility {
         } catch (Exception e) {
             Log.d(TAG, "noNetworkDialog: " + e);
         }
+    }
+
+
+
+    public static AlertDialog createAlertDialog(Context context) {
+
+        AlertDialog pDialog = new AlertDialog.Builder(context).create();
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View convertView = inflater.inflate(R.layout.custom_progress_dialog, null);
+        pDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        pDialog.setView(convertView);
+        pDialog.setCancelable(false);
+        return pDialog;
     }
 }

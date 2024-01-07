@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fff"
@@ -30,13 +28,17 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <Spinner
+                    android:id="@+id/portalSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="5dp"
-                    android:layout_marginTop="16dp">
+                    android:layout_marginHorizontal="5dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/q_title"
@@ -65,12 +67,6 @@
                         android:textSize="13dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <Spinner
-                    android:id="@+id/portalSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp" />
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/portalIL"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -84,9 +80,9 @@
                         android:id="@+id/otherPortal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="13sp"
                         android:hint="Type your portal"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        android:textSize="13sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
@@ -99,14 +95,14 @@
                 android:text="Optional Details" />
 
             <Button
+                android:id="@+id/recordAudioBtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Record Question"
                 android:layout_marginHorizontal="10dp"
-                android:textSize="16sp"
-                android:drawableStart="@drawable/ic_mic_24"
                 android:layout_marginTop="20dp"
-                android:id="@+id/recordAudioBtn"/>
+                android:drawableStart="@drawable/ic_mic_24"
+                android:text="Record Question"
+                android:textSize="16sp" />
 
             <ImageView
                 android:id="@+id/quesImage"

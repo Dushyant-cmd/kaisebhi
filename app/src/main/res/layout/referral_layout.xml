@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:background="@drawable/btn_bg"
     android:padding="8dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -14,11 +15,20 @@
         android:textColor="@color/black"
         android:layout_gravity="center"
         android:textStyle="bold"
+        android:fontFamily="@font/nunito_regular"
         android:text="Referral Code(Optional)"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter Referral Code"
+        android:fontFamily="@font/nunito_regular"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="15dp"
+        android:textSize="14sp"
+        android:textColor="@color/black"/>
     <com.google.android.material.textfield.TextInputLayout
         android:layout_marginHorizontal="4dp"
-        android:layout_marginTop="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -34,27 +44,38 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
+        <TextView
+            android:background="@drawable/btn_bg"
+            android:backgroundTint="#000000"
+            android:paddingVertical="8dp"
+            android:gravity="center"
+            android:textColor="#fff"
             android:id="@+id/cancelBtn"
             android:layout_weight="1"
             android:layout_width="match_parent"
+            android:fontFamily="@font/nunito_regular"
             android:layout_height="wrap_content"
             android:text="Cancel"/>
 
 
-        <Button
+        <TextView
+            android:layout_marginStart="4dp"
+            android:background="@drawable/btn_bg"
+            android:backgroundTint="@color/pastelOrange"
+            android:paddingVertical="8dp"
+            android:gravity="center"
+            android:textColor="#fff"
             android:id="@+id/applyBtn"
             android:layout_weight="1"
+            android:fontFamily="@font/nunito_regular"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Submit"
-            android:backgroundTint="@color/pastelOrange"
-            android:layout_marginEnd="4dp"/>
+            android:text="Submit"/>
 
     </LinearLayout>
 
