@@ -102,6 +102,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
             holder.quesStatus.setText(span.toString());
             holder.quesStatus.setVisibility(View.VISIBLE);
         }
+
         //ExoPlayer setup and play when ready with controls and seekbar.
         if(!model.getAudio().isEmpty()) {
             holder.playAudioBtn.setVisibility(View.VISIBLE);
@@ -220,6 +221,7 @@ public class MineQuestionsAdapter extends RecyclerView.Adapter<MineQuestionsAdap
                 i.putExtra("tlikes", nlist.get(position).getCheckLike());
                 i.putExtra("userId", nlist.get(position).getUserId());
                 i.putExtra("audio", nlist.get(position).getAudio());
+                i.putExtra("portal", nlist.get(position).getPortal());
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }

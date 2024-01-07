@@ -69,6 +69,20 @@
                 android:layout_height="200dp"/>
 
 
+            <TextView
+                android:layout_marginTop="8dp"
+                android:id="@+id/playBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:background="@drawable/btn_bg"
+                android:backgroundTint="@color/pastelOrange"
+                android:fontFamily="@font/nunito_regular"
+                android:gravity="center"
+                android:paddingVertical="8dp"
+                android:text="Play Audio"
+                android:textColor="#fff" />
+
             <LinearLayout
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="20dp"

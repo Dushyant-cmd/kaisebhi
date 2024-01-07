@@ -1,7 +1,5 @@
 package com.kaisebhi.kaisebhi.HomeNavigation.home;
 
-import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
-
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -12,10 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,20 +21,14 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -139,7 +129,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         }
 
         if (!nlist.get(position).getTansers().equals("0")) {
-            holder.totalAns.setText(nlist.get(position).getTansers());
+            holder.totalAns.setText("");
         }
 
         if (!nlist.get(position).getLikes().equals("0")) {
@@ -226,6 +216,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                 i.putExtra("likes", nlist.get(position).getLikes());
                 i.putExtra("userId", q.getUserId());
                 i.putExtra("audio", q.getAudio());
+                i.putExtra("portal", nlist.get(position).getPortal());
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }
@@ -246,6 +237,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
                 i.putExtra("tlikes", nlist.get(position).getCheckLike());
                 i.putExtra("userId", q.getUserId());
                 i.putExtra("audio", q.getAudio());
+                i.putExtra("portal", nlist.get(position).getPortal());
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(i);
             }
@@ -539,7 +531,7 @@ public class QuestionsAdapter extends RecyclerView.Adapter<QuestionsAdapter.View
         SimpleExoPlayerView simpleExoPlayerView;
         CheckBox favBtn, likeBtn;
         CardView openQues;
-        Button playBtn;
+        TextView playBtn;
 
 
         public ViewHolder(@NonNull View itemView) {

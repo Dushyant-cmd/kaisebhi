@@ -53,7 +53,23 @@ public class AnswersModel {
     private String questionsTitle;
     private String answerDocId;
 
-    private String reportBy, likedBy, userId;
+    private String reportBy, likedBy, userId, portal, audioUrl;
+
+    public String getPortal() {
+        return portal;
+    }
+
+    public void setPortal(String portal) {
+        this.portal = portal;
+    }
+
+    public String getAudioUrl() {
+        return audioUrl;
+    }
+
+    public void setAudioUrl(String audioUrl) {
+        this.audioUrl = audioUrl;
+    }
 
     public AnswersModel(String ID, Boolean checkOwnQuestion, String uname, String upro, String likes, String desc, String qimg, Boolean checkLike, String anser, boolean checkHideAnswer, boolean checkPaid, String paidAmount, boolean selfAnswer, boolean selfHideAnswer, boolean userReport, String questionsTitle, String answerDocId, String reportBy, String likedBy, String userId) {
         this.ID = ID;

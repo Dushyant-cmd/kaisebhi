@@ -25,10 +25,6 @@ import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class HidesAnsFragment extends Fragment {
 
     private RecyclerView recyclerView;
@@ -68,14 +64,17 @@ public class HidesAnsFragment extends Fragment {
                         if(task.isSuccessful()) {
                             List<DocumentSnapshot> list = task.getResult().getDocuments();
                             for(DocumentSnapshot d: list) {
-                                answers.add(new HideAnswersModel(d.getString("title"),
+                                HideAnswersModel data = new HideAnswersModel(d.getString("title"),
                                         d.getString("qdesc"), d.getString("qimg"),
                                         d.getString("answer"), d.getString("uname"),
                                         ""
-                                ));
+                                );
+                                data.setPortal(d.getString("portal"));
+                                data.setAudioUrl(d.getString("audio"));
+                                answers.add(data);
                             }
 
-                            adapter = new HideAnswersAdapter(answers,getActivity());
+                            adapter = new HideAnswersAdapter(answers,getActivity(), getActivity().getSupportFragmentManager());
                             recyclerView.setAdapter(adapter);
 
                             shimmerFrameLayout.stopShimmerAnimation();
@@ -85,23 +84,6 @@ public class HidesAnsFragment extends Fragment {
                         }
                     }
                 });
-//        Call<List<HideAnswersModel>> call = main_interface.getHideAns(sh.getsUser().getUid(),"hide");
-//        call.enqueue(new Callback<List<HideAnswersModel>>() {
-//            @Override
-//            public void onResponse(Call<List<HideAnswersModel>> call, Response<List<HideAnswersModel>> response) {
-//
-//                answers = response.body();
-//                adapter = new HideAnswersAdapter(answers,getActivity());
-//                recyclerView.setAdapter(adapter);
-//
-//                shimmerFrameLayout.stopShimmerAnimation();
-//                shimmerFrameLayout.setVisibility(View.GONE);
-//            }
-//            @Override
-//            public void onFailure(Call<List<HideAnswersModel>> call, Throwable t) {
-//
-//            }
-//        });
     }
 
 

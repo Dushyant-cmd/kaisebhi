@@ -38,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -199,6 +200,8 @@ public class Add_Queastion extends AppCompatActivity {
             Button uploadBtn = findViewById(R.id.uploadQues);
             uploadBtn.setText("Update Question");
             recordBtn.setText("Recorded");
+            recordBtn.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.pastelOrange, getTheme()));
+            recordBtn.setCompoundDrawablesWithIntrinsicBounds(ResourcesCompat.getDrawable(getResources(), R.drawable.baseline_check_circle_24, getTheme()), null, null, null);
             recordBtn.setEnabled(false);
         }
 
@@ -444,6 +447,8 @@ public class Add_Queastion extends AppCompatActivity {
 
     public void status() {
         recordBtn.setText("Recorded");
+        recordBtn.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.pastelOrange, getTheme()));
+        recordBtn.setCompoundDrawablesWithIntrinsicBounds(ResourcesCompat.getDrawable(getResources(), R.drawable.baseline_check_circle_24, getTheme()), null, null, null);
         recordBtn.setEnabled(false);
     }
 

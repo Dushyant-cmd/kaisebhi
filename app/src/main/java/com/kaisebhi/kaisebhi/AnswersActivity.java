@@ -76,7 +76,7 @@ public class AnswersActivity extends AppCompatActivity {
     TextView Title, Desc, totalAns, userHead;
     CheckBox favBtn, likeBtn;
     ProgressBar loadAns;
-    private String id, title, userName, userPic, desc, qImg, tAns, tLikes, userId = "";
+    private String id, title, userName, userPic, desc, qImg, tAns, tLikes, userId = "", portal;
 
 
     String Qid;
@@ -137,6 +137,7 @@ public class AnswersActivity extends AppCompatActivity {
             totalAns.setText(extras.getString("tans"));
             likeBtn.setChecked(extras.getBoolean("tlikes"));
             userId = extras.getString("userId");
+            portal = extras.getString("portal");
             audioUrl = extras.getString("audio");
 
             if (!extras.getString("qimg").matches("na")) {
@@ -222,6 +223,8 @@ public class AnswersActivity extends AppCompatActivity {
                     map.put("title", extras.getString("title"));
                     map.put("reportBy", "");
                     map.put("likedBy", "");
+                    map.put("audio", audioUrl);
+                    map.put("portal", portal);
                     Log.d(TAG, "onClick answer post map: " + map);
                     mFirestore.collection("answers").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
@@ -264,9 +267,6 @@ public class AnswersActivity extends AppCompatActivity {
         exoPlayer = ExoPlayerFactory.newSimpleInstance(AnswersActivity.this, trackSelector);
         simpleExoPlayerView.setPlayer(exoPlayer);
         exoPlayer.prepare(mediaSource);
-        //Below line means auto play when ready with media and its encoder and buffering before you
-        //play media.
-//        exoPlayer.setPlayWhenReady(true);
     }
 
     public void fetchAnsers() {
@@ -294,6 +294,8 @@ public class AnswersActivity extends AppCompatActivity {
                                             d.getString("likedBy"), d.getString("userId")
                                     );
 
+                                    ans.setAudioUrl(d.getString("audio"));
+                                    ans.setPortal(d.getString("portal"));
                                     answers.add(ans);
                                 }
                                 Log.d(TAG, "onComplete: answer list: " + answers.size());
@@ -341,6 +343,7 @@ public class AnswersActivity extends AppCompatActivity {
                                                 }
                                             });
                                 }
+
                                 if(answers.isEmpty()) {
                                     adapter = new AnswersAdapter(answers, getApplicationContext());
                                     adapter.qUserId = userId;

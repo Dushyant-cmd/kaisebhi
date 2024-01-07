@@ -1,6 +1,5 @@
 package com.kaisebhi.kaisebhi.HomeNavigation.Profile;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,31 +29,25 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
-import com.kaisebhi.kaisebhi.Utility.Utility;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 import com.kaisebhi.kaisebhi.HomeActivity;
 import com.kaisebhi.kaisebhi.R;
+import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
 import com.kaisebhi.kaisebhi.Utility.DefaultResponse;
 import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
+import com.kaisebhi.kaisebhi.Utility.Utility;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
 
 public class ProfileUpdate extends AppCompatActivity {
 
@@ -134,6 +127,7 @@ public class ProfileUpdate extends AppCompatActivity {
         updateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                updateBtn.setEnabled(false);
                 updateProfile();
             }
         });
@@ -195,11 +189,13 @@ public class ProfileUpdate extends AppCompatActivity {
 
         if (mob.length() != 10) {
             edMobile.setError("Number must be of 10 digits");
+            updateBtn.setEnabled(true);
             return;
         }
 
         if(Long.parseLong(mob.substring(0, 1)) < 6 || mob.contains("000000")) {
             edMobile.setError("Add valid mobile number");
+            updateBtn.setEnabled(true);
             return;
         }
 
@@ -208,16 +204,19 @@ public class ProfileUpdate extends AppCompatActivity {
 
         if (name.isEmpty()) {
             edName.setError("Add Name");
+            updateBtn.setEnabled(true);
             return;
         }
 
         if (email.isEmpty()) {
             edEmail.setError("Add Email");
+            updateBtn.setEnabled(true);
             return;
         }
 
         if (address.isEmpty()) {
             edAdd.setError("Add Address");
+            updateBtn.setEnabled(true);
             return;
         }
 
@@ -266,6 +265,7 @@ public class ProfileUpdate extends AppCompatActivity {
                                         }).addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
+                                                updateBtn.setEnabled(true);
                                                 Log.d(TAG, "onFailure: " + e);
                                             }
                                         });
@@ -274,12 +274,14 @@ public class ProfileUpdate extends AppCompatActivity {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Log.d(TAG, "onFailure: " + e);
+                                updateBtn.setEnabled(true);
                                 Utility.toast(ProfileUpdate.this, e.toString());
                             }
                         });
                     } else {
                         Utility.toast(ProfileUpdate.this, task.getException().toString());
                         Log.d(TAG, "onComplete: " + task.getException());
+                        updateBtn.setEnabled(true);
                     }
                 }
             });
@@ -309,6 +311,7 @@ public class ProfileUpdate extends AppCompatActivity {
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            updateBtn.setEnabled(true);
                             Log.d(TAG, "onFailure: " + e);
                         }
                     });

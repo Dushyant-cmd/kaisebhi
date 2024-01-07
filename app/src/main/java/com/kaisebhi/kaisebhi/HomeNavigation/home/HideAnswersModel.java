@@ -22,6 +22,23 @@ public class HideAnswersModel {
 
     @SerializedName("thumb")
     private String thumb;
+    private String portal, audioUrl;
+
+    public String getPortal() {
+        return portal;
+    }
+
+    public void setPortal(String portal) {
+        this.portal = portal;
+    }
+
+    public String getAudioUrl() {
+        return audioUrl;
+    }
+
+    public void setAudioUrl(String audioUrl) {
+        this.audioUrl = audioUrl;
+    }
 
     public HideAnswersModel(String ques, String desc, String qimg, String ans, String author, String thumb) {
         this.ques = ques;

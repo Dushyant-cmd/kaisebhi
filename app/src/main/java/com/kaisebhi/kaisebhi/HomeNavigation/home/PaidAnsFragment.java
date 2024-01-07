@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -26,10 +25,6 @@ import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class PaidAnsFragment extends Fragment {
 
@@ -69,11 +64,14 @@ public class PaidAnsFragment extends Fragment {
                     public void onSuccess(QuerySnapshot task) {
                         List<DocumentSnapshot> list = task.getDocuments();
                         for(DocumentSnapshot d: list) {
-                            answers.add(new HideAnswersModel(d.getString("ques"), d.getString("qDesc"),
+                            HideAnswersModel data = new HideAnswersModel(d.getString("ques"), d.getString("qDesc"),
                                     d.getString("qImg"), d.getString("ans"), d.getString("author"), ""
-                                    ));
+                            );
+                            data.setAudioUrl(d.getString("audio"));
+                            data.setPortal(d.getString("portal"));
+                            answers.add(data);
                         }
-                        adapter = new HideAnswersAdapter(answers, getActivity());
+                        adapter = new HideAnswersAdapter(answers, getActivity(), getActivity().getSupportFragmentManager());
                         recyclerView.setAdapter(adapter);
 
                         shimmerFrameLayout.stopShimmerAnimation();

@@ -50,7 +50,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
     String Amount = null;
     String orderId = null;
     String userid = "";
-    private String TAG = "PaymentActivity.java", answerDocId, ques, qDesc, ans, author, qImg;
+    private String TAG = "PaymentActivity.java", answerDocId, ques, qDesc, ans, author, qImg, audio, portal;
     private Double amount = 0.00;
     private boolean isSelfAns = false;
     private FirebaseFirestore mFirestore;
@@ -60,9 +60,6 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_succesfull);
-
-//        TextView header = findViewById(R.id.textHeader);
-//        Checkout.preload(getApplicationContext());
 
         sharedPrefManager = new SharedPrefManager(getApplication());
         progressDialog = new ProgressDialog(this);
@@ -112,48 +109,9 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
                 qid = b.getString("qid");
                 answerDocId = b.getString("ansId");
                 isSelfAns = b.getBoolean("isSelfAns");
+                portal = b.getString("portal");
+                audio = b.getString("audio");
 
-                //for order id
-//                JSONObject json = new JSONObject();
-//                try {
-//                    json.put("amount", (amount * 100));
-//                    json.put("currency", "INR");
-//                    json.put("receipt", "Receipt no. 1");
-//                } catch (JSONException e) {
-//                    throw new RuntimeException(e);
-//                }
-//
-//                HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-//                interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-//
-//                OkHttpClient client = new OkHttpClient.Builder()
-//                        .addInterceptor(interceptor)
-//                        .connectTimeout(100, TimeUnit.SECONDS)
-//                        .readTimeout(100, TimeUnit.SECONDS)
-//                        .callTimeout(100, TimeUnit.SECONDS)
-//                        .build();
-//
-//                Retrofit retrofit = new Retrofit.Builder()
-//                        .baseUrl("https://api.razorpay.com/")
-//                        .addConverterFactory(GsonConverterFactory.create())
-//                        .client(client)
-//                        .build();
-
-//                retrofit.create(Main_Interface.class).getOrderId(String.valueOf(json))
-//                                .enqueue(new Callback<JsonObject>() {
-//                                    @Override
-//                                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-//                                        if(response.isSuccessful()) {
-//                                            Log.d(TAG, "onResponse: " + response.body());
-////                                            startPayment(amount);
-//                                        }
-//                                    }
-//
-//                                    @Override
-//                                    public void onFailure(Call<JsonObject> call, Throwable t) {
-//                                        Log.d(TAG, "onFailure: " + t);
-//                                    }
-//                                });
                 startPayment(amount);
             }
         }
@@ -219,6 +177,8 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             map.put("ans", ans);
             map.put("author", author);
             map.put("qImg", qImg);
+            map.put("audio", audio);
+            map.put("portal", portal);
             mFirestore.collection("paidAnswers").add(map).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(DocumentReference documentReference) {
@@ -288,7 +248,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
             map.put("paidAmount", amount.toString());
             if (isSelfAns) {
                 map.put("selfHideAnswer", true);
-                mFirestore.collection("answers").document(answerDocId).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+                mFirestore.collection("answers").document(userid).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
@@ -302,7 +262,7 @@ public class PaymentActivity extends AppCompatActivity implements PaymentResultW
                     }
                 });
             } else {
-                mFirestore.collection("answers").document(answerDocId).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+                mFirestore.collection("answers").document(userid).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {

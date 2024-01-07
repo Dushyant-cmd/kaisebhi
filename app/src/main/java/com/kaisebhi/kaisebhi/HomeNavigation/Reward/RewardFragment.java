@@ -23,7 +23,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -40,9 +39,7 @@ import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -240,26 +237,6 @@ public class RewardFragment extends Fragment {
                         }
                     }
                 });
-
-//        Call<List<ModelWalletHistory>> call = main_interface.getWalletHistory(id);
-//        call.enqueue(new Callback<List<ModelWalletHistory>>() {
-//            @Override
-//            public void onResponse(Call<List<ModelWalletHistory>> call, Response<List<ModelWalletHistory>> response) {
-//                if (response.code() != 404) {
-//                    history = response.body();
-//                    adapter = new WalletHistoryRecylerView(history, getActivity());
-//                    recyclerView.setAdapter(adapter);
-//                } else {
-//                }
-//                progressBar.setVisibility(View.GONE);
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<ModelWalletHistory>> call, Throwable t) {
-//
-//            }
-//        });
     }
 
 
@@ -278,23 +255,6 @@ public class RewardFragment extends Fragment {
                         }
                     }
                 });
-//        Call<DefaultResponse> call = RetrofitClient.getInstance().getApi().getBal(id);
-//        call.enqueue(new Callback<DefaultResponse>() {
-//            @Override
-//            public void onResponse(Call<DefaultResponse> call, Response<DefaultResponse> response) {
-//                DefaultResponse dr = response.body();
-//                if (response.code() == 201) {
-//                    String data = dr.getMessage();
-//                    bal.setText(data + ".0");
-//                    balance = Integer.parseInt(data);
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<DefaultResponse> call, Throwable t) {
-//            }
-//
-//        });
     }
 
 }

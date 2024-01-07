@@ -1,7 +1,5 @@
 package com.kaisebhi.kaisebhi.HomeNavigation.home;
 
-import static com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient.BASE_URL;
-
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -31,14 +28,9 @@ import com.kaisebhi.kaisebhi.HomeNavigation.terms.TermsAndPolicyActivity;
 import com.kaisebhi.kaisebhi.MainActivity;
 import com.kaisebhi.kaisebhi.R;
 import com.kaisebhi.kaisebhi.Utility.ApplicationCustom;
-import com.kaisebhi.kaisebhi.Utility.DefaultResponse;
-import com.kaisebhi.kaisebhi.Utility.Network.RetrofitClient;
 import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MenuFragment extends Fragment implements View.OnClickListener {
 
@@ -140,14 +132,17 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                 changeFragment(new MineAnsFragment());
                 break;
             case R.id.termNav:
-//                Uri uri = Uri.parse("https://kaisebhi.com/terms-conditions/"); // missing 'http://' will cause crashed
-//                Intent intent = new Intent(requireActivity(), TermsAndPolicyActivity.class);
-//                startActivity(intent);
-//                break;
+                Uri uri = Uri.parse("https://kaisebhi.com/terms-conditions/"); // missing 'http://' will cause crashed
+                Intent intent = new Intent(requireActivity(), TermsAndPolicyActivity.class);
+                startActivity(intent);
+                break;
             case R.id.SugNav:
-//                Uri uris = Uri.parse("https://kaisebhi.com/suggestions/"); // missing 'http://' will cause crashed
-                Intent intents = new Intent(requireActivity(), TermsAndPolicyActivity.class);
-                startActivity(intents);
+                Intent intent2 = new Intent(Intent.ACTION_SENDTO);
+                intent2.setData(Uri.parse("mailto:")); // only email apps should handle this
+                intent2.putExtra(Intent.EXTRA_EMAIL, "kaisebhe@gmail.com");
+                intent2.putExtra(Intent.EXTRA_SUBJECT, "Suggessions from " + sharedPrefManager.getsUser().getName());
+                if (intent2.resolveActivity(requireActivity().getPackageManager()) != null) 
+                    startActivity(intent2);
                 break;
             case R.id.logNav:
                 alertOpen();

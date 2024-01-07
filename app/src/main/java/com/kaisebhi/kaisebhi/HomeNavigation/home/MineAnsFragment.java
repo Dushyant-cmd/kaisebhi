@@ -26,10 +26,6 @@ import com.kaisebhi.kaisebhi.Utility.SharedPrefManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class MineAnsFragment extends Fragment {
 
     private String TAG = "MineAnsFragment.java";
@@ -73,7 +69,7 @@ public class MineAnsFragment extends Fragment {
                                 List<DocumentSnapshot> list = task.getResult().getDocuments();
                                 Log.d(TAG, "onComplete: size of list " + list.size());
                                 for (DocumentSnapshot d : list) {
-                                    answers.add(new AnswersModel(
+                                    AnswersModel data = new AnswersModel(
                                             d.getString("id"), d.getBoolean("checkOwnQuestion"),
                                             d.getString("uname"), d.getString("upro"), d.getString("likes"),
                                             d.getString("qdesc"), d.getString("qimg"), d.getBoolean("likeCheck"),
@@ -81,10 +77,13 @@ public class MineAnsFragment extends Fragment {
                                             d.getString("paidAmount"), d.getBoolean("selfAnswer"), d.getBoolean("selfHideAnswer"),
                                             d.getBoolean("userReportCheck"), d.getString("title"), d.getId(), d.getString("reportBy"),
                                             d.getString("likedBy"), d.getString("userId")
-                                    ));
+                                    );
+                                    data.setAudioUrl(d.getString("audio"));
+                                    data.setPortal(d.getString("portal"));
+                                    answers.add(data);
                                 }
 
-                                adapter = new MineAnswersAdapter(answers, getActivity());
+                                adapter = new MineAnswersAdapter(answers, getActivity(), requireActivity().getSupportFragmentManager());
                                 recyclerView.setAdapter(adapter);
                                 shimmerFrameLayout.stopShimmerAnimation();
                                 shimmerFrameLayout.setVisibility(View.GONE);

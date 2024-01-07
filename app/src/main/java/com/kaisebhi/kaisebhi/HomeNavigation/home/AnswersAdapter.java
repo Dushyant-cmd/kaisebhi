@@ -132,7 +132,7 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
             holder.hideAns.setVisibility(View.VISIBLE);
         }
 
-        if (dataObj.getUserId().matches(uid)) {
+        if (dataObj.getUserId().equalsIgnoreCase(uid)) {
             holder.Report.setVisibility(View.GONE);
         }
 
@@ -296,6 +296,8 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.ViewHold
                 i.putExtra("qDesc", dataObj.getDesc());
                 i.putExtra("ques", dataObj.getQuestionsTitle());
                 i.putExtra("qImg", dataObj.getQimg());
+                i.putExtra("qAudio", dataObj.getAudioUrl());
+                i.putExtra("qPortal", dataObj.getPortal());
                 i.putExtra("ans", dataObj.getTansers());
                 i.putExtra("author", dataObj.getUname());
                 i.putExtra("ansId", dataObj.getAnswerDocId());
